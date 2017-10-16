@@ -1,0 +1,11 @@
+[
+  {
+    "name": "HLS",
+    "samples": [
+      {
+        "name": "TG COM 24 Sky Go",
+        "uri": "http://hls.live.go.skycdn.it/12362/tg24go/index.m3u8"
+      }
+    ]
+  }
+]
