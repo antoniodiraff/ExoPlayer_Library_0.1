@@ -89,22 +89,20 @@ import java.util.TimerTask;
     private final Timeline.Period period;
     private final long startTimeMs;
 
-
 //  static int numPlay = 0;
 //  static int numPause = 0;
 //  static boolean boolPause = false;
 //  static boolean boolPlay = false;
 
-
     //Utils variables
     public boolean startBool;
     public int stato;
     public TelephonyManager telephonyManager;
-  //  Gson gson = new Gson();
+    //  Gson gson = new Gson();
     Context c;
-   public Event event ;
-   public EventList eventList;
-  public   DeviceInfo deviceInfo;
+    public Event event;
+    public EventList eventList;
+    public DeviceInfo deviceInfo;
     Timer t;
     private String drm_time;
 
@@ -120,20 +118,20 @@ import java.util.TimerTask;
         //TRIGGER
         t = new Timer();
         t.scheduleAtFixedRate(new TimerTask() {
-            @Override
-            public void run() {
-                Log.d(TAG, "********TIMER " + t.toString());
-                  //  Observer o = new Observer(trackSelector, c);
-                if (event != null) {
+                                  @Override
+                                  public void run() {
+                                      Log.d(TAG, "********TIMER " + t.toString());
+                                      //  Observer o = new Observer(trackSelector, c);
+                                      if (event != null) {
 
-                    sendJSson();
-                    createJsonEvents(c);
-                }else {
-                    createJsonEvents(c);
-               }
-            }
-        }
-        , 30000, 30000);
+                                          sendJSson();
+                                          createJsonEvents(c);
+                                      } else {
+                                          createJsonEvents(c);
+                                      }
+                                  }
+                              }
+                , 30000, 30000);
     }
 
 
@@ -160,10 +158,10 @@ import java.util.TimerTask;
         //  Log.d(TAG, "********************* Il Player è andato in RESTART  "    + numPlay + " volte");
         //  Log.d(TAG, "********************* Il Player è andato in PAUSE    "    + numPause + " volte");
         //
-        eventList =new EventList();
-        deviceInfo= new DeviceInfo(c);
+        eventList = new EventList();
+        deviceInfo = new DeviceInfo(c);
         Log.d(TAG, "**************************    createJson ");
-        event = new Event(c,this.eventList,this.deviceInfo);
+        event = new Event(c, this.eventList, this.deviceInfo);
         //
 //        EventElement e = new EventElement("SSCH", new SSCH());
 //        event.eventList.add(e);
@@ -327,7 +325,6 @@ import java.util.TimerTask;
     }
 
 
-
     // Player.EventListener
     @Override
     public void onLoadingChanged(boolean isLoading) {
@@ -335,35 +332,33 @@ import java.util.TimerTask;
     }
 
     @Override
-    public  void onPlayerStateChanged(boolean playWhenReady, int state) throws IOException {
+    public void onPlayerStateChanged(boolean playWhenReady, int state) throws IOException {
         Log.d(TAG, "stato [ Session Time String: " + getSessionTimeString() + ", playWhenReady: " + playWhenReady + ", State:  "
                 + getStateString(state) + "]");
-        EventElement e=null;
-        synchronizedOnAddEvent(state, e);
+        EventElement e = null;
+        // synchronizedOnAddEvent(state, e);
+
 //    Log.d(TAG, "changed state to " + stateString
 //            + " playWhenReady: " + playWhenReady);
-    }
-
-    private void synchronizedOnAddEvent(int state, EventElement e) {
         String stateString;
         switch (state) {
             case Player.STATE_IDLE:
                 stateString = "Player.SATE_IDLE -";
                 SSCH ssch = new SSCH();
                 loadSSCH_parameters(ssch);
-                e = new EventElement("SSCH_IDLE", ssch);
+                e = new EventElement("SSCH", ssch);
                 break;
             case Player.STATE_BUFFERING:
-                SSCH sschb = new SSCH();
-                loadSSCH_parameters(sschb);
-                e = new EventElement("SSCH_BUFFERING", sschb);
+//                SSCH sschb = new SSCH();
+//                loadSSCH_parameters(sschb);
+//                e = new EventElement("SSCH_BUFFERING", sschb);
                 stateString = "Player.STATE_BUFFERING -";
                 break;
             case Player.STATE_READY:
                 stateString = "Player.STATE_READY     -";
-                SSCH sschR = new SSCH();
-                loadSSCH_parameters(sschR);
-                e = new EventElement("SSCH_READY", sschR);
+//                SSCH sschR = new SSCH();
+//                loadSSCH_parameters(sschR);
+//                e = new EventElement("SSCH_READY", sschR);
                 break;
             case Player.STATE_ENDED:
                 stateString = "Player.STATE_ENDED     -";
@@ -373,7 +368,7 @@ import java.util.TimerTask;
                 break;
         }
         if (e != null) {
-            if (event!=null){
+            if (event != null) {
                 event.eventList.add(e);
             }
 //            else {
@@ -382,6 +377,10 @@ import java.util.TimerTask;
 //            }
         }
     }
+
+//    private void synchronizedOnAddEvent(int state, EventElement e) {
+//
+//    }
 
     @Override
     public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
@@ -545,14 +544,14 @@ import java.util.TimerTask;
     @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void onVideoEnabled(DecoderCounters counters) {
         Log.d(TAG, "videoEnabled [" + getSessionTimeString() + "]");
-        Log.e(TAG, "****************   onVideoEnabled" );
+        Log.e(TAG, "****************   onVideoEnabled");
 
     }
 
     @Override
     public void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
                                           long initializationDurationMs) {
-        Log.d(TAG, "videoDecoderInitialized [ getSessionTimeString : " + getSessionTimeString() + ",decoderName :  " + decoderName + " elapsedRealtimeMs : " + elapsedRealtimeMs + "initializationDurationMs : "+initializationDurationMs);
+        Log.d(TAG, "videoDecoderInitialized [ getSessionTimeString : " + getSessionTimeString() + ",decoderName :  " + decoderName + " elapsedRealtimeMs : " + elapsedRealtimeMs + "initializationDurationMs : " + initializationDurationMs);
     }
 
     @Override
@@ -644,8 +643,8 @@ import java.util.TimerTask;
         ssch.setSession_id("SessionID");
         ssch.setStart_time(getCurrentTimeStamp());
 
-        if(drm_time!=null){
-        ssch.setDrm_time(drm_time);
+        if (drm_time != null) {
+            ssch.setDrm_time(drm_time);
         }
 
         ssch.setBuffering_time("");
@@ -698,7 +697,6 @@ import java.util.TimerTask;
         // event.eventList.add(new EventElement(new STCL("sessionID")));
         // Do nothing.
     }
-
 
 
     // Internal methods
@@ -823,8 +821,6 @@ import java.util.TimerTask;
                 return "?";
         }
     }
-
-
 
 
     //
