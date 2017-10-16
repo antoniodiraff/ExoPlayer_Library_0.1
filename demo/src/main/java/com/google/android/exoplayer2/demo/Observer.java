@@ -110,11 +110,12 @@ import java.util.TimerTask;
 
 
     public Observer(final MappingTrackSelector trackSelector, final Context context) {
+        this.c = context;
+        createJsonEvents(c);
         this.trackSelector = trackSelector;
         window = new Timeline.Window();
         period = new Timeline.Period();
         startTimeMs = SystemClock.elapsedRealtime();
-        this.c = context;
 
         //TRIGGER
         t = new Timer();
@@ -124,6 +125,7 @@ import java.util.TimerTask;
                 Log.d(TAG, "********TIMER " + t.toString());
                   //  Observer o = new Observer(trackSelector, c);
                 if (event != null) {
+
                     sendJSson();
                     createJsonEvents(c);
                 }else {
@@ -131,7 +133,7 @@ import java.util.TimerTask;
                }
             }
         }
-        , 0, 10000);
+        , 30000, 30000);
     }
 
 
