@@ -32,6 +32,7 @@ import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.RendererCapabilities;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
@@ -50,6 +51,7 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
@@ -104,16 +106,38 @@ import java.util.TimerTask;
     public EventList eventList;
     public DeviceInfo deviceInfo;
     Timer t;
-    private String drm_time;
+    public EventElement e = null;
+    public EventElement e_ = null;
+    public SSCH ssch = null;
+
+    Player p;
+    boolean isTheFirstTime_BUFFERING = false;
+    boolean isTheFirstTime_READY = false;
 
 
-    public Observer(final MappingTrackSelector trackSelector, final Context context) {
+    public String drm_time;
+    public SSRCH ssrch;
+    public STCL stcl;
+    public SDC sdc;
+    public SDD sdd;
+    public SE se;
+    public SC sc;
+
+    public Observer(final MappingTrackSelector trackSelector, final Context context, SimpleExoPlayer player) {
         this.c = context;
         createJsonEvents(c);
         this.trackSelector = trackSelector;
         window = new Timeline.Window();
         period = new Timeline.Period();
         startTimeMs = SystemClock.elapsedRealtime();
+        p = player;
+          ssrch = null;
+          stcl = null;
+          sdc = null;
+          sdd = null;
+          se = null;
+          sc = null;
+
 
         //TRIGGER
         t = new Timer();
@@ -335,49 +359,103 @@ import java.util.TimerTask;
     public void onPlayerStateChanged(boolean playWhenReady, int state) throws IOException {
         Log.d(TAG, "stato [ Session Time String: " + getSessionTimeString() + ", playWhenReady: " + playWhenReady + ", State:  "
                 + getStateString(state) + "]");
-        EventElement e = null;
         // synchronizedOnAddEvent(state, e);
 
 //    Log.d(TAG, "changed state to " + stateString
 //            + " playWhenReady: " + playWhenReady);
+        String startTime = null;
+        String bufferingTime = null;
+        String startPlaybackTime = null;
+
         String stateString;
         switch (state) {
             case Player.STATE_IDLE:
                 stateString = "Player.SATE_IDLE -";
-                SSCH ssch = new SSCH();
-                loadSSCH_parameters(ssch);
-                e = new EventElement("SSCH", ssch);
+                if (isTheFirstTime_READY) {
+                    sc = null;
+                    ssch = new SSCH();
+                    e = new EventElement("SSCH", ssch);
+                    ssch.setStart_time(getCurrentTimeStamp());
+                }
                 break;
             case Player.STATE_BUFFERING:
-//                SSCH sschb = new SSCH();
-//                loadSSCH_parameters(sschb);
-//                e = new EventElement("SSCH_BUFFERING", sschb);
                 stateString = "Player.STATE_BUFFERING -";
+                bufferingTime = getCurrentTimeStamp();
                 break;
             case Player.STATE_READY:
                 stateString = "Player.STATE_READY     -";
-//                SSCH sschR = new SSCH();
-//                loadSSCH_parameters(sschR);
-//                e = new EventElement("SSCH_READY", sschR);
+                if (isTheFirstTime_READY) {
+                    startPlaybackTime = getCurrentTimeStamp();
+                }
+                if (!isTheFirstTime_READY) {
+                    isTheFirstTime_READY = true;
+                    ssrch = new SSRCH();
+                    ssrch.setPlayback_start_time(getCurrentTimeStamp());
+                    e = new EventElement("SSRCH", ssrch);
+                }
                 break;
             case Player.STATE_ENDED:
+
+                //SC : Session
+                if (sc == null) {
+                    sc = new SC();
+                    e = new EventElement("SC", sc);
+                    sc.setSession_id("Session Close");
+                    sc.setClosing_time(getCurrentTimeStamp());
+                    event.eventList.add(e);
+                }
+                //Session downloaded completed
+//                sdc = new SDC();
+//                e = new EventElement("SDC", sdc);
+//                sdc.setSession_id("Session Download completed");
+//                sdc.setCompleted_time(getCurrentTimeStamp());
+//                event.eventList.add(e);
                 stateString = "Player.STATE_ENDED     -";
                 break;
             default:
                 stateString = "UNKNOWN_STATE             -";
                 break;
         }
+
+
+        if (!isTheFirstTime_READY) {
+            if (ssrch != null) {
+                ssrch.setBuffering_time(bufferingTime);
+            }
+        } else {
+            if (ssch != null) {
+                if (bufferingTime != null) {
+                    ssch.setBuffering_time(bufferingTime);
+                    bufferingTime = null;
+                }
+                if (startPlaybackTime != null) {
+                    ssch.setPlayback_start_time(startPlaybackTime);
+                    startPlaybackTime = null;
+                }
+                loadSSCH_parameters(ssch);
+            }
+        }
+
         if (e != null) {
-            if (event != null) {
-                event.eventList.add(e);
+            if (e_ != e) {
+                if (event != null) {
+                    event.eventList.add(e);
+                    e_ = e;
+                }
             }
 //            else {
 ////                createJsonEvents(c);
 //                event.eventList.add(e);
 //            }
         }
-    }
+//        if(p.isCurrentWindowSeekable() && p.isCurrentWindowDynamic()) {
+//
+//            Log.d(TAG, "**************************    è un VOD !!!! ");
+//
+//        }
 
+//        isCurrentWindowDynamic && isCurrentWindowSeekable
+    }
 //    private void synchronizedOnAddEvent(int state, EventElement e) {
 //
 //    }
@@ -396,8 +474,6 @@ import java.util.TimerTask;
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
         Log.d(TAG, "********** playbackParameters " + String.format(
                 "[speed=%.2f, pitch=%.2f]", playbackParameters.speed, playbackParameters.pitch));
-
-
     }
 
     @Override
@@ -431,6 +507,9 @@ import java.util.TimerTask;
     @Override
     public void onTracksChanged(TrackGroupArray ignored, TrackSelectionArray trackSelections) {
         MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
+        Log.d(TAG, "*******   onTracksChanged");
+        Log.d(TAG, "Tracks info" + mappedTrackInfo.toString());
+
         if (mappedTrackInfo == null) {
             Log.d(TAG, "Tracks []");
             return;
@@ -498,7 +577,7 @@ import java.util.TimerTask;
 
     @Override
     public void onMetadata(Metadata metadata) {
-        Log.d(TAG, "onMetadata [");
+        Log.d(TAG, "****************    onMetadata [");
         printMetadata(metadata, "  ");
         Log.d(TAG, "]");
     }
@@ -541,7 +620,6 @@ import java.util.TimerTask;
     // VideoRendererEventListener
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void onVideoEnabled(DecoderCounters counters) {
         Log.d(TAG, "videoEnabled [" + getSessionTimeString() + "]");
         Log.e(TAG, "****************   onVideoEnabled");
@@ -558,14 +636,20 @@ import java.util.TimerTask;
     public void onVideoInputFormatChanged(Format format) {
         Log.d(TAG, "videoFormatChanged [" + getSessionTimeString() + ", " + Format.toLogString(format)
                 + "]");
-
-
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     public void onVideoDisabled(DecoderCounters counters) {
         Log.d(TAG, "videoDisabled [" + getSessionTimeString() + "]");
+
+        //SC : Session Close
+        if (sc == null) {
+            sc = new SC();
+            e = new EventElement("SC", sc);
+            sc.setSession_id("Session Close");
+            sc.setClosing_time(getCurrentTimeStamp());
+            event.eventList.add(e);
+        }
     }
 
     @Override
@@ -577,6 +661,7 @@ import java.util.TimerTask;
     public void onVideoSizeChanged(int width, int height, int unappliedRotationDegrees,
                                    float pixelWidthHeightRatio) {
         Log.d(TAG, "videoSizeChanged [" + width + ", " + height + "]");
+        Log.d(TAG, "videoSizeChanged [ unappliedRotationDegrees:" + unappliedRotationDegrees + ", pixelWidthHeightRatio :" + pixelWidthHeightRatio + "]");
 
     }
 
@@ -587,7 +672,6 @@ import java.util.TimerTask;
 
     // DefaultDrmSessionManager.EventListener
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     public void onDrmSessionManagerError(Exception e) throws IOException {
         printInternalError("drmSessionManagerError", e);
@@ -613,7 +697,6 @@ import java.util.TimerTask;
     // ExtractorMediaSource.EventListener
 
     @Override
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     public void onLoadError(IOException error) throws IOException {
         printInternalError("loadError", error);
 
@@ -625,6 +708,18 @@ import java.util.TimerTask;
     public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
                               int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
                               long mediaEndTimeMs, long elapsedRealtimeMs) {
+
+        Log.d(TAG, " ********** ONLOAD STARTED " +
+                "        DATI :    ");
+        Log.d(TAG, "dataSpec  " + dataSpec);
+        Log.d(TAG, "dataType  " + dataType);
+        Log.d(TAG, "trackType  " + trackType);
+        Log.d(TAG, "trackFormat  " + trackFormat);
+        Log.d(TAG, "trackSelectionReason  " + trackSelectionReason);
+        Log.d(TAG, "trackSelectionData  " + trackSelectionData);
+        Log.d(TAG, "mediaStartTimeMs  " + mediaStartTimeMs);
+        Log.d(TAG, "mediaEndTimeMs  " + mediaEndTimeMs);
+        Log.d(TAG, "elapsedRealtimeMs  " + elapsedRealtimeMs);
 
 
 //    gsonObject.dataSpec=dataSpec;
@@ -638,26 +733,29 @@ import java.util.TimerTask;
 //    gsonObject.elapsedRealtimeMs=elapsedRealtimeMs;
     }
 
-    public void loadSSCH_parameters(SSCH ssch) {
 
-        ssch.setSession_id("SessionID");
-        ssch.setStart_time(getCurrentTimeStamp());
-
-        if (drm_time != null) {
-            ssch.setDrm_time(drm_time);
-        }
-
-        ssch.setBuffering_time("");
-
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Override
     public void onLoadError(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
                             int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
                             long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded,
                             IOException error, boolean wasCanceled) throws IOException {
-        printInternalError("loadError", error);
+        printInternalError("ONLOAD ERROR", error);
+        Log.d(TAG, " ********** ONLOAD ERROR " +
+                "        DATI :   ");
+        Log.d(TAG, "dataSpec " + dataSpec);
+        Log.d(TAG, " dataType" + dataType);
+        Log.d(TAG, " trackType " + trackType);
+        Log.d(TAG, " trackFormat " + trackFormat);
+        Log.d(TAG, "trackSelectionReason  " + trackSelectionReason);
+        Log.d(TAG, " trackSelectionData " + trackSelectionData);
+        Log.d(TAG, "mediaStartTimeMs  " + mediaStartTimeMs);
+        Log.d(TAG, " mediaEndTimeMs " + mediaEndTimeMs);
+        Log.d(TAG, " elapsedRealtimeMs  " + elapsedRealtimeMs);
+        Log.d(TAG, " loadDurationMs " + loadDurationMs);
+        Log.d(TAG, " bytesLoaded " + bytesLoaded);
+        Log.d(TAG, "wasCanceled" + wasCanceled);
+
+
   /*  event.eventList.add(new EventElement(new SE()));
     stampaJson();
     sendJSson();*/
@@ -668,42 +766,103 @@ import java.util.TimerTask;
                                int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
                                long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
         // Do nothing.
+        Log.d(TAG, " ********** ONLOAD CANCELED " +
+                "        DATI :   ");
+        Log.d(TAG, "dataSpec " + dataSpec);
+        Log.d(TAG, " dataType" + dataType);
+        Log.d(TAG, " trackType " + trackType);
+        Log.d(TAG, " trackFormat " + trackFormat);
+        Log.d(TAG, "trackSelectionReason  " + trackSelectionReason);
+        Log.d(TAG, " trackSelectionData " + trackSelectionData);
+        Log.d(TAG, "mediaStartTimeMs  " + mediaStartTimeMs);
+        Log.d(TAG, " mediaEndTimeMs " + mediaEndTimeMs);
+        Log.d(TAG, " elapsedRealtimeMs  " + elapsedRealtimeMs);
+        Log.d(TAG, " loadDurationMs " + loadDurationMs);
+        Log.d(TAG, " bytesLoaded " + bytesLoaded);
+
+
+        //SDD : Session Download Delete (download removed)
+        sdd = new SDD();
+        sdd.setSession_id("Session ID");
+        sdd.setDelete_time(getCurrentTimeStamp());
+        e = new EventElement("SDD", sdd);
+        event.eventList.add(e);
+
     }
 
     @Override
     public void onLoadCompleted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
                                 int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
                                 long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
-        // Do nothing.
+        Log.d(TAG, " ********** ONLOAD COMPLETED " +
+                "        DATI :   ");
+        Log.d(TAG, "dataSpec " + dataSpec);
+        Log.d(TAG, " dataType" + dataType);
+        Log.d(TAG, " trackType " + trackType);
+        Log.d(TAG, " trackFormat " + trackFormat);
+        Log.d(TAG, "trackSelectionReason  " + trackSelectionReason);
+        Log.d(TAG, " trackSelectionData " + trackSelectionData);
+        Log.d(TAG, "mediaStartTimeMs  " + mediaStartTimeMs);
+        Log.d(TAG, " mediaEndTimeMs " + mediaEndTimeMs);
+        Log.d(TAG, " elapsedRealtimeMs  " + elapsedRealtimeMs);
+        Log.d(TAG, " loadDurationMs " + loadDurationMs);
+        Log.d(TAG, " bytesLoaded " + bytesLoaded);
+
+//        if(trac)
     }
 
     @Override
     public void onUpstreamDiscarded(int trackType, long mediaStartTimeMs, long mediaEndTimeMs) {
         // Do nothing.
+        Log.d(TAG, " ********** onUpstreamDiscarded  " +
+                "        DATI :   ");
+        Log.d(TAG, " trackType " + trackType);
+        Log.d(TAG, "mediaStartTimeMs  " + mediaStartTimeMs);
+        Log.d(TAG, " mediaEndTimeMs " + mediaEndTimeMs);
     }
 
     @Override
     public void onDownstreamFormatChanged(int trackType, Format trackFormat, int trackSelectionReason,
                                           Object trackSelectionData, long mediaTimeMs) {
+        Log.d(TAG, " ********** onDownstreamFormatChanged  " +
+                "        DATI :   ");
+        Log.d(TAG, " trackType " + trackType);
+        Log.d(TAG, " trackFormat " + trackFormat);
+        Log.d(TAG, "trackSelectionReason  " + trackSelectionReason);
+        Log.d(TAG, " trackSelectionData " + trackSelectionData);
 
 
-//    Log.e(TAG,"*********************** trackType :   "+ "/n" + trackType
-//             +"*********************** trackFormat   "+ "/n" +trackFormat
-//            +"*********************** trackSelectionReason    " + "/n" +trackSelectionReason
-//             +"*********************** trackSelectionData     "+ "/n" +trackSelectionData+
-//              "*********************** mediaTimeMs          "+ "/n" +mediaTimeMs );
+        stcl = new STCL();
+        stcl.setSession_id("session ID");
+        stcl.setBitrate_to(String.valueOf(trackFormat.bitrate));
+        event.eventList.add(new EventElement("STCL", stcl));
 
-
-        // event.eventList.add(new EventElement(new STCL("sessionID")));
-        // Do nothing.
     }
 
 
     // Internal methods
-    private void printInternalError(String type, Exception e) throws IOException {
-        Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", e);
+    private void printInternalError(String type, Exception err) throws IOException {
+        Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", err);
 
-//       event
+        se = new SE(type);
+        se.setSession_id("session ID");
+        e = new EventElement("Session Error", se);
+        if (e != null) {
+            if (e_ != e) {
+                if (event != null) {
+                    event.eventList.add(e);
+                    e_ = e;
+                }
+            }
+//            else {
+////                createJsonEvents(c);
+//                event.eventList.add(e);
+//            }
+        }
+//        se.setError_message(e.getMessage());
+//        se.setError_code(String.valueOf(e.getStackTrace()));
+
+        // se.setPlayer_version();
     }
 
     private void printMetadata(Metadata metadata, String prefix) {
@@ -784,6 +943,7 @@ import java.util.TimerTask;
     }
 
     private static String getAdaptiveSupportString(int trackCount, int adaptiveSupport) {
+
         if (trackCount < 2) {
             return "N/A";
         }
@@ -823,7 +983,19 @@ import java.util.TimerTask;
     }
 
 
-    //
+    //Mine
+
+    public void loadSSCH_parameters(SSCH ssch) {
+
+        ssch.setSession_id("SessionID");
+        if (drm_time != null) {
+            ssch.setDrm_time(drm_time);
+        }
+
+        //  ssch.setBuffering_time("");
+
+    }
+
     private void sendJSson() {
         Log.d(TAG, "*********** SENDING JSON... ");
         stampaJson();

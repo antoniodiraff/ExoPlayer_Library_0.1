@@ -256,7 +256,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector, adaptiveTrackSelectionFactory);
       lastSeenTrackGroupArray = null;
-      observer = new Observer(trackSelector, getApplicationContext());
+      observer = new Observer(trackSelector, getApplicationContext(),player);
 
       UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
           ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
@@ -297,6 +297,8 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       player.addMetadataOutput(observer);
       player.setAudioDebugListener(observer);
       player.setVideoDebugListener(observer);
+
+
 
       int percentage = player.getBufferedPercentage();
       simpleExoPlayerView.setPlayer(player);
@@ -488,6 +490,12 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   public void onLoadingChanged(boolean isLoading) {
     // Do nothing.
   }
+
+
+  public Player getPlayer(){
+    return player;
+  }
+
 
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {

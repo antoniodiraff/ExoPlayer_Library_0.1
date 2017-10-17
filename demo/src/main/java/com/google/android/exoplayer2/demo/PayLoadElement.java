@@ -393,6 +393,14 @@ class SDR extends Download {
 class SDD extends Download {
     String delete_time;
 
+    public String getDelete_time() {
+        return delete_time;
+    }
+
+    public void setDelete_time(String delete_time) {
+        this.delete_time = delete_time;
+    }
+
     public SDD() {
 
     }
@@ -447,7 +455,17 @@ abstract class Close extends PayLoadElement {
         "closing_time"})
 class SC extends Close {
     String closing_time;
+
+    public String getClosing_time() {
+        return closing_time;
+    }
+
+    public void setClosing_time(String closing_time) {
+        this.closing_time = closing_time;
+    }
+
     public SC() {
+
     }
 }
 @JsonPropertyOrder({
@@ -455,7 +473,17 @@ class SC extends Close {
         "completed_time"})
 class SDC extends Close {
     String completed_time;
+
+    public String getCompleted_time() {
+        return completed_time;
+    }
+
+    public void setCompleted_time(String completed_time) {
+        this.completed_time = completed_time;
+    }
+
     public SDC() {
+
     }
 }
 @JsonPropertyOrder({
@@ -505,4 +533,83 @@ class SE extends PayLoadElement {
         errorType=Type;
     }
 
+    public String getError_text() {
+        return error_text;
+    }
+
+    public void setError_text(String error_text) {
+        this.error_text = error_text;
+    }
+
+    public String getErrorType() {
+        return errorType;
+    }
+
+    public void setErrorType(String errorType) {
+        this.errorType = errorType;
+    }
+
+    public String getError_code() {
+        return error_code;
+    }
+
+    public void setError_code(String error_code) {
+        this.error_code = error_code;
+    }
+
+    public String getChunk_uri() {
+        return chunk_uri;
+    }
+
+    public void setChunk_uri(String chunk_uri) {
+        this.chunk_uri = chunk_uri;
+    }
+
+    public String getChannel_id() {
+        return channel_id;
+    }
+
+    public void setChannel_id(String channel_id) {
+        this.channel_id = channel_id;
+    }
+
+    public String getEvent_id() {
+        return event_id;
+    }
+
+    public void setEvent_id(String event_id) {
+        this.event_id = event_id;
+    }
+
+    public String getVod_id() {
+        return vod_id;
+    }
+
+    public void setVod_id(String vod_id) {
+        this.vod_id = vod_id;
+    }
+
+    public String getPlayer_version() {
+        return player_version;
+    }
+
+    public void setPlayer_version(String player_version) {
+        this.player_version = player_version;
+    }
+
+    public String getEvent_name() {
+        return event_name;
+    }
+
+    public void setEvent_name(String event_name) {
+        this.event_name = event_name;
+    }
+
+    public String getError_message() {
+        return error_message;
+    }
+
+    public void setError_message(String error_message) {
+        this.error_message = error_message;
+    }
 }
