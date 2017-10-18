@@ -60,21 +60,22 @@ android {
 //String jacksonDatabind = 'com.fasterxml.jackson.core:jackson-databind:'
 
 dependencies {
-//    compile jacksonCore + '2.8.4'
-//   compile jacksonAnnotations + '2.8.4'
-//    compile jacksonDatabind + '2.8.4'
-//    compile 'com.google.code.gson:gson:2.3.1'
-    compile project(modulePrefix + 'library-core')
-    compile project(modulePrefix + 'library-dash')
-    compile project(modulePrefix + 'library-hls')
-    compile project(modulePrefix + 'library-smoothstreaming')
-    compile project(modulePrefix + 'library-ui')
-    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.1'
+    //    compile jacksonCore + '2.8.4'
+    //   compile jacksonAnnotations + '2.8.4'
+    //    compile jacksonDatabind + '2.8.4'
+    //    compile 'com.google.code.gson:gson:2.3.1'
+    testCompile 'junit:junit:4.11'
+    compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
     withExtensionsCompile project(path: modulePrefix + 'extension-ffmpeg')
     withExtensionsCompile project(path: modulePrefix + 'extension-flac')
     withExtensionsCompile project(path: modulePrefix + 'extension-ima')
     withExtensionsCompile project(path: modulePrefix + 'extension-opus')
     withExtensionsCompile project(path: modulePrefix + 'extension-vp9')
     withExtensionsCompile project(path: modulePrefix + 'extension-rtmp')
-    compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
+    compile project(path: ':library-core')
+    compile project(path: ':library-dash')
+    compile project(path: ':library-hls')
+    compile project(path: ':library-ui')
+    compile project(path: ':library-smoothstreaming')
 }

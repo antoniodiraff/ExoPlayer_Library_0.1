@@ -256,7 +256,9 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
       trackSelectionHelper = new TrackSelectionHelper(trackSelector, adaptiveTrackSelectionFactory);
       lastSeenTrackGroupArray = null;
-      observer = new Observer(trackSelector, getApplicationContext(),player);
+
+
+      observer = new Observer(trackSelector, getApplicationContext());
 
       UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
           ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
@@ -292,15 +294,15 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
           drmSessionManager, extensionRendererMode);
 
       player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
+
       player.addListener(this);
       player.addListener(observer);
       player.addMetadataOutput(observer);
       player.setAudioDebugListener(observer);
       player.setVideoDebugListener(observer);
 
-
-
       int percentage = player.getBufferedPercentage();
+
       simpleExoPlayerView.setPlayer(player);
       player.setPlayWhenReady(shouldAutoPlay);
       debugViewHelper = new DebugTextViewHelper(player, debugTextView);
@@ -356,6 +358,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       player.seekTo(resumeWindow, resumePosition);
     }
     player.prepare(mediaSource, !haveResumePosition, false);
+
     inErrorState = false;
     updateButtonVisibilities();
   }
@@ -371,6 +374,8 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         return new DashMediaSource(uri, buildDataSourceFactory(false),
             new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, observer);
       case C.TYPE_HLS:
+        observer.update(player.getCurrentManifest());
+
         return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, observer);
       case C.TYPE_OTHER:
         return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),
@@ -490,12 +495,6 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   public void onLoadingChanged(boolean isLoading) {
     // Do nothing.
   }
-
-
-  public Player getPlayer(){
-    return player;
-  }
-
 
   @Override
   public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
@@ -657,5 +656,6 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     }
     return false;
   }
+
 
 }

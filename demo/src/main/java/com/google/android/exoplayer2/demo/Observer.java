@@ -100,7 +100,6 @@ import java.util.TimerTask;
     public boolean startBool;
     public int stato;
     public TelephonyManager telephonyManager;
-    //  Gson gson = new Gson();
     Context c;
     public Event event;
     public EventList eventList;
@@ -110,10 +109,7 @@ import java.util.TimerTask;
     public EventElement e_ = null;
     public SSCH ssch = null;
 
-    Player p;
-    boolean isTheFirstTime_BUFFERING = false;
     boolean isTheFirstTime_READY = false;
-
 
     public String drm_time;
     public SSRCH ssrch;
@@ -122,21 +118,23 @@ import java.util.TimerTask;
     public SDD sdd;
     public SE se;
     public SC sc;
+    Object manifest;
 
-    public Observer(final MappingTrackSelector trackSelector, final Context context, SimpleExoPlayer player) {
+    public Observer(final MappingTrackSelector trackSelector, final Context context) {
         this.c = context;
         createJsonEvents(c);
         this.trackSelector = trackSelector;
         window = new Timeline.Window();
         period = new Timeline.Period();
         startTimeMs = SystemClock.elapsedRealtime();
-        p = player;
-          ssrch = null;
-          stcl = null;
-          sdc = null;
-          sdd = null;
-          se = null;
-          sc = null;
+        ssrch = null;
+        stcl = null;
+        sdc = null;
+        sdd = null;
+        se = null;
+        sc = null;
+        this.manifest=manifest;
+        fromObjectToJSON(manifest);
 
 
         //TRIGGER
@@ -148,7 +146,7 @@ import java.util.TimerTask;
                                       //  Observer o = new Observer(trackSelector, c);
                                       if (event != null) {
 
-                                          sendJSson();
+                                          sendJSson(event);
                                           createJsonEvents(c);
                                       } else {
                                           createJsonEvents(c);
@@ -160,6 +158,7 @@ import java.util.TimerTask;
 
 
     private void createJsonEvents(Context c) {
+
 //    String statoplayer =  getStateString(stato);
 //    Log.d(TAG, "********************* LO STATO DEL PLAYER è IN " + getStateString(stato)  );
 //    //    boolPlay=true;
@@ -184,9 +183,7 @@ import java.util.TimerTask;
         //
         eventList = new EventList();
         deviceInfo = new DeviceInfo(c);
-        Log.d(TAG, "**************************    createJson ");
         event = new Event(c, this.eventList, this.deviceInfo);
-        //
 //        EventElement e = new EventElement("SSCH", new SSCH());
 //        event.eventList.add(e);
         // SSCH ssch = new SSCH();
@@ -348,6 +345,58 @@ import java.util.TimerTask;
 //        e = null;
     }
 
+    //        if(p.isCurrentWindowSeekable() && p.isCurrentWindowDynamic()) {
+//
+//            Log.d(TAG, "**************************    è un VOD !!!! ");
+//
+//        }
+
+//        isCurrentWindowDynamic && isCurrentWindowSeekable
+
+    private void createSDC() {
+        //Session downloaded completed
+        sdc = new SDC();
+        e = new EventElement("SDC", sdc);
+        sdc.setSession_id("Session Download completed");
+        sdc.setCompleted_time(getCurrentTimeStamp());
+    }
+
+    private void updateEventList(EventElement e, EventElement e_) {
+        if (e != null) {
+            if (e_ != e) {
+                if (event != null) {
+                    event.eventList.add(e);
+                    e_ = e;
+                }
+            }
+        }
+    }
+
+    private void updateSSRCH(String bufferingTime) {
+        ssrch.setBuffering_time(bufferingTime);
+
+    }
+
+    private void createSC() {
+        sc = new SC();
+        e = new EventElement("SC", sc);
+        sc.setSession_id("Session Close");
+        sc.setClosing_time(getCurrentTimeStamp());
+    }
+
+    private void createSSRCH() {
+        ssrch = new SSRCH();
+        ssrch.setPlayback_start_time(getCurrentTimeStamp());
+        e = new EventElement("SSRCH", ssrch);
+    }
+
+    private void createSSCH() {
+        sc = null;
+        ssch = new SSCH();
+        e = new EventElement("SSCH", ssch);
+        ssch.setStart_time(getCurrentTimeStamp());
+    }
+
 
     // Player.EventListener
     @Override
@@ -359,23 +408,17 @@ import java.util.TimerTask;
     public void onPlayerStateChanged(boolean playWhenReady, int state) throws IOException {
         Log.d(TAG, "stato [ Session Time String: " + getSessionTimeString() + ", playWhenReady: " + playWhenReady + ", State:  "
                 + getStateString(state) + "]");
-        // synchronizedOnAddEvent(state, e);
 
-//    Log.d(TAG, "changed state to " + stateString
-//            + " playWhenReady: " + playWhenReady);
         String startTime = null;
         String bufferingTime = null;
         String startPlaybackTime = null;
-
         String stateString;
+
         switch (state) {
             case Player.STATE_IDLE:
                 stateString = "Player.SATE_IDLE -";
                 if (isTheFirstTime_READY) {
-                    sc = null;
-                    ssch = new SSCH();
-                    e = new EventElement("SSCH", ssch);
-                    ssch.setStart_time(getCurrentTimeStamp());
+                    createSSCH();
                 }
                 break;
             case Player.STATE_BUFFERING:
@@ -386,30 +429,16 @@ import java.util.TimerTask;
                 stateString = "Player.STATE_READY     -";
                 if (isTheFirstTime_READY) {
                     startPlaybackTime = getCurrentTimeStamp();
-                }
-                if (!isTheFirstTime_READY) {
+                } else {
                     isTheFirstTime_READY = true;
-                    ssrch = new SSRCH();
-                    ssrch.setPlayback_start_time(getCurrentTimeStamp());
-                    e = new EventElement("SSRCH", ssrch);
+                    createSSRCH();
                 }
                 break;
             case Player.STATE_ENDED:
-
                 //SC : Session
                 if (sc == null) {
-                    sc = new SC();
-                    e = new EventElement("SC", sc);
-                    sc.setSession_id("Session Close");
-                    sc.setClosing_time(getCurrentTimeStamp());
-                    event.eventList.add(e);
+                    createSC();
                 }
-                //Session downloaded completed
-//                sdc = new SDC();
-//                e = new EventElement("SDC", sdc);
-//                sdc.setSession_id("Session Download completed");
-//                sdc.setCompleted_time(getCurrentTimeStamp());
-//                event.eventList.add(e);
                 stateString = "Player.STATE_ENDED     -";
                 break;
             default:
@@ -417,48 +446,23 @@ import java.util.TimerTask;
                 break;
         }
 
-
         if (!isTheFirstTime_READY) {
             if (ssrch != null) {
-                ssrch.setBuffering_time(bufferingTime);
+                updateSSRCH(bufferingTime);
             }
         } else {
             if (ssch != null) {
-                if (bufferingTime != null) {
-                    ssch.setBuffering_time(bufferingTime);
-                    bufferingTime = null;
-                }
-                if (startPlaybackTime != null) {
-                    ssch.setPlayback_start_time(startPlaybackTime);
-                    startPlaybackTime = null;
-                }
-                loadSSCH_parameters(ssch);
+                updateSSCH(ssch, bufferingTime, startPlaybackTime);
             }
         }
-
-        if (e != null) {
-            if (e_ != e) {
-                if (event != null) {
-                    event.eventList.add(e);
-                    e_ = e;
-                }
-            }
+        updateEventList(e, e_);
 //            else {
 ////                createJsonEvents(c);
 //                event.eventList.add(e);
 //            }
-        }
-//        if(p.isCurrentWindowSeekable() && p.isCurrentWindowDynamic()) {
-//
-//            Log.d(TAG, "**************************    è un VOD !!!! ");
-//
-//        }
-
-//        isCurrentWindowDynamic && isCurrentWindowSeekable
     }
-//    private void synchronizedOnAddEvent(int state, EventElement e) {
-//
-//    }
+
+
 
     @Override
     public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
@@ -985,8 +989,16 @@ import java.util.TimerTask;
 
     //Mine
 
-    public void loadSSCH_parameters(SSCH ssch) {
+    public void updateSSCH(SSCH ssch, String bufferingTime, String startPlaybackTime) {
 
+        if (bufferingTime != null) {
+            ssch.setBuffering_time(bufferingTime);
+            bufferingTime = null;
+        }
+        if (startPlaybackTime != null) {
+            ssch.setPlayback_start_time(startPlaybackTime);
+            startPlaybackTime = null;
+        }
         ssch.setSession_id("SessionID");
         if (drm_time != null) {
             ssch.setDrm_time(drm_time);
@@ -996,9 +1008,10 @@ import java.util.TimerTask;
 
     }
 
-    private void sendJSson() {
+    private void sendJSson(Event event) {
         Log.d(TAG, "*********** SENDING JSON... ");
-        stampaJson();
+      //  stampaJson();
+        fromObjectToJSON(event);
     }
 
     @Nullable
@@ -1014,18 +1027,24 @@ import java.util.TimerTask;
         }
     }
 
-    public String stampaJson() {
+
+    public String fromObjectToJSON(Object object) {
         String jsonInString = null;
         ObjectMapper mapper = new ObjectMapper();
         try {
-            jsonInString = mapper.writeValueAsString(event);
+            jsonInString = mapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
-        Log.d(TAG, "****************** JSON FORMAT :  " + jsonInString);
+        Log.d(TAG, "****************** JSON :  " + jsonInString);
         return jsonInString;
     }
 
+
+    public void update(Object currentManifest) {
+        fromObjectToJSON(currentManifest);
+        Log.d(TAG, "****************** Object manifest :  " + currentManifest.toString());
+    }
 }
 
 
