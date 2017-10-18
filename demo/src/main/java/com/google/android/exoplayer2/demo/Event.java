@@ -20,8 +20,8 @@ public class Event {
 
     String msg_ts;
     String source;
-    DeviceInfo device_info;
-    EventList eventList;
+    DeviceInfo  device_info;
+    public EventList eventList;
     Context context;
 
     public Event(Context c,EventList eventList, DeviceInfo device_info) {

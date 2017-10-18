@@ -1019,7 +1019,9 @@ public class SimpleExoPlayer implements ExoPlayer {
     public void onSurfaceTextureUpdated(SurfaceTexture surfaceTexture) {
       // Do nothing.
     }
-
+    public final Object getCurrentManifest_() {
+      return player.getCurrentManifest();
+    }
   }
 
 }

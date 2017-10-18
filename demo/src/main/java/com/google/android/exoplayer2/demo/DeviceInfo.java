@@ -60,22 +60,6 @@ public class DeviceInfo {
     Context context;
     public static final String TAG = "*********   DeviceInfo";
 
-//    String _OSVERSION = System.getProperty("os.version");
-//    String _RELEASE = android.os.Build.VERSION.RELEASE;
-//    String _DEVICE = android.os.Build.DEVICE;
-//    String _MODEL = android.os.Build.MODEL;
-//    String _PRODUCT = android.os.Build.PRODUCT;
-//    String _BRAND = android.os.Build.BRAND;
-//    String _DISPLAY = android.os.Build.DISPLAY;
-//    String _UNKNOWN = android.os.Build.UNKNOWN;
-//    String _HARDWARE = android.os.Build.HARDWARE;
-//    String _ID = android.os.Build.ID;
-//    String _MANUFACTURER = android.os.Build.MANUFACTURER;
-//    String _SERIAL = android.os.Build.SERIAL;
-//    String _USER = android.os.Build.USER;
-//    String _HOST = android.os.Build.HOST;
-
-
     public DeviceInfo(Context c) {
 
         this.context = c;
@@ -100,11 +84,6 @@ public class DeviceInfo {
 
         //    );
     }
-
-    /*
-    *
-    *
-     */
 
     private String _getConnectivity() {
         ConnectivityManager cm =

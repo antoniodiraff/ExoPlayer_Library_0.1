@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 // ############   STREAMING : During the streaming ############
 
-public abstract class StreamingPayload extends PayLoadElement {
+public abstract class Streaming extends PayLoadElement {
 
 //    STD : Session sTreaming Download (valid also for VOD download) STP : Session sTreaming Pause
 //    STR : Session sTreaming Restart
@@ -33,7 +33,7 @@ public abstract class StreamingPayload extends PayLoadElement {
         "ip_server",
         "http_response",
 })
-class STD extends StreamingPayload {
+class STD extends Streaming {
     String Layer;
     String buffer_size;
     String fps_decoded;
@@ -54,7 +54,7 @@ class STD extends StreamingPayload {
         "ip_server",
         "http_response",
 })
-class STP extends StreamingPayload {
+class STP extends Streaming {
     String pause_time;
     public STP() {
     }
@@ -66,7 +66,7 @@ class STP extends StreamingPayload {
         "ip_server",
         "http_response"
 })
-class STR extends StreamingPayload {
+class STR extends Streaming {
     String restart_time;
     public STR() {
     }
@@ -80,7 +80,7 @@ class STR extends StreamingPayload {
         "rebuffering_start_time",
         "rebuffering_end_time"
 })
-class STRB extends StreamingPayload {
+class STRB extends Streaming {
     String rebuffering_start_time;
     String rebuffering_end_time;
     public STRB() {
@@ -94,7 +94,7 @@ class STRB extends StreamingPayload {
         "ip_server",
         "http_response"
 })
-class STCL extends StreamingPayload {
+class STCL extends Streaming {
     String bitrate_from;
     String bitrate_to;
 

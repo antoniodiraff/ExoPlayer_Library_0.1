@@ -131,6 +131,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
   private Object imaAdsLoader; // com.google.android.exoplayer2.ext.ima.ImaAdsLoader
   private Uri loadedAdTagUri;
   private ViewGroup adOverlayViewGroup;
+  public PlayerMonitor playerMonitor;
 
   // Activity lifecycle
 
@@ -258,7 +259,8 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       lastSeenTrackGroupArray = null;
 
 
-      observer = new Observer(trackSelector, getApplicationContext());
+      playerMonitor = new PlayerMonitor(getApplicationContext(),false, "serverURL", "serverTimeout",  "userAgent", "dev_id", "user_extid", "source", "dequeueingIntervalTime", "onClosing", "offset");
+      observer = new Observer(trackSelector, getApplicationContext(), playerMonitor, "session ID da player activity");
 
       UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
           ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
@@ -374,8 +376,6 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         return new DashMediaSource(uri, buildDataSourceFactory(false),
             new DefaultDashChunkSource.Factory(mediaDataSourceFactory), mainHandler, observer);
       case C.TYPE_HLS:
-        observer.update(player.getCurrentManifest());
-
         return new HlsMediaSource(uri, mediaDataSourceFactory, mainHandler, observer);
       case C.TYPE_OTHER:
         return new ExtractorMediaSource(uri, mediaDataSourceFactory, new DefaultExtractorsFactory(),

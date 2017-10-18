@@ -46,6 +46,8 @@ import java.lang.annotation.RetentionPolicy;
  */
 public interface Player {
 
+
+
   /**
    * Listener of changes in player state.
    */
