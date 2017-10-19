@@ -27,7 +27,7 @@ import com.google.android.exoplayer2.demo.Model.SDD;
 import com.google.android.exoplayer2.demo.Model.SE;
 import com.google.android.exoplayer2.demo.Model.SSCH;
 import com.google.android.exoplayer2.demo.Model.SSRCH;
-import com.google.android.exoplayer2.demo.Model.Streaming.STCL;
+import com.google.android.exoplayer2.demo.Model.STCL;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -100,7 +100,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 //  static boolean boolPlay = false;
 
     //Utils variables
-    Context c;
+    public Context c;
     public static Event event;
     Timer t;
 
@@ -434,19 +434,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 //            }
     }
 
-
-    public static Event updateEventList(EventElement e, EventElement e_) {
-        if (e != null) {
-            if (e_ != e) {
-                if (event != null) {
-                    event.events_list.add(e);
-                    e_ = e;
-                }
-            }
-        }
-        return event;
-    }
-
     @Override
     public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
         Log.d(TAG, "repeatMode [" + getRepeatModeString(repeatMode) + "]");
@@ -775,7 +762,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         sdd.setSession_id("Session ID");
         sdd.setDelete_time(getCurrentTimeStamp());
 
-        sdd.createSDDPayload();
+        sdd.updateSDDPayload();
 
         e = new EventElement("SDD", sdd.getPayload());
         event.events_list.add(e);
@@ -827,7 +814,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         stcl = new STCL();
         stcl.setSession_id("session ID");
         stcl.setBitrate_to(String.valueOf(trackFormat.bitrate));
-        stcl.createSDDPayload();
+        stcl.updateSTCLPayload();
 
         event.events_list.add(new EventElement("STCL", stcl.getPayload()));
 
@@ -842,7 +829,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         se.setErrorType(type);
         se.setSession_id("session ID");
 
-        se.createSDDPayload();
+        se.updateSEPayload();
         e = new EventElement("Session Error", se.getPayload());
 
         updateEventList(e, e_);
@@ -1092,7 +1079,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     }
 
-    private void createSC() {
+    public void createSC() {
         sc = new SC();
         sc.setSession_id("Session Close");
         sc.setClosing_time(getCurrentTimeStamp());
@@ -1107,9 +1094,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         ssrch = new SSRCH();
         ssrch.setPlayback_start_time(getCurrentTimeStamp());
 
-
         ssrch.updateSSRCHPayload();
-
 
         e = new EventElement("SSRCH", ssrch.getPayload());
     }
@@ -1134,7 +1119,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
 
 
-        ssch.createSSCHPayload();
+        ssch.updateSSCHPayload();
 
 
         e = new EventElement("SSCH", ssch.getPayload());
@@ -1154,14 +1139,24 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         sdc.setSession_id("Session Download completed");
         sdc.setCompleted_time(getCurrentTimeStamp());
 
-        sdc.createSDCPayload();
+        sdc.updateSDCPayload();
 
         e = new EventElement("SDC", sdc.getPayload());
 
 
     }
 
-
+    public static Event updateEventList(EventElement e, EventElement e_) {
+        if (e != null) {
+            if (e_ != e) {
+                if (event != null) {
+                    event.events_list.add(e);
+                    e_ = e;
+                }
+            }
+        }
+        return event;
+    }
 
 
 }
