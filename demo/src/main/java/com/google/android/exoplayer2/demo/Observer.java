@@ -1,27 +1,8 @@
-/*
- * Copyright (C) 2016 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.google.android.exoplayer2.demo;
 
 import android.content.Context;
-import android.nfc.Tag;
-import android.os.Build;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Surface;
 
@@ -38,6 +19,15 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.demo.Model.Event;
+import com.google.android.exoplayer2.demo.Model.EventElement;
+import com.google.android.exoplayer2.demo.Model.SC;
+import com.google.android.exoplayer2.demo.Model.SDC;
+import com.google.android.exoplayer2.demo.Model.SDD;
+import com.google.android.exoplayer2.demo.Model.SE;
+import com.google.android.exoplayer2.demo.Model.SSCH;
+import com.google.android.exoplayer2.demo.Model.SSRCH;
+import com.google.android.exoplayer2.demo.Model.Streaming.STCL;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -53,28 +43,24 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.source.dash.manifest.DashManifest;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
 import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
-import com.google.android.exoplayer2.demo.Close;
 
 import java.io.IOException;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Logs player events using {@link Log}.
- */
-/* package */ final class Observer implements Player.EventListener, AudioRendererEventListener,
+
+
+public final class Observer implements Player.EventListener, AudioRendererEventListener,
         VideoRendererEventListener, AdaptiveMediaSourceEventListener,
         ExtractorMediaSource.EventListener, DefaultDrmSessionManager.EventListener,
         MetadataRenderer.Output {
@@ -102,13 +88,14 @@ import java.util.TimerTask;
 
     //Utils variables
     Context c;
-    public  Event event;
+    public static Event event;
     Timer t;
-    public  EventElement e = null;
-    public  EventElement e_ = null;
+
+    public EventElement e = null;
+    public EventElement e_ = null;
+
+
     public SSCH ssch = null;
-
-
     public String drm_time;
     public SSRCH ssrch;
     public STCL stcl;
@@ -122,20 +109,21 @@ import java.util.TimerTask;
     SimpleExoPlayer player;
 
     boolean isTheFirstTime = true;
-    boolean isTheFirstTime_Buffering=true;
-    boolean isTheFirstTime_Ready=true;
+    boolean isTheFirstTime_Buffering = true;
+    boolean isTheFirstTime_Ready = true;
 
     public Observer(final MappingTrackSelector trackSelector, final Context context, final PlayerMonitor playerMonitor, String sessionID) {
 
-        this.playerMonitor=playerMonitor;
+        this.playerMonitor = playerMonitor;
+
         event = playerMonitor.getEvent();
         this.c = context;
         this.trackSelector = trackSelector;
         window = new Timeline.Window();
         period = new Timeline.Period();
         startTimeMs = SystemClock.elapsedRealtime();
-        this.sessionID=sessionID;
-        this.player=player;
+        this.sessionID = sessionID;
+        this.player = player;
 
         //TRIGGER
         t = new Timer();
@@ -148,11 +136,11 @@ import java.util.TimerTask;
                                           sendJSson(event);
                                           event = playerMonitor.createEventBody(c);
                                       } else {
-                                         event = playerMonitor.createEventBody(c);
+                                          event = playerMonitor.createEventBody(c);
                                       }
                                   }
                               }
-                , 10000, 30000);
+                , 0, 30000);
     }
 
 //
@@ -353,8 +341,6 @@ import java.util.TimerTask;
 //        isCurrentWindowDynamic && isCurrentWindowSeekable
 
 
-
-
     // Player.EventListener
     @Override
     public void onLoadingChanged(boolean isLoading) {
@@ -377,23 +363,23 @@ import java.util.TimerTask;
                 stateString = "Player.SATE_IDLE -";
                 if (isTheFirstTime) {
                     createSSCH();
-                    isTheFirstTime=false;
+                    isTheFirstTime = false;
                 }
                 break;
             case Player.STATE_BUFFERING:
                 stateString = "Player.STATE_BUFFERING -";
-                if(isTheFirstTime_Buffering) {
+                if (isTheFirstTime_Buffering) {
                     ssch.setBuffering_time(getCurrentTimeStamp());
                     isTheFirstTime_Buffering = false;
-                }else {
-                    bufferingTime= getCurrentTimeStamp();
+                } else {
+                    bufferingTime = getCurrentTimeStamp();
                 }
                 break;
             case Player.STATE_READY:
                 stateString = "Player.STATE_READY     -";
                 if (isTheFirstTime_Ready) {
                     ssch.setPlayback_start_time(getCurrentTimeStamp());
-                    isTheFirstTime_Ready=false;
+                    isTheFirstTime_Ready = false;
                 } else {
                     createSSRCH();
                 }
@@ -420,7 +406,7 @@ import java.util.TimerTask;
 //                updateSSCH(ssch, bufferingTime, startPlaybackTime);
             }
         }
-       event = updateEventList(e, e_);
+        event = updateEventList(e, e_);
 //            else {
 ////                createJsonEvents(c);
 //                event.eventList.add(e);
@@ -428,14 +414,11 @@ import java.util.TimerTask;
     }
 
 
-
-
-
-    public Event updateEventList(EventElement e, EventElement e_) {
+    public static Event updateEventList(EventElement e, EventElement e_) {
         if (e != null) {
             if (e_ != e) {
                 if (event != null) {
-                    event.eventList.add(e);
+                    event.events_list.add(e);
                     e_ = e;
                 }
             }
@@ -628,10 +611,12 @@ import java.util.TimerTask;
         //SC : Session Close
         if (sc == null) {
             sc = new SC();
-            e = new EventElement("SC", sc);
             sc.setSession_id("Session Close");
             sc.setClosing_time(getCurrentTimeStamp());
-            event.eventList.add(e);
+
+            sc.updateSCPayload();
+            e = new EventElement("SC", sc.getPayload());
+            event.events_list.add(e);
         }
     }
 
@@ -768,8 +753,11 @@ import java.util.TimerTask;
         sdd = new SDD();
         sdd.setSession_id("Session ID");
         sdd.setDelete_time(getCurrentTimeStamp());
-        e = new EventElement("SDD", sdd);
-        event.eventList.add(e);
+
+        sdd.createSDDPayload();
+
+        e = new EventElement("SDD", sdd.getPayload());
+        event.events_list.add(e);
 
     }
 
@@ -818,22 +806,25 @@ import java.util.TimerTask;
         stcl = new STCL();
         stcl.setSession_id("session ID");
         stcl.setBitrate_to(String.valueOf(trackFormat.bitrate));
-        event.eventList.add(new EventElement("STCL", stcl));
+        stcl.createSDDPayload();
+
+        event.events_list.add(new EventElement("STCL", stcl.getPayload()));
 
     }
 
 
     // Internal methods
-    private void printInternalError(String type, Exception err) throws IOException {
+    public void printInternalError(String type, Exception err) throws IOException {
         Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", err);
 
-        se = new SE(type);
+        se = new SE();
+        se.setErrorType(type);
         se.setSession_id("session ID");
-        e = new EventElement("Session Error", se);
-        updateEventList(e,e_);
 
+        se.createSDDPayload();
+        e = new EventElement("Session Error", se.getPayload());
 
-
+        updateEventList(e, e_);
 //        if (e != null) {
 //            if (e_ != e) {
 //                if (event != null) {
@@ -992,7 +983,7 @@ import java.util.TimerTask;
 
     private void sendJSson(Event event) {
         Log.d(TAG, "*********** SENDING JSON... ");
-      //  stampaJson();
+        //  stampaJson();
         fromObjectToJSON(event);
     }
 
@@ -1013,7 +1004,7 @@ import java.util.TimerTask;
     public String fromObjectToJSON(Object object) {
         String jsonInString = null;
 
-                ObjectMapper mapper = new ObjectMapper();
+        ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
         try {
@@ -1028,9 +1019,14 @@ import java.util.TimerTask;
     private void createSDC() {
         //Session downloaded completed
         sdc = new SDC();
-        e = new EventElement("SDC", sdc);
         sdc.setSession_id("Session Download completed");
         sdc.setCompleted_time(getCurrentTimeStamp());
+
+        sdc.createSDCPayload();
+
+        e = new EventElement("SDC", sdc.getPayload());
+
+
     }
 
 //    private void updateEventList(EventElement e, EventElement e_) {
@@ -1045,40 +1041,60 @@ import java.util.TimerTask;
 //    }
 
     private void updateSSRCH(String bufferingTime) {
+
         ssrch.setBuffering_time(bufferingTime);
+        ssrch.updateSSRCHPayload();
 
     }
 
     private void createSC() {
         sc = new SC();
-        e = new EventElement("SC", sc);
         sc.setSession_id("Session Close");
         sc.setClosing_time(getCurrentTimeStamp());
+        sc.updateSCPayload();
+
+        e = new EventElement("SC", sc.getPayload());
+
     }
 
     private void createSSRCH() {
         ssrch = new SSRCH();
         ssrch.setPlayback_start_time(getCurrentTimeStamp());
-        e = new EventElement("SSRCH", ssrch);
+        ssrch.updateSSRCHPayload();
+
+
+        e = new EventElement("SSRCH", ssrch.getPayload());
     }
 
     private void createSSCH() {
         sc = null;
         ssch = new SSCH();
         ssch.setSession_id(sessionID);
+        ssch.setPlayback_start_time("");
+        ssch.setBuffering_time("");
+        ssch.setChannel_epg(playerMonitor.getChannelEpg());
+        ssch.setChannel_id(playerMonitor.getChannelID());
+        ssch.setChannel_name(playerMonitor.getChannelName());
+        ssch.setChannel_type(playerMonitor.getChannelType());
+        ssch.setDrm_time("");
+        ssch.setHttp_response("");
+        ssch.setIp_server(playerMonitor.getServerURL());
+        ssch.setManifest_uri("Maniest URI");
+        ssch.setManifest_dwnl_byte("Maniest dwnl byte");
+        ssch.setManifest_dwnl_time("Maniest dwnl time");
+
+
 
         ssch.createSSCHPayload();
 
 
-        e = new EventElement("SSCH", ssch);
-
-
+        e = new EventElement("SSCH", ssch.getPayload());
 
 
 //        ssch.payLoad_String.add("session Id "); //[0] = "Session ID";
 //        ssch.payLoad_String.add(getCurrentTimeStamp());
 //        ssch.payLoad_String.add("par 3 ");
-      //  ssch.payLoad_String[3] = "par 4";
+        //  ssch.payLoad_String[3] = "par 4";
 //            Log.i(TAG, "*******   payload stringhe" + e.payLoad_String);
 
     }

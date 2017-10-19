@@ -2,13 +2,23 @@ package com.google.android.exoplayer2.demo;
 
 import android.content.Context;
 
+import com.google.android.exoplayer2.demo.Model.ACI;
+import com.google.android.exoplayer2.demo.Model.ASI;
+import com.google.android.exoplayer2.demo.Model.Event;
+import com.google.android.exoplayer2.demo.Model.EventElement;
+
+import java.util.ArrayList;
+
+import static com.google.android.exoplayer2.demo.Observer.event;
+
 /**
  * Created by antoniodiraffaele on 18/10/17.
  */
 
 public class PlayerMonitor {
 
-    ACI aci;
+  public ASI asi;
+  public ACI aci;
     boolean enableTrace= false ;
 
     String serverURL;
@@ -27,17 +37,35 @@ public class PlayerMonitor {
     String originalSessionID;
     String restartSec;
     boolean isFree = false;
+
+
     String channelName;
     String channelID;
     String  channelType;
     String channelEpg;
+
+
     String vodID;
     String VODTitle;
     String assetType;
     String assetPath;
+
+
     Context c;
 
-    public Event event;
+    public void updateChannelInfo(String channelName, String channelID,String  channelType, String channelEpg){
+        this.channelEpg=channelEpg;
+        this.channelID=channelID;
+        this.channelName=channelName;
+        this.channelType=channelType;
+
+    }
+    public void updateVODInfo(String vodID, String VODTitle, String assetType, String assetPath){
+        this.vodID=vodID;
+        this.VODTitle=VODTitle;
+        this.assetPath=assetPath;
+        this.assetType=assetType;
+    }
 
     public ACI getAci() {
         return aci;
@@ -163,8 +191,12 @@ public class PlayerMonitor {
         return event;
     }
 
-    public void setEvent(Event event) {
-        this.event = event;
+    public ASI getAsi() {
+        return asi;
+    }
+
+    public void setAsi(ASI asi) {
+        this.asi = asi;
     }
 
     public PlayerMonitor(Context c, boolean enableTrace, String serverURL, String serverTimeout, String userAgent, String dev_id, String user_extid, String source, String dequeueingIntervalTime, String onClosing, String offset) {
@@ -180,7 +212,6 @@ public class PlayerMonitor {
         this.offset = offset;
         this.c=c;
         createEventBody(c);
-
     }
 
 
@@ -269,15 +300,32 @@ public class PlayerMonitor {
 
 
 
-    public void activate(String start_time, String device_vendor, String device_model, String device_so, String codice_cliente ) {
-        aci = new ACI();
-        aci.setCodice_cliente(codice_cliente);
-        aci.setDevice_model(device_model);
-        aci.setDevice_so(device_so);
-        aci.setDevice_vendor(device_vendor);
+    public void activate(String device_vendor, String device_model, String device_so, String codice_cliente ) {
+
+        createEventBody(c);
+        asi = new ASI();
+        asi.setStart_time(Observer.getCurrentTimeStamp());
+        asi.setCodice_cliente(codice_cliente);
+        asi.setDevice_model(device_model);
+        asi.setDevice_so(device_so);
+        asi.setDevice_vendor(device_vendor);
+
+        asi.updateASIPayload();
+
+        event.events_list.add(new EventElement("ASI", asi.getPayload()));
 
     }
-    public  Event createEventBody(Context c) {
+
+    public void terminate()
+    {
+        aci= new ACI();
+        aci.setStop_time(Observer.getCurrentTimeStamp());
+    }
+
+
+
+
+    public Event createEventBody(Context c) {
 //    String statoplayer =  getStateString(stato);
 //    Log.d(TAG, "********************* LO STATO DEL PLAYER è IN " + getStateString(stato)  );
 //    //    boolPlay=true;
@@ -300,9 +348,9 @@ public class PlayerMonitor {
         //  Log.d(TAG, "********************* Il Player è andato in RESTART  "    + numPlay + " volte");
         //  Log.d(TAG, "********************* Il Player è andato in PAUSE    "    + numPause + " volte");
         //
-        EventList eventList= new EventList();
+        ArrayList<EventElement> eventList= new ArrayList<EventElement>();
         DeviceInfo deviceInfo = new DeviceInfo(c);
-        event = new Event(c, eventList, deviceInfo);
+        event = new Event(c,deviceInfo,eventList);
 //        EventElement e = new EventElement("SSCH", new SSCH());
 //        event.eventList.add(e);
         // SSCH ssch = new SSCH();
@@ -462,7 +510,6 @@ public class PlayerMonitor {
 //        e.setPayload(se);
 //        event.eventList.add(e);
 //        e = null;
-
         return event;
     }
 

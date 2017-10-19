@@ -1,13 +1,8 @@
-package com.google.android.exoplayer2.demo;
+package com.google.android.exoplayer2.demo.Model;
 
-/**
- * Created by antoniodiraffaele on 18/10/17.
- */
+import java.util.ArrayList;
 
-public class ApplicationEvents {
-}
-
-class ACI extends ApplicationEvents {
+public class ASI extends ApplicationEvents {
 
     String start_time;
     String device_vendor;
@@ -15,17 +10,28 @@ class ACI extends ApplicationEvents {
     String device_so;
     String codice_cliente;
 
-    public ACI() {
+    public ASI() {
 
     }
 
-    public ACI(String start_time, String device_vendor, String device_model, String device_so, String codice_cliente) {
+    public ASI(String start_time, String device_vendor, String device_model, String device_so, String codice_cliente) {
         this.start_time = start_time;
         this.device_vendor = device_vendor;
         this.device_model = device_model;
         this.device_so = device_so;
         this.codice_cliente = codice_cliente;
     }
+
+
+    public void updateASIPayload() {
+        payload = new ArrayList<String>();
+        payload.add(start_time);
+        payload.add(device_vendor);
+        payload.add(device_model);
+        payload.add(device_so);
+        payload.add(codice_cliente);
+    }
+
 
     public String getStart_time() {
         return start_time;
@@ -67,25 +73,3 @@ class ACI extends ApplicationEvents {
         this.codice_cliente = codice_cliente;
     }
 }
-
-class ASI extends ApplicationEvents {
-
-    String stop_time;
-
-    public ASI() {
-
-    }
-
-    public ASI(String stop_time) {
-        this.stop_time = stop_time;
-    }
-
-    public String getStop_time() {
-        return stop_time;
-    }
-
-    public void setStop_time(String stop_time) {
-        this.stop_time = stop_time;
-    }
-}
-
