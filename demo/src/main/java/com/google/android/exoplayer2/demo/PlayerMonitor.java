@@ -58,7 +58,6 @@ public class PlayerMonitor {
         this.channelID=channelID;
         this.channelName=channelName;
         this.channelType=channelType;
-
     }
     public void updateVODInfo(String vodID, String VODTitle, String assetType, String assetPath){
         this.vodID=vodID;
@@ -211,7 +210,6 @@ public class PlayerMonitor {
         this.onClosing = onClosing;
         this.offset = offset;
         this.c=c;
-        createEventBody(c);
     }
 
 
@@ -350,7 +348,7 @@ public class PlayerMonitor {
         //
         ArrayList<EventElement> eventList= new ArrayList<EventElement>();
         DeviceInfo deviceInfo = new DeviceInfo(c);
-        event = new Event(c,deviceInfo,eventList);
+        Observer.event = new Event(c, deviceInfo, eventList);
 //        EventElement e = new EventElement("SSCH", new SSCH());
 //        event.eventList.add(e);
         // SSCH ssch = new SSCH();

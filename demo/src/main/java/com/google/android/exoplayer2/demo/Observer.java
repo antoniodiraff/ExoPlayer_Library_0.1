@@ -132,14 +132,15 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public Observer(final MappingTrackSelector trackSelector, final Context context, final PlayerMonitor playerMonitor, String sessionID) {
 
         this.playerMonitor = playerMonitor;
+//        event = playerMonitor.getEvent();
 
-        event = playerMonitor.getEvent();
         this.c = context;
         this.trackSelector = trackSelector;
         window = new Timeline.Window();
         period = new Timeline.Period();
         startTimeMs = SystemClock.elapsedRealtime();
         this.sessionID = sessionID;
+
         this.player = player;
 
         //TRIGGER
@@ -148,20 +149,23 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                                   @Override
                                   public void run() {
                                       Log.d(TAG, "********TIMER " + t.toString());
+
                                       //  Observer o = new Observer(trackSelector, c);
                                       if (event != null) {
+
                                           try {
                                               sendJSson(event);
                                           } catch (IOException e1) {
                                               e1.printStackTrace();
                                           }
+                                          event = null;
                                           event = playerMonitor.createEventBody(c);
                                       } else {
                                           event = playerMonitor.createEventBody(c);
                                       }
                                   }
                               }
-                , 0, 30000);
+                , 5000, 5000);
     }
 
 //
@@ -427,7 +431,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 //                updateSSCH(ssch, bufferingTime, startPlaybackTime);
             }
         }
-        event = updateEventList(e, e_);
+         updateEventList(e, e_);
 //            else {
 ////                createJsonEvents(c);
 //                event.eventList.add(e);
@@ -994,20 +998,20 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         Log.d(TAG, "*********** SENDING JSON... ");
         //  stampaJson();
 
-        String otherParametersUrServiceNeed =  "Company=acompany&Lng=test&MainPeriod=test&UserID=123&CourseDate=8:10:10";
-        String request = "http://schoolportal.gr/";
-        URL url = new URL(request);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        connection.setInstanceFollowRedirects(false);
-        connection.setRequestMethod("POST");
-        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        connection.setRequestProperty("charset", "utf-8");
-//        connection.setRequestProperty("Content-Length", "" + Integer.toString(otherParametersUrServiceNeed.getBytes().length));
-        connection.setUseCaches (false);
-
-        DataOutputStream wr = new DataOutputStream(connection.getOutputStream ());
+//        String otherParametersUrServiceNeed =  "Company=acompany&Lng=test&MainPeriod=test&UserID=123&CourseDate=8:10:10";
+//        String request = "http://schoolportal.gr/";
+//        URL url = new URL(request);
+//        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+//        connection.setDoOutput(true);
+//        connection.setDoInput(true);
+//        connection.setInstanceFollowRedirects(false);
+//        connection.setRequestMethod("POST");
+//        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+//        connection.setRequestProperty("charset", "utf-8");
+////        connection.setRequestProperty("Content-Length", "" + Integer.toString(otherParametersUrServiceNeed.getBytes().length));
+//        connection.setUseCaches (false);
+//
+//        DataOutputStream wr = new DataOutputStream(connection.getOutputStream ());
 
         // w=null;
         String jsonInString = null;
@@ -1022,14 +1026,14 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
           //   mapper.writeValue((OutputStream) wr, event);
 
         Log.d(TAG, "****************** JSON :  " + jsonInString);
-
-
-        wr.writeBytes(otherParametersUrServiceNeed);
-
-        wr.writeBytes(jsonInString);
-
-//        wr.flush();
-        wr.close();
+//
+//
+//        wr.writeBytes(otherParametersUrServiceNeed);
+//
+//        wr.writeBytes(jsonInString);
+//
+////        wr.flush();
+//        wr.close();
 
         Log.d(TAG, "***********  JSON...INVIATO ! ");
 
@@ -1117,13 +1121,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         ssch.setManifest_dwnl_byte("Maniest dwnl byte");
         ssch.setManifest_dwnl_time("Maniest dwnl time");
 
-
-
         ssch.updateSSCHPayload();
 
-
         e = new EventElement("SSCH", ssch.getPayload());
-
 
 //        ssch.payLoad_String.add("session Id "); //[0] = "Session ID";
 //        ssch.payLoad_String.add(getCurrentTimeStamp());
