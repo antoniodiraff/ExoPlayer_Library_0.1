@@ -2,9 +2,8 @@ package com.google.android.exoplayer2.demo.Model;
 
 import java.util.ArrayList;
 
-//@JsonPropertyOrder({
-//        "session_id",
-//        "delete_time"})
+// SDD : Session Download Delete (download removed)
+
 public class SDD extends Download {
     String delete_time;
 
@@ -19,9 +18,11 @@ public class SDD extends Download {
     public SDD() {
 
     }
-    public void createSDDPayload(){
+
+    public void updateSDDPayload() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(delete_time);
     }
+
 }

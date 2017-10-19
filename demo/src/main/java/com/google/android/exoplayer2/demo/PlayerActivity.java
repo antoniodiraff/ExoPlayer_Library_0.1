@@ -263,6 +263,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
       playerMonitor.activate("Vendor","Model","OS","Codice Cliente");
 
+
       //if is a Live Channel
       playerMonitor.updateChannelInfo("Channel Name","Channel ID","Channel type","Channel EPG");
 
@@ -270,7 +271,8 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       playerMonitor.updateVODInfo("VOD ID","VOD Title","VOD Type","VOD Path");
 
 
-      observer = new Observer(trackSelector, getApplicationContext(), playerMonitor, "session ID da player activity");
+      observer = new Observer(trackSelector, getApplicationContext(), playerMonitor, "session ID");
+
 
       UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
           ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
@@ -672,3 +674,6 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
 
 }
+
+
+

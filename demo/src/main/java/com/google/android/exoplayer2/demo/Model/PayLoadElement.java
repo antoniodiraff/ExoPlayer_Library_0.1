@@ -86,6 +86,7 @@ abstract class Start extends PayLoadElement {
     //  CH : Live Channel
     //  VOD : Video On Demand
 
+    String original_session_id;
     String playback_start_time;
     String start_time;
     String drm_time;
@@ -185,6 +186,8 @@ abstract class LiveCH extends Start {
     String channel_type;
     String channel_epg;
     String channel_name;
+    String original_session_id;
+
 
     public String getChannel_id() {
         return channel_id;
@@ -220,20 +223,20 @@ abstract class LiveCH extends Start {
 }
 
 abstract class VOD extends Start {
-    String offer_id;
-    String asset_title;
-    String asset_type;
-    String asset_source;
 
-//  VOD : Video On Demand
+    //  VOD : Video On Demand
 //  ****************************************************
 //  SSVOD : Session Start VOD
 //  SSDVOD : Session Start Download VOD (**)
 // SSPVOD : Session Start Playback VOD. During the Playback, if the user is offline, the SSPVOD events should be collected and sent as soon as will come back online
 
 
-}
+    String offer_id;
+    String asset_title;
+    String asset_type;
+    String asset_source;
 
+}
 
 //@JsonIgnoreProperties({
 //        "ip_server",
@@ -276,6 +279,7 @@ abstract class Download extends PayLoadElement {
 // ############  APPLICATION EVENTS startup / stop  ############
 
 abstract class ApplicationEvents {
+
     public ArrayList<String> payload;
 
     public ArrayList<String> getPayload() {
@@ -286,6 +290,16 @@ abstract class ApplicationEvents {
         this.payload = payload;
     }
 
+}
+
+
+
+abstract class Streaming extends PayLoadElement {
+
+//    STD : Session sTreaming Download (valid also for VOD download) STP : Session sTreaming Pause
+//    STR : Session sTreaming Restart
+//    STCL : Session sTreaming Change Level
+//    STRB : Session sTreaming ReBuferring
 
 
 }

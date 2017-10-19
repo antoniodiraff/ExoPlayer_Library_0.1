@@ -1,4 +1,5 @@
 package com.google.android.exoplayer2.demo.Model;
+
 import java.util.ArrayList;
 
 public class SSCH extends LiveCH {
@@ -7,7 +8,7 @@ public class SSCH extends LiveCH {
     public SSCH() {
     }
 
-    public ArrayList<String> createSSCHPayload() {
+    public ArrayList<String> updateSSCHPayload() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(start_time);
@@ -42,5 +43,6 @@ public class SSCH extends LiveCH {
 //         "channel_name",
 //        // "restart_sec"   *** only for ssrch
     }
+
 
 }

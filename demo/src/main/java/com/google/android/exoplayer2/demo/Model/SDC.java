@@ -2,19 +2,11 @@ package com.google.android.exoplayer2.demo.Model;
 
 import java.util.ArrayList;
 
-//    @JsonPropertyOrder({
-//            "session_id",
-//            "completed_time"})
-
-
 
 //        SDC : Session Download Completed  (reached download end)
 
 
-
-
-
-public  class SDC extends Close {
+public class SDC extends Close {
     String completed_time;
 
     public String getCompleted_time() {
@@ -29,9 +21,10 @@ public  class SDC extends Close {
 
     }
 
-    public void createSDCPayload(){
+    public void updateSDCPayload() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(completed_time);
     }
+
 }

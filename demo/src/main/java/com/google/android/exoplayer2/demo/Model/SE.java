@@ -2,22 +2,24 @@ package com.google.android.exoplayer2.demo.Model;
 
 import java.util.ArrayList;
 
+//SE : Session Error
+
 public class SE extends PayLoadElement {
     public String error_text;
     public String errorType;
     public String error_code;
     public String chunk_uri;
     public String channel_id;
-    public  String event_id;
-    public  String vod_id;
-    public  String player_version;
-    public  String event_name;
-    public   String error_message;
+    public String event_id;
+    public String vod_id;
+    public String player_version;
+    public String event_name;
+    public String error_message;
 
     public SE() {
     }
 
-    public void createSDDPayload() {
+    public void updateSEPayload() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(error_text);
@@ -32,17 +34,6 @@ public class SE extends PayLoadElement {
         payload.add(error_message);
     }
 
-//                    "session_id",
-//                    "error_text",
-//                    "errorType",
-//                    "error_code",
-//                    "chunk_uri",
-//                    "channel_id",
-//                    "event_id",
-//                    "vod_id",
-//                    "player_version",
-//                    "event_name",
-//                    "error_message"
 
     public String getError_text() {
         return error_text;

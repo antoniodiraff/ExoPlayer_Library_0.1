@@ -2,17 +2,8 @@ package com.google.android.exoplayer2.demo.Model;
 
 import java.util.ArrayList;
 
-//    @JsonPropertyOrder({
-//            "session_id",
-//            "closing_time",
-//            "viewving_perc"})
-
-
-
 
 //        SPC : Session Playback Close  (playback finished)
-
-
 
 
 public class SPC extends Close {
@@ -21,7 +12,25 @@ public class SPC extends Close {
 
     public SPC() {
     }
-    public void createSPCPayload(){
+
+    public String getViewving_perc() {
+        return viewving_perc;
+    }
+
+    public void setViewving_perc(String viewving_perc) {
+        this.viewving_perc = viewving_perc;
+    }
+
+    public String getClosing_time() {
+
+        return closing_time;
+    }
+
+    public void setClosing_time(String closing_time) {
+        this.closing_time = closing_time;
+    }
+
+    public void updateSPCPayload() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(closing_time);

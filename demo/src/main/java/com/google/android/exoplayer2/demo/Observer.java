@@ -50,7 +50,19 @@ import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
+import org.json.JSONObject;
+
+import java.io.DataInputStream;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Writer;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -58,6 +70,7 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.google.obf.gb.w;
 
 
 public final class Observer implements Player.EventListener, AudioRendererEventListener,
@@ -94,6 +107,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public EventElement e = null;
     public EventElement e_ = null;
 
+    URL url = null;
+    URLConnection urlConn = null;
+
 
     public SSCH ssch = null;
     public String drm_time;
@@ -103,6 +119,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public SDD sdd;
     public SE se;
     public SC sc;
+    DataOutputStream w;
 
     public String sessionID;
     PlayerMonitor playerMonitor;
@@ -133,7 +150,11 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                                       Log.d(TAG, "********TIMER " + t.toString());
                                       //  Observer o = new Observer(trackSelector, c);
                                       if (event != null) {
-                                          sendJSson(event);
+                                          try {
+                                              sendJSson(event);
+                                          } catch (IOException e1) {
+                                              e1.printStackTrace();
+                                          }
                                           event = playerMonitor.createEventBody(c);
                                       } else {
                                           event = playerMonitor.createEventBody(c);
@@ -981,10 +1002,50 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 //
 //    }
 
-    private void sendJSson(Event event) {
+    private void sendJSson(Event event) throws IOException {
+
         Log.d(TAG, "*********** SENDING JSON... ");
         //  stampaJson();
-        fromObjectToJSON(event);
+
+        String otherParametersUrServiceNeed =  "Company=acompany&Lng=test&MainPeriod=test&UserID=123&CourseDate=8:10:10";
+        String request = "http://schoolportal.gr/";
+        URL url = new URL(request);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        connection.setInstanceFollowRedirects(false);
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+        connection.setRequestProperty("charset", "utf-8");
+//        connection.setRequestProperty("Content-Length", "" + Integer.toString(otherParametersUrServiceNeed.getBytes().length));
+        connection.setUseCaches (false);
+
+        DataOutputStream wr = new DataOutputStream(connection.getOutputStream ());
+
+        // w=null;
+        String jsonInString = null;
+
+        ObjectMapper mapper = new ObjectMapper();
+   //     mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        jsonInString = mapper.writeValueAsString(event);
+
+        //DataOutputStream wr =null;
+
+          //   mapper.writeValue((OutputStream) wr, event);
+
+        Log.d(TAG, "****************** JSON :  " + jsonInString);
+
+
+        wr.writeBytes(otherParametersUrServiceNeed);
+
+        wr.writeBytes(jsonInString);
+
+//        wr.flush();
+        wr.close();
+
+        Log.d(TAG, "***********  JSON...INVIATO ! ");
+
     }
 
     @Nullable
@@ -1000,33 +1061,17 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         }
     }
 
-
-    public String fromObjectToJSON(Object object) {
+    public String fromObjectToJSON(Object object) throws IOException {
         String jsonInString = null;
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
 
-        try {
-            jsonInString = mapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+         jsonInString= mapper.writeValueAsString(event);
+
+//
         Log.d(TAG, "****************** JSON :  " + jsonInString);
         return jsonInString;
-    }
-
-    private void createSDC() {
-        //Session downloaded completed
-        sdc = new SDC();
-        sdc.setSession_id("Session Download completed");
-        sdc.setCompleted_time(getCurrentTimeStamp());
-
-        sdc.createSDCPayload();
-
-        e = new EventElement("SDC", sdc.getPayload());
-
-
     }
 
 //    private void updateEventList(EventElement e, EventElement e_) {
@@ -1051,6 +1096,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         sc = new SC();
         sc.setSession_id("Session Close");
         sc.setClosing_time(getCurrentTimeStamp());
+
         sc.updateSCPayload();
 
         e = new EventElement("SC", sc.getPayload());
@@ -1060,6 +1106,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     private void createSSRCH() {
         ssrch = new SSRCH();
         ssrch.setPlayback_start_time(getCurrentTimeStamp());
+
+
         ssrch.updateSSRCHPayload();
 
 
@@ -1079,6 +1127,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         ssch.setDrm_time("");
         ssch.setHttp_response("");
         ssch.setIp_server(playerMonitor.getServerURL());
+
         ssch.setManifest_uri("Maniest URI");
         ssch.setManifest_dwnl_byte("Maniest dwnl byte");
         ssch.setManifest_dwnl_time("Maniest dwnl time");
@@ -1098,6 +1147,22 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 //            Log.i(TAG, "*******   payload stringhe" + e.payLoad_String);
 
     }
+
+    private void createSDC() {
+        //Session downloaded completed
+        sdc = new SDC();
+        sdc.setSession_id("Session Download completed");
+        sdc.setCompleted_time(getCurrentTimeStamp());
+
+        sdc.createSDCPayload();
+
+        e = new EventElement("SDC", sdc.getPayload());
+
+
+    }
+
+
+
 
 }
 
