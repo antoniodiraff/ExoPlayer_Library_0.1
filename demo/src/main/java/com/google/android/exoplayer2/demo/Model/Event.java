@@ -36,7 +36,7 @@ public class Event {
 
         this.context = c;
         msg_ts = getCurrentTimeStamp();
-        source = "SKYGO_INTV2.0";
+        source = "SOL_OBS_UK_INTV2.0";    ///
         this.device_info = device_info;
     }
 

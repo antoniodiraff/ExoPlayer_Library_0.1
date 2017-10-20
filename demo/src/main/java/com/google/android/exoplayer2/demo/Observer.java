@@ -11,6 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.PlaybackParameters;
 import com.google.android.exoplayer2.Player;
@@ -27,7 +28,9 @@ import com.google.android.exoplayer2.demo.Model.SDD;
 import com.google.android.exoplayer2.demo.Model.SE;
 import com.google.android.exoplayer2.demo.Model.SSCH;
 import com.google.android.exoplayer2.demo.Model.SSRCH;
+import com.google.android.exoplayer2.demo.Model.SSVOD;
 import com.google.android.exoplayer2.demo.Model.STCL;
+import com.google.android.exoplayer2.demo.Model.STRB;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -52,23 +55,36 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.jar.Manifest;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.X509TrustManager;
 
 import static com.google.obf.gb.w;
 
@@ -119,251 +135,116 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public SDD sdd;
     public SE se;
     public SC sc;
+    public STRB strb;
+    public SSVOD ssvod;
+
+
     DataOutputStream w;
 
     public String sessionID;
     PlayerMonitor playerMonitor;
-    SimpleExoPlayer player;
+    ExoPlayer player;
 
     boolean isTheFirstTime = true;
     boolean isTheFirstTime_Buffering = true;
     boolean isTheFirstTime_Ready = true;
+    private String oldBitRate;
+    private String bufferingEndTime;
 
-    public Observer(final MappingTrackSelector trackSelector, final Context context, final PlayerMonitor playerMonitor, String sessionID) {
 
+    // variables to create the Observer Object
+    String URL;
+    boolean isLive;
+    boolean isLocalFile;
+    boolean isRestart;
+    String originalSessionId;
+    String restartSec;
+    boolean isFree;
+    String channelName;
+    String channelID;
+    String channelType;
+    String vodID;
+    String VODTitle;
+    String assetType;
+    String assetPath;
+    public Timer _t;
+
+    public Observer(SimpleExoPlayer player, final MappingTrackSelector trackSelector, final Context context,
+                    final PlayerMonitor playerMonitor, String sessionID, String URL, boolean isLive,
+                    boolean isLocalFile, boolean isRestart, String originalSessionId, String restartSec,
+                    boolean isFree, String channelName, String channelID, String channelType, String vodID,
+                    String VODTitle, String assetType, String assetPath) {
+
+        this.URL = URL;
+        this.isLive = isLive;
+        this.isLocalFile = isLocalFile;
+        this.isRestart = isRestart;
+        this.originalSessionId = originalSessionId;
+        this.restartSec = restartSec;
+        this.isFree = isFree;
+        this.channelName = channelName;
+        this.channelID = channelID;
+        this.channelType = channelType;
+        this.vodID = vodID;
+        this.VODTitle = VODTitle;
+        this.assetType = assetType;
+        this.assetPath = assetPath;
         this.playerMonitor = playerMonitor;
-//        event = playerMonitor.getEvent();
-
         this.c = context;
         this.trackSelector = trackSelector;
         window = new Timeline.Window();
         period = new Timeline.Period();
         startTimeMs = SystemClock.elapsedRealtime();
         this.sessionID = sessionID;
-
         this.player = player;
 
+    }
+
+
+    public void activate() {
         //TRIGGER
         t = new Timer();
         t.scheduleAtFixedRate(new TimerTask() {
+
                                   @Override
                                   public void run() {
                                       Log.d(TAG, "********TIMER " + t.toString());
 
                                       //  Observer o = new Observer(trackSelector, c);
-                                      if (event != null) {
+                                      if (event.events_list.size() > 0) {
 
                                           try {
-                                              sendJSson(event);
+                                              stampaJSON(fromObjectToJSON(event));
+                                              sendJSON(event);
                                           } catch (IOException e1) {
                                               e1.printStackTrace();
                                           }
                                           event = null;
                                           event = playerMonitor.createEventBody(c);
-                                      } else {
-                                          event = playerMonitor.createEventBody(c);
                                       }
                                   }
                               }
-                , 5000, 5000);
+                , 5000, 30000);
+//    perc();
+
     }
 
-//
-//    private void createJsonEvents(Context c) {
-//
-////    String statoplayer =  getStateString(stato);
-////    Log.d(TAG, "********************* LO STATO DEL PLAYER è IN " + getStateString(stato)  );
-////    //    boolPlay=true;
-//////    if (startBool) {
-//////      if (boolPause){
-//////        numPlay++;
-//////        boolPlay = true;
-//////      }
-//////    } else {
-//////      if (boolPlay){
-//////        numPause++;
-//////        boolPause = true;
-//////      }
-//////    }
-////
-////    String statoPlayer = startBool ? " PLAY" : "PAUSE";
-////    Log.d(TAG, "********************* LO STATO DEL PLAYER è IN " + getStateString(stato)  );
-//        //    Log.d(TAG, "********************* IL PLAYER E STATO MESSO IN PLAY " + numPlay + " volte");
-//        //    Log.d(TAG, "********************* IL PLAYER E STATO MESSO IN PAUSE " + numPause + " volte");
-//        //  Log.d(TAG, "********************* Il Player è andato in RESTART  "    + numPlay + " volte");
-//        //  Log.d(TAG, "********************* Il Player è andato in PAUSE    "    + numPause + " volte");
-//        //
-//        eventList = new EventList();
-//        deviceInfo = new DeviceInfo(c);
-//        event = new Event(c, this.eventList, this.deviceInfo);
-////        EventElement e = new EventElement("SSCH", new SSCH());
-////        event.eventList.add(e);
-//        // SSCH ssch = new SSCH();
-//        //ssch.session_id = "SSCH";
-//        // e.setPayload(ssch);
-////        e = null;
-////
-////        e = new EventElement();
-////        SSRCH ssrch = new SSRCH();
-////        ssrch.session_id = "SSRCH";
-////        e.setPayload(ssrch);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        SSVOD ssvod = new SSVOD();
-////        ssvod.session_id = "SSVOD";
-////        e.setPayload(ssvod);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        SSDVOD ssdvod = new SSDVOD();
-////        ssdvod.session_id = "SSDVOD";
-////        e.setPayload(ssdvod);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        SSPVOD sspvod = new SSPVOD();
-////        sspvod.session_id = "SSPVOD";
-////        e.setPayload(sspvod);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        SSLINK sslink = new SSLINK();
-////        sslink.new_session_id = "SSLINK";
-////        e.setPayload(sslink);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        //    STD : Session sTreaming Download (valid also for VOD download) STP : Session sTreaming Pause
-////        //    STR : Session sTreaming Restart
-////        //    STCL : Session sTreaming Change Level
-////        //    STRB : Session sTreaming ReBuferring
-////
-////
-////        e = new EventElement();
-////        STD std = new STD();
-////        std.session_id = "STD";
-////        e.setPayload(std);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        STP stp = new STP();
-////        stp.session_id = "STP";
-////        e.setPayload(stp);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        STR str = new STR();
-////        str.session_id = "STR";
-////        e.setPayload(str);
-////        event.eventList.add(e);
-////        e = null;
-////
-////
-////        e = new EventElement();
-////        STCL stcl = new STCL();
-////        stcl.session_id = "STCL";
-////        e.setPayload(stcl);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        STRB strb = new STRB();
-////        strb.session_id = "STRB";
-////        e.setPayload(strb);
-////        event.eventList.add(e);
-////        e = null;
-////
-//////    SDP : Session Download Pause
-//////    SDR : Session Download Resume
-//////    SDD : Session Download Delete (download removed)
-////
-////
-////        e = new EventElement();
-////        SDP sdp = new SDP();
-////        sdp.session_id = "SDP";
-////        e.setPayload(sdp);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        SDR sdr = new SDR();
-////        sdr.session_id = "SDR";
-////        e.setPayload(sdr);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        SDD sdd = new SDD();
-////        sdd.session_id = "SDD";
-////        e.setPayload(sdd);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        //  PLAYBACK
-////        //  SPP : Session Playback Pause
-////        //  SPR : Session Playback Restart
-////
-////        e = new EventElement();
-////        SPP spp = new SPP();
-////        spp.session_id = "SPP";
-////        e.setPayload(spp);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        SPR spr = new SPR();
-////        spr.session_id = "SPR";
-////        e.setPayload(spr);
-////        event.eventList.add(e);
-////        e = null;
-////
-////
-//////        SC : Session Close
-//////        SDC : Session Download Completed  (reached download end)
-//////        SPC : Session Playback Close  (playback finished)
-////        e = new EventElement();
-////        SC sc = new SC();
-////        sc.session_id = "SC";
-////        e.setPayload(sc);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        SDC sdc = new SDC();
-////        sdc.session_id = "SDC";
-////        e.setPayload(sdc);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        SPC spc = new SPC();
-////        spc.session_id = "SPC";
-////        e.setPayload(spc);
-////        event.eventList.add(e);
-////        e = null;
-////
-////        e = new EventElement();
-////        SE se = new SE("errore generico");
-////        se.session_id = "SE";
-////        e.setPayload(se);
-////        event.eventList.add(e);
-////        e = null;
-//    }
 
-    //        if(p.isCurrentWindowSeekable() && p.isCurrentWindowDynamic()) {
-//
-//            Log.d(TAG, "**************************    è un VOD !!!! ");
-//
-//        }
+    public void perc(){
+        _t = new Timer();
+        _t.scheduleAtFixedRate(new TimerTask() {
 
-//        isCurrentWindowDynamic && isCurrentWindowSeekable
+                                  @Override
+                                  public void run() {
+
+                                      int i = player.getBufferedPercentage();
+                                      String percentage= String.valueOf(i);
+                                      Log.i(TAG, "----------------->        percentage    "  + percentage + "%");
+
+                                  }
+                              }
+                , 0,1000 );
+    }
 
 
     // Player.EventListener
@@ -377,66 +258,34 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         Log.d(TAG, "stato [ Session Time String: " + getSessionTimeString() + ", playWhenReady: " + playWhenReady + ", State:  "
                 + getStateString(state) + "]");
 
-        String startTime = null;
-        String bufferingTime = null;
-        String startPlaybackTime = null;
         String stateString;
-
 
         switch (state) {
             case Player.STATE_IDLE:
                 stateString = "Player.SATE_IDLE -";
-                if (isTheFirstTime) {
-                    createSSCH();
-                    isTheFirstTime = false;
-                }
+                idle_CallBack(getCurrentTimeStamp());
                 break;
             case Player.STATE_BUFFERING:
                 stateString = "Player.STATE_BUFFERING -";
-                if (isTheFirstTime_Buffering) {
-                    ssch.setBuffering_time(getCurrentTimeStamp());
-                    isTheFirstTime_Buffering = false;
-                } else {
-                    bufferingTime = getCurrentTimeStamp();
-                }
+                buffering_CallBack(getCurrentTimeStamp());
                 break;
             case Player.STATE_READY:
                 stateString = "Player.STATE_READY     -";
-                if (isTheFirstTime_Ready) {
-                    ssch.setPlayback_start_time(getCurrentTimeStamp());
-                    isTheFirstTime_Ready = false;
-                } else {
-                    createSSRCH();
-                }
+                ready_CallBack(getCurrentTimeStamp());
                 break;
             case Player.STATE_ENDED:
-                //SC : Session
-                if (sc == null) {
-                    createSC();
-                }
-                stateString = "Player.STATE_ENDED     -";
+                ended_CallBack(getCurrentTimeStamp());
+                stateString = "Player.STATE_ENDED -";
                 break;
             default:
-                stateString = "UNKNOWN_STATE             -";
+                stateString = "UNKNOWN_STATE -";
                 break;
         }
 
-        if (!isTheFirstTime) {
-            if (ssrch != null) {
+        Log.i(TAG, "   -------->  onPlayerStateChange : "+stateString);
 
-                updateSSRCH(bufferingTime);
-            }
-        } else {
-            if (ssch != null) {
-//                updateSSCH(ssch, bufferingTime, startPlaybackTime);
-            }
-        }
-         updateEventList(e, e_);
-//            else {
-////                createJsonEvents(c);
-//                event.eventList.add(e);
-//            }
     }
+
 
     @Override
     public void onRepeatModeChanged(@Player.RepeatMode int repeatMode) {
@@ -814,45 +663,25 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         Log.d(TAG, "trackSelectionReason  " + trackSelectionReason);
         Log.d(TAG, " trackSelectionData " + trackSelectionData);
 
-
         stcl = new STCL();
         stcl.setSession_id("session ID");
+        if (oldBitRate != null) {
+            stcl.setBitrate_from(oldBitRate);
+        } else {
+            stcl.setBitrate_from("");
+        }
         stcl.setBitrate_to(String.valueOf(trackFormat.bitrate));
+        oldBitRate = String.valueOf(trackFormat.bitrate);
+
         stcl.updateSTCLPayload();
-
         event.events_list.add(new EventElement("STCL", stcl.getPayload()));
-
     }
 
 
     // Internal methods
     public void printInternalError(String type, Exception err) throws IOException {
         Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", err);
-
-        se = new SE();
-        se.setErrorType(type);
-        se.setSession_id("session ID");
-
-        se.updateSEPayload();
-        e = new EventElement("Session Error", se.getPayload());
-
-        updateEventList(e, e_);
-//        if (e != null) {
-//            if (e_ != e) {
-//                if (event != null) {
-//                    event.eventList.add(e);
-//                    e_ = e;
-//                }
-//            }
-////            else {
-//////                createJsonEvents(c);
-////                event.eventList.add(e);
-////            }
-//        }
-//        se.setError_message(e.getMessage());
-//        se.setError_code(String.valueOf(e.getStackTrace()));
-
-        // se.setPlayer_version();
+        SE(type);
     }
 
     private void printMetadata(Metadata metadata, String prefix) {
@@ -972,74 +801,80 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         }
     }
 
+    private void trustEveryone() {
+        try {
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                public boolean verify(String hostname, SSLSession session) {
+                    return true;
+                }
+            });
+            SSLContext context = SSLContext.getInstance("TLS");
+            context.init(null, new X509TrustManager[]{new X509TrustManager() {
+                public void checkClientTrusted(X509Certificate[] chain,
+                                               String authType) throws CertificateException {
+                }
 
-    //Mine
+                public void checkServerTrusted(X509Certificate[] chain,
+                                               String authType) throws CertificateException {
+                }
 
-//    public void updateSSCH(SSCH ssch, String bufferingTime, String startPlaybackTime) {
-//
-//        if (bufferingTime != null) {
-//            ssch.setBuffering_time(bufferingTime);
-//            bufferingTime = null;
-//        }
-//        if (startPlaybackTime != null) {
-//            ssch.setPlayback_start_time(startPlaybackTime);
-//            startPlaybackTime = null;
-//        }
-//        ssch.setSession_id("SessionID");
-//
-//         isTheFirstTime = false;
-//
-//        //  ssch.setBuffering_time("");
-//
-//    }
-
-    private void sendJSson(Event event) throws IOException {
-
-        Log.d(TAG, "*********** SENDING JSON... ");
-        //  stampaJson();
-
-//        String otherParametersUrServiceNeed =  "Company=acompany&Lng=test&MainPeriod=test&UserID=123&CourseDate=8:10:10";
-//        String request = "http://schoolportal.gr/";
-//        URL url = new URL(request);
-//        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-//        connection.setDoOutput(true);
-//        connection.setDoInput(true);
-//        connection.setInstanceFollowRedirects(false);
-//        connection.setRequestMethod("POST");
-//        connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-//        connection.setRequestProperty("charset", "utf-8");
-////        connection.setRequestProperty("Content-Length", "" + Integer.toString(otherParametersUrServiceNeed.getBytes().length));
-//        connection.setUseCaches (false);
-//
-//        DataOutputStream wr = new DataOutputStream(connection.getOutputStream ());
-
-        // w=null;
-        String jsonInString = null;
-
-        ObjectMapper mapper = new ObjectMapper();
-   //     mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-        jsonInString = mapper.writeValueAsString(event);
-
-        //DataOutputStream wr =null;
-
-          //   mapper.writeValue((OutputStream) wr, event);
-
-        Log.d(TAG, "****************** JSON :  " + jsonInString);
-//
-//
-//        wr.writeBytes(otherParametersUrServiceNeed);
-//
-//        wr.writeBytes(jsonInString);
-//
-////        wr.flush();
-//        wr.close();
-
-        Log.d(TAG, "***********  JSON...INVIATO ! ");
-
+                public X509Certificate[] getAcceptedIssuers() {
+                    return new X509Certificate[0];
+                }
+            }}, new SecureRandom());
+            HttpsURLConnection.setDefaultSSLSocketFactory(
+                    context.getSocketFactory());
+        } catch (Exception e) { // should never happen
+            e.printStackTrace();
+        }
     }
 
-    @Nullable
+    private void sendJSON(Event event) throws IOException {
+
+        Log.d(TAG, "*********** SENDING JSON... ");
+        trustEveryone();
+        //  stampaJson();
+        String json = fromObjectToJSON(event);
+
+        String request = "https://telemetria-lib-coll.skycdn.it/skymeter/collector";
+        URL url = new URL(request);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setDoOutput(true);
+        connection.setDoInput(true);
+        //connection.setInstanceFollowRedirects(false);
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setRequestProperty("Accept", "application/json");
+        connection.setRequestMethod("POST");
+        connection.setUseCaches(true);
+
+        OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
+        wr.write(json);
+        wr.flush();
+
+        Log.d(TAG, "***********  JSON... inviato ! ");
+        //display what returns the POST request
+
+        StringBuilder sb = new StringBuilder();
+        int HttpResult = connection.getResponseCode();
+
+        if (HttpResult == HttpURLConnection.HTTP_OK) {
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(connection.getInputStream(), "utf-8"));
+            String line = null;
+            while ((line = br.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+            br.close();
+            Log.i(TAG, "***********    http response SB: " + String.valueOf(sb));
+        } else {
+            Log.i(TAG, "***********    http response getResponse : " + connection.getResponseMessage().toString());
+        }
+    }
+
+    public void stampaJSON(String jsonInString) {
+        Log.d(TAG, "****************** JSON :  " + jsonInString);
+    }
+
     public static String getCurrentTimeStamp() {
         try {
             //TODO verificare il Timezone corretto
@@ -1054,27 +889,11 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     public String fromObjectToJSON(Object object) throws IOException {
         String jsonInString = null;
-
         ObjectMapper mapper = new ObjectMapper();
-        mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-         jsonInString= mapper.writeValueAsString(event);
-
-//
-        Log.d(TAG, "****************** JSON :  " + jsonInString);
+//      mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        jsonInString = mapper.writeValueAsString(event);
         return jsonInString;
     }
-
-//    private void updateEventList(EventElement e, EventElement e_) {
-//        if (e != null) {
-//            if (e_ != e) {
-//                if (event != null) {
-//                    event.eventList.add(e);
-//                    e_ = e;
-//                }
-//            }
-//        }
-//    }
 
     private void updateSSRCH(String bufferingTime) {
 
@@ -1083,18 +902,16 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     }
 
-    public void createSC() {
+    public void SC() {
         sc = new SC();
         sc.setSession_id("Session Close");
         sc.setClosing_time(getCurrentTimeStamp());
-
         sc.updateSCPayload();
 
         e = new EventElement("SC", sc.getPayload());
-
     }
 
-    private void createSSRCH() {
+    private void SSRCH() {
         ssrch = new SSRCH();
         ssrch.setPlayback_start_time(getCurrentTimeStamp());
 
@@ -1103,20 +920,20 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         e = new EventElement("SSRCH", ssrch.getPayload());
     }
 
-    private void createSSCH() {
+    private void SSCH(String currentTimeStamp) {
         sc = null;
         ssch = new SSCH();
         ssch.setSession_id(sessionID);
+        ssch.setStart_time(currentTimeStamp);
         ssch.setPlayback_start_time("");
         ssch.setBuffering_time("");
-        ssch.setChannel_epg(playerMonitor.getChannelEpg());
-        ssch.setChannel_id(playerMonitor.getChannelID());
-        ssch.setChannel_name(playerMonitor.getChannelName());
-        ssch.setChannel_type(playerMonitor.getChannelType());
-        ssch.setDrm_time("");
-        ssch.setHttp_response("");
-        ssch.setIp_server(playerMonitor.getServerURL());
-
+        ssch.setChannel_epg("Channel EPG");
+        ssch.setChannel_id(channelID);
+        ssch.setChannel_name(channelName);
+        ssch.setChannel_type(channelType);
+        ssch.setDrm_time("Drm Time ");
+        ssch.setHttp_response("Http Response");
+        ssch.setIp_server(URL);
         ssch.setManifest_uri("Maniest URI");
         ssch.setManifest_dwnl_byte("Maniest dwnl byte");
         ssch.setManifest_dwnl_time("Maniest dwnl time");
@@ -1124,16 +941,38 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         ssch.updateSSCHPayload();
 
         e = new EventElement("SSCH", ssch.getPayload());
+        updateEventList(e, e_);
 
 //        ssch.payLoad_String.add("session Id "); //[0] = "Session ID";
 //        ssch.payLoad_String.add(getCurrentTimeStamp());
 //        ssch.payLoad_String.add("par 3 ");
         //  ssch.payLoad_String[3] = "par 4";
+
 //            Log.i(TAG, "*******   payload stringhe" + e.payLoad_String);
 
     }
 
-    private void createSDC() {
+    private void SSVOD(String currentTimeStamp) {
+        ssvod = new SSVOD();
+        ssvod.setSession_id(sessionID);
+        ssvod.setStart_time(currentTimeStamp);
+//        ssvod.setBuffering_time();
+//        ssvod.setDrm_time();
+//        ssvod.setManifest_uri();
+//        ssvod.setManifest_dwnl_time();
+//        ssvod.setManifest_dwnl_byte();
+//        ssvod.setIp_server();
+//        ssvod.setHttp_response();
+//        ssvod.setPlayback_start_time();
+//        ssvod.setHttp_response();
+
+        ssvod.updateSSVODPayload();
+
+        e = new EventElement("SSVOD", ssvod.getPayload());
+    }
+
+
+    private void SDC() {
         //Session downloaded completed
         sdc = new SDC();
         sdc.setSession_id("Session Download completed");
@@ -1144,6 +983,27 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         e = new EventElement("SDC", sdc.getPayload());
 
 
+    }
+
+    private void STRB() {
+        strb = new STRB();
+        strb.setRebuffering_start_time(getCurrentTimeStamp());
+        strb.setRebuffering_end_time(bufferingEndTime);
+
+        strb.updateSTRBPayload();
+
+        e = new EventElement("STRB", strb.getPayload());
+
+    }
+
+    public void SE(String type) {
+
+        se = new SE();
+        se.setErrorType(type);
+        se.setSession_id("session ID");
+
+        se.updateSEPayload();
+        e = new EventElement("Session Error", se.getPayload());
     }
 
     public static Event updateEventList(EventElement e, EventElement e_) {
@@ -1159,7 +1019,253 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     }
 
 
+    //  BUFFERING callback --- when buffering / rebuffering  starts
+
+    private void buffering_CallBack(String currentTimeStamp) {
+
+
+        if (isTheFirstTime_Buffering) {
+            ssch.setBuffering_time(currentTimeStamp);
+            isTheFirstTime_Buffering = false;
+        } else {
+            ssch.setBuffering_time(currentTimeStamp);
+            STRB();
+        }
+    }
+
+    private void idle_CallBack(String currentTimeStamp) {
+
+        if (isTheFirstTime) {
+
+            // if is live ch
+            SSCH(currentTimeStamp);
+
+            // if is vod
+            SSVOD(currentTimeStamp);
+
+            isTheFirstTime = false;
+        }
+
+    }
+
+
+    private void ready_CallBack(String currentTimeStamp) {
+//        strb.setRebuffering_end_time(bufferingEndTime);
+//        strb.updateSTRBPayload();
+
+        if (isTheFirstTime_Ready) {
+            ssch.setPlayback_start_time(getCurrentTimeStamp());
+            isTheFirstTime_Ready = false;
+        } else {
+            SSRCH();
+        }
+    }
+
+    private void ended_CallBack(String currentTimeStamp) {
+        if (sc == null) {
+            SC();
+        }
+    }
+
 }
+
+
+//
+//    private void createJsonEvents(Context c) {
+//
+////    String statoplayer =  getStateString(stato);
+////    Log.d(TAG, "********************* LO STATO DEL PLAYER è IN " + getStateString(stato)  );
+////    //    boolPlay=true;
+//////    if (startBool) {
+//////      if (boolPause){
+//////        numPlay++;
+//////        boolPlay = true;
+//////      }
+//////    } else {
+//////      if (boolPlay){
+//////        numPause++;
+//////        boolPause = true;
+//////      }
+//////    }
+////
+////    String statoPlayer = startBool ? " PLAY" : "PAUSE";
+////    Log.d(TAG, "********************* LO STATO DEL PLAYER è IN " + getStateString(stato)  );
+//        //    Log.d(TAG, "********************* IL PLAYER E STATO MESSO IN PLAY " + numPlay + " volte");
+//        //    Log.d(TAG, "********************* IL PLAYER E STATO MESSO IN PAUSE " + numPause + " volte");
+//        //  Log.d(TAG, "********************* Il Player è andato in RESTART  "    + numPlay + " volte");
+//        //  Log.d(TAG, "********************* Il Player è andato in PAUSE    "    + numPause + " volte");
+//        //
+//        eventList = new EventList();
+//        deviceInfo = new DeviceInfo(c);
+//        event = new Event(c, this.eventList, this.deviceInfo);
+////        EventElement e = new EventElement("SSCH", new SSCH());
+////        event.eventList.add(e);
+//        // SSCH ssch = new SSCH();
+//        //ssch.session_id = "SSCH";
+//        // e.setPayload(ssch);
+////        e = null;
+////
+////        e = new EventElement();
+////        SSRCH ssrch = new SSRCH();
+////        ssrch.session_id = "SSRCH";
+////        e.setPayload(ssrch);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        SSVOD ssvod = new SSVOD();
+////        ssvod.session_id = "SSVOD";
+////        e.setPayload(ssvod);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        SSDVOD ssdvod = new SSDVOD();
+////        ssdvod.session_id = "SSDVOD";
+////        e.setPayload(ssdvod);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        SSPVOD sspvod = new SSPVOD();
+////        sspvod.session_id = "SSPVOD";
+////        e.setPayload(sspvod);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        SSLINK sslink = new SSLINK();
+////        sslink.new_session_id = "SSLINK";
+////        e.setPayload(sslink);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        //    STD : Session sTreaming Download (valid also for VOD download) STP : Session sTreaming Pause
+////        //    STR : Session sTreaming Restart
+////        //    STCL : Session sTreaming Change Level
+////        //    STRB : Session sTreaming ReBuferring
+////
+////
+////        e = new EventElement();
+////        STD std = new STD();
+////        std.session_id = "STD";
+////        e.setPayload(std);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        STP stp = new STP();
+////        stp.session_id = "STP";
+////        e.setPayload(stp);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        STR str = new STR();
+////        str.session_id = "STR";
+////        e.setPayload(str);
+////        event.eventList.add(e);
+////        e = null;
+////
+////
+////        e = new EventElement();
+////        STCL stcl = new STCL();
+////        stcl.session_id = "STCL";
+////        e.setPayload(stcl);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        STRB strb = new STRB();
+////        strb.session_id = "STRB";
+////        e.setPayload(strb);
+////        event.eventList.add(e);
+////        e = null;
+////
+//////    SDP : Session Download Pause
+//////    SDR : Session Download Resume
+//////    SDD : Session Download Delete (download removed)
+////
+////
+////        e = new EventElement();
+////        SDP sdp = new SDP();
+////        sdp.session_id = "SDP";
+////        e.setPayload(sdp);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        SDR sdr = new SDR();
+////        sdr.session_id = "SDR";
+////        e.setPayload(sdr);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        SDD sdd = new SDD();
+////        sdd.session_id = "SDD";
+////        e.setPayload(sdd);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        //  PLAYBACK
+////        //  SPP : Session Playback Pause
+////        //  SPR : Session Playback Restart
+////
+////        e = new EventElement();
+////        SPP spp = new SPP();
+////        spp.session_id = "SPP";
+////        e.setPayload(spp);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        SPR spr = new SPR();
+////        spr.session_id = "SPR";
+////        e.setPayload(spr);
+////        event.eventList.add(e);
+////        e = null;
+////
+////
+//////        SC : Session Close
+//////        SDC : Session Download Completed  (reached download end)
+//////        SPC : Session Playback Close  (playback finished)
+////        e = new EventElement();
+////        SC sc = new SC();
+////        sc.session_id = "SC";
+////        e.setPayload(sc);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        SDC sdc = new SDC();
+////        sdc.session_id = "SDC";
+////        e.setPayload(sdc);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        SPC spc = new SPC();
+////        spc.session_id = "SPC";
+////        e.setPayload(spc);
+////        event.eventList.add(e);
+////        e = null;
+////
+////        e = new EventElement();
+////        SE se = new SE("errore generico");
+////        se.session_id = "SE";
+////        e.setPayload(se);
+////        event.eventList.add(e);
+////        e = null;
+//    }
+
+//        if(p.isCurrentWindowSeekable() && p.isCurrentWindowDynamic()) {
+//
+//            Log.d(TAG, "**************************    è un VOD !!!! ");
+//
+//        }
+
+//        isCurrentWindowDynamic && isCurrentWindowSeekable
 
 
 

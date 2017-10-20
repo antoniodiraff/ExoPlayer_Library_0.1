@@ -259,19 +259,29 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       lastSeenTrackGroupArray = null;
 
 
-      playerMonitor = new PlayerMonitor(getApplicationContext(),false, "serverURL", "serverTimeout",  "userAgent", "dev_id", "user_extid", "source", "dequeueingIntervalTime", "onClosing", "offset");
+      playerMonitor = new PlayerMonitor(getApplicationContext(),false, "Source", "serverTimeout",  "userAgent", "dev_id", "user_extid", "source", "dequeueingIntervalTime", "onClosing", "offset");
 
-      playerMonitor.activate("Vendor","Model","OS","Codice Cliente");
+      playerMonitor.activate("Vendor","OBSERVER","OS","OBSERVER");
 
+//      //if is a Live Channel
+//      playerMonitor.updateChannelInfo("Channel Name","Channel ID","Channel type","Channel EPG");
+//
+//      //if is a VOD
+//      playerMonitor.updateVODInfo("VOD ID","VOD Title","VOD Type","VOD Path");
 
-      //if is a Live Channel
-      playerMonitor.updateChannelInfo("Channel Name","Channel ID","Channel type","Channel EPG");
-
-      //if is a VOD
-      playerMonitor.updateVODInfo("VOD ID","VOD Title","VOD Type","VOD Path");
-
-
-      observer = new Observer(trackSelector, getApplicationContext(), playerMonitor, "session ID");
+//      observer = new Observer(
+//              player,
+//              trackSelector,
+//              getApplicationContext(),
+//              playerMonitor,
+//              "session ID",
+//              "url",
+//              true,false,false,
+//              "originalSessionId",
+//              "restartSec",
+//              true,
+//              "channelName", "channelID", "channelType",
+//              "VOD_ID","VODTitle","assetType","assetPath" );
 
 
       UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
@@ -308,7 +318,20 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
           drmSessionManager, extensionRendererMode);
 
       player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
-
+      observer = new Observer(
+              player,
+              trackSelector,
+              getApplicationContext(),
+              playerMonitor,
+              "session ID",
+              "url",
+              true,false,false,
+              "originalSessionId",
+              "restartSec",
+              true,
+              "channelName", "channelID", "channelType",
+              "VOD_ID","VODTitle","assetType","assetPath" );
+      observer.activate();
       player.addListener(this);
       player.addListener(observer);
       player.addMetadataOutput(observer);
