@@ -22,7 +22,7 @@ public class PlayerMonitor {
     boolean enableTrace= false ;
 
     String serverURL;
-    String serverTimeout;
+    int serverTimeout;
     String userAgent;
     String dev_id;
     String user_extid;
@@ -200,7 +200,10 @@ public class PlayerMonitor {
         this.asi = asi;
     }
 
-    public PlayerMonitor(Context c, boolean enableTrace, String serverURL, String serverTimeout, String userAgent, String dev_id, String user_extid, String source, String dequeueingIntervalTime, String onClosing, String offset) {
+    public PlayerMonitor(Context c, boolean enableTrace, String serverURL, int serverTimeout, String userAgent,
+                         String dev_id, String user_extid, String source, String dequeueingIntervalTime
+//            , String onClosing, String offset
+    ) {
         this.enableTrace = enableTrace;
         this.serverURL = serverURL;
         this.serverTimeout = serverTimeout;
@@ -209,8 +212,8 @@ public class PlayerMonitor {
         this.user_extid = user_extid;
         this.source = source;
         this.dequeueingIntervalTime = dequeueingIntervalTime;
-        this.onClosing = onClosing;
-        this.offset = offset;
+//        this.onClosing = onClosing;
+//        this.offset = offset;
         this.c=c;
     }
 
@@ -234,11 +237,11 @@ public class PlayerMonitor {
         this.serverURL = serverURL;
     }
 
-    public String getServerTimeout() {
+    public int getServerTimeout() {
         return serverTimeout;
     }
 
-    public void setServerTimeout(String serverTimeout) {
+    public void setServerTimeout(int serverTimeout) {
         this.serverTimeout = serverTimeout;
     }
 

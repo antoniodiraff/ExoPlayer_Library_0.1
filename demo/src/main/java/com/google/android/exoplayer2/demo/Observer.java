@@ -109,6 +109,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     private final Timeline.Window window;
     private final Timeline.Period period;
     private final long startTimeMs;
+    private final int serverTimeout;
 
     // *** MODEL initialization ***
 
@@ -158,13 +159,20 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     PlayerMonitor playerMonitor;
     ExoPlayer player;
 
-    public Observer(SimpleExoPlayer player, final MappingTrackSelector trackSelector, final Context context,
-                    final PlayerMonitor playerMonitor, String sessionID, String URL, boolean isLive,
+    public Observer(SimpleExoPlayer player, final MappingTrackSelector trackSelector,
+                    final PlayerMonitor playerMonitor, String sessionID, boolean isLive,
                     boolean isLocalFile, boolean isRestart, String originalSessionId, String restartSec,
                     boolean isFree, String channelName, String channelID, String channelType, String vodID,
                     String VODTitle, String assetType, String assetPath) {
 
-        this.URL = URL;
+        this.playerMonitor = playerMonitor;
+        this.c = playerMonitor.c;
+        playerMonitor.createEventBody(c);
+        event.device_info.user_agent=playerMonitor.userAgent;
+
+        this.URL = playerMonitor.serverURL;
+        this.serverTimeout= playerMonitor.serverTimeout;
+
         this.isLive = isLive;
         this.isLocalFile = isLocalFile;
         this.isRestart = isRestart;
@@ -178,8 +186,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         this.VODTitle = VODTitle;
         this.assetType = assetType;
         this.assetPath = assetPath;
-        this.playerMonitor = playerMonitor;
-        this.c = context;
         this.trackSelector = trackSelector;
         window = new Timeline.Window();
         period = new Timeline.Period();

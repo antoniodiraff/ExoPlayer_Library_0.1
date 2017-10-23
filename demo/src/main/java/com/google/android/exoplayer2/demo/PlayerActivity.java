@@ -259,7 +259,11 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       lastSeenTrackGroupArray = null;
 
 
-      playerMonitor = new PlayerMonitor(getApplicationContext(),false, "Source", "serverTimeout",  "userAgent", "dev_id", "user_extid", "source", "dequeueingIntervalTime", "onClosing", "offset");
+      playerMonitor = new PlayerMonitor(getApplicationContext(),false, "Source", 5000 ,  "userAgent", "dev_id",
+              "user_extid", "source", "dequeueingIntervalTime"
+
+//              ,"onClosing", "offset"
+      );
 
       playerMonitor.activate("Vendor","OBSERVER","OS","OBSERVER");
 
@@ -321,10 +325,8 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       observer = new Observer(
               player,
               trackSelector,
-              getApplicationContext(),
               playerMonitor,
               "session ID",
-              "url",
               true,false,false,
               "originalSessionId",
               "restartSec",
