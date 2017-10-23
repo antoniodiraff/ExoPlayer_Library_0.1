@@ -63,15 +63,14 @@ public class DeviceInfo {
     public DeviceInfo(Context c) {
 
         this.context = c;
-        this.dev_id = "";
-                //_getDevID();
+        this.dev_id = _getDevID();
         this.dev_uuid = uuid(context);
         dev_family = "SMARTPHONE";
         user_extid = "";
-        user_agent = "";
-                //_getUserAgent();
+        user_agent = _getUserAgent();
         conn = _getConnectivity();
         ssid = _getSsid();
+
 
 //        Log.d(TAG,
 //                "********* myDeviceModel [" + myDeviceModel + "] "+

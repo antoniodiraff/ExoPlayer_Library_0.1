@@ -246,8 +246,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                                       Log.d(TAG, "********TIMER " + t.toString());
 
                                       //  Observer o = new Observer(trackSelector, c);
-                                      if (isTheFirstTime)
-                                      {
+                                      if (isTheFirstTime) {
+                                          isTheFirstTime=false;
+                                      }else{
 
                                           SendDeviceDetails async = new SendDeviceDetails();
                                           try {
@@ -291,8 +292,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         DeviceInfo deviceInfo = new DeviceInfo(c);
         event = new Event(c, deviceInfo, eventList);
         event.source = playerMonitor.source;
-        event.device_info.user_agent = playerMonitor.userAgent;
-        event.device_info.dev_id = playerMonitor.dev_id;
+//        event.device_info.user_agent = playerMonitor.userAgent;
+//        event.device_info.dev_id = playerMonitor.dev_id;
         event.device_info.user_extid = playerMonitor.user_extid;
 
         return event;

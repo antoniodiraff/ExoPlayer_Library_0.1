@@ -166,7 +166,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
                 false, "https://telemetria-lib-coll.skycdn.it/skymeter/collector",
                 5000, "userAgent", "dev_id",
                 "user_extid", "SOL_OBS_UK_INTV2.0", 5000,
-                "Vendor", "Model", "OS", "Codice Cliente");
+                "Google", "Pixel", "OS", "Codice Cliente");
 
     }
 
