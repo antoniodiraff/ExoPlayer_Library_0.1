@@ -9,7 +9,6 @@ import com.google.android.exoplayer2.demo.Model.EventElement;
 
 import java.util.ArrayList;
 
-import static com.google.android.exoplayer2.demo.Observer.event;
 
 /**
  * Created by antoniodiraffaele on 18/10/17.
@@ -17,21 +16,18 @@ import static com.google.android.exoplayer2.demo.Observer.event;
 
 public class PlayerMonitor {
 
-  public ASI asi;
-  public ACI aci;
-    boolean enableTrace= false ;
-
+    boolean enableTrace = false;
     String serverURL;
     int serverTimeout;
     String userAgent;
     String dev_id;
     String user_extid;
-    String source;//    1. "SKYGO_INTV2.0" for SkyGo applcation
-                  //    2. "SOL_INTV2.0" for NowTV application
-                  //    3. "SKYKIDS_INTV2.0" for Kids application
-    String dequeueingIntervalTime;
-    String onClosing;
-    String offset;
+    String source;
+    //    1. "SKYGO_INTV2.0" for SkyGo applcation
+    //    2. "SOL_INTV2.0" for NowTV application
+    //    3. "SKYKIDS_INTV2.0" for Kids application
+    int dequeueingIntervalTime;
+
 //    boolean isLocalFile = false;
 //    boolean isRestart=false ;
 //    String originalSessionID;
@@ -52,6 +48,10 @@ public class PlayerMonitor {
 
 
     Context c;
+    public String device_vendor;
+    public String device_model;
+    public String device_so;
+    public String codice_cliente;
 
 //    public void updateChannelInfo(String channelName, String channelID,String  channelType, String channelEpg){
 //        this.channelEpg=channelEpg;
@@ -67,14 +67,13 @@ public class PlayerMonitor {
 //    }
 
 
-
-    public ACI getAci() {
-        return aci;
-    }
-
-    public void setAci(ACI aci) {
-        this.aci = aci;
-    }
+//    public ACI getAci() {
+//        return aci;
+//    }
+//
+//    public void setAci(ACI aci) {
+//        this.aci = aci;
+//    }
 
 //    public boolean isLocalFile() {
 //        return isLocalFile;
@@ -188,20 +187,21 @@ public class PlayerMonitor {
         this.c = c;
     }
 
-    public Event getEvent() {
-        return event;
-    }
-
-    public ASI getAsi() {
-        return asi;
-    }
-
-    public void setAsi(ASI asi) {
-        this.asi = asi;
-    }
+//    public Event getEvent() {
+//        return event;
+//    }
+//
+//    public ASI getAsi() {
+//        return asi;
+//    }
+//
+//    public void setAsi(ASI asi) {
+//        this.asi = asi;
+//    }
 
     public PlayerMonitor(Context c, boolean enableTrace, String serverURL, int serverTimeout, String userAgent,
-                         String dev_id, String user_extid, String source, String dequeueingIntervalTime
+                         String dev_id, String user_extid, String source, int dequeueingIntervalTime,
+                         String device_vendor, String device_model, String device_so, String codice_cliente
 //            , String onClosing, String offset
     ) {
         this.enableTrace = enableTrace;
@@ -214,7 +214,11 @@ public class PlayerMonitor {
         this.dequeueingIntervalTime = dequeueingIntervalTime;
 //        this.onClosing = onClosing;
 //        this.offset = offset;
-        this.c=c;
+        this.c = c;
+        this.device_vendor = device_vendor;
+        this.device_model = device_model;
+        this.device_so = device_so;
+        this.codice_cliente = codice_cliente;
     }
 
 
@@ -277,65 +281,12 @@ public class PlayerMonitor {
         this.source = source;
     }
 
-    public String getDequeueingIntervalTime() {
+    public int getDequeueingIntervalTime() {
         return dequeueingIntervalTime;
     }
 
-    public void setDequeueingIntervalTime(String dequeueingIntervalTime) {
+    public void setDequeueingIntervalTime(int dequeueingIntervalTime) {
         this.dequeueingIntervalTime = dequeueingIntervalTime;
     }
-
-    public String getOnClosing() {
-        return onClosing;
-    }
-
-    public void setOnClosing(String onClosing) {
-        this.onClosing = onClosing;
-    }
-
-    public String getOffset() {
-        return offset;
-    }
-
-    public void setOffset(String offset) {
-        this.offset = offset;
-    }
-
-
-
-    public void activate(String device_vendor, String device_model, String device_so, String codice_cliente ) {
-
-        createEventBody(c);
-        asi = new ASI();
-        asi.setStart_time(Observer.getCurrentTimeStamp());
-        asi.setCodice_cliente(codice_cliente);
-        asi.setDevice_model(device_model);
-        asi.setDevice_so(device_so);
-        asi.setDevice_vendor(device_vendor);
-
-        asi.updateASIPayload();
-
-        event.events_list.add(new EventElement("ASI", asi.getPayload()));
-
-    }
-
-    public void terminate()
-    {
-        aci= new ACI();
-        aci.setStop_time(Observer.getCurrentTimeStamp());
-    }
-
-
-
-
-    public Event createEventBody(Context c) {
-
-        ArrayList<EventElement> eventList= new ArrayList<EventElement>();
-        DeviceInfo deviceInfo = new DeviceInfo(c);
-        Observer.event = new Event(c, deviceInfo, eventList);
-
-        return event;
-    }
-
 
 }

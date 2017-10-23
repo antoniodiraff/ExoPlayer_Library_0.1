@@ -1,6 +1,9 @@
 package com.google.android.exoplayer2.demo;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.pm.PackageInstaller;
+import android.os.AsyncTask;
 import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -20,6 +23,8 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
+import com.google.android.exoplayer2.demo.Model.ACI;
+import com.google.android.exoplayer2.demo.Model.ASI;
 import com.google.android.exoplayer2.demo.Model.Event;
 import com.google.android.exoplayer2.demo.Model.EventElement;
 import com.google.android.exoplayer2.demo.Model.SC;
@@ -27,6 +32,7 @@ import com.google.android.exoplayer2.demo.Model.SDC;
 import com.google.android.exoplayer2.demo.Model.SDD;
 import com.google.android.exoplayer2.demo.Model.SE;
 import com.google.android.exoplayer2.demo.Model.SSCH;
+import com.google.android.exoplayer2.demo.Model.SSPVOD;
 import com.google.android.exoplayer2.demo.Model.SSRCH;
 import com.google.android.exoplayer2.demo.Model.SSVOD;
 import com.google.android.exoplayer2.demo.Model.STCL;
@@ -56,16 +62,20 @@ import com.google.android.exoplayer2.video.VideoRendererEventListener;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -74,6 +84,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Timer;
@@ -110,6 +121,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     private final Timeline.Period period;
     private final long startTimeMs;
     private final int serverTimeout;
+    private final int dequeueingIntervalTime;
 
     // *** MODEL initialization ***
 
@@ -123,6 +135,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public SC sc;
     public STRB strb;
     public SSVOD ssvod;
+    public ASI asi;
+    public ACI aci;
 
 
     // *** LOCAL variables ***
@@ -133,7 +147,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     boolean isTheFirstTime_Ready = true;
     private String oldBitRate;
     public Context c;
-    public static Event event;
+    public Event event;
     public EventElement e = null;
     public EventElement e_ = null;
 
@@ -158,8 +172,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public String sessionID;
     PlayerMonitor playerMonitor;
     ExoPlayer player;
+    private SSPVOD sspvod;
 
-    public Observer(SimpleExoPlayer player, final MappingTrackSelector trackSelector,
+    public Observer( final MappingTrackSelector trackSelector,
                     final PlayerMonitor playerMonitor, String sessionID, boolean isLive,
                     boolean isLocalFile, boolean isRestart, String originalSessionId, String restartSec,
                     boolean isFree, String channelName, String channelID, String channelType, String vodID,
@@ -167,8 +182,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
         this.playerMonitor = playerMonitor;
         this.c = playerMonitor.c;
-        playerMonitor.createEventBody(c);
-        event.device_info.user_agent=playerMonitor.userAgent;
+
+        dequeueingIntervalTime=playerMonitor.dequeueingIntervalTime;
 
         this.URL = playerMonitor.serverURL;
         this.serverTimeout= playerMonitor.serverTimeout;
@@ -191,11 +206,37 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         period = new Timeline.Period();
         startTimeMs = SystemClock.elapsedRealtime();
         this.sessionID = sessionID;
-        this.player = player;
 
     }
 
-    public void activate() {
+    public void terminate() {
+        aci = new ACI();
+        aci.setStop_time(Observer.getCurrentTimeStamp());
+    }
+
+    public void startSession(SimpleExoPlayer player) {
+
+        this.player = player;
+
+        event = null;
+        event = createNewEvent(c);
+        Asi(event);
+
+
+        if (isLocalFile){
+            SSPVOD(getCurrentTimeStamp());
+        }
+        else if (isLive){
+            if (isTheFirstTime){
+                SSCH(getCurrentTimeStamp());
+            }}
+        else {
+               SSVOD(getCurrentTimeStamp());
+        }
+
+
+
+
         //TRIGGER
         t = new Timer();
         t.scheduleAtFixedRate(new TimerTask() {
@@ -205,22 +246,56 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                                       Log.d(TAG, "********TIMER " + t.toString());
 
                                       //  Observer o = new Observer(trackSelector, c);
-                                      if (event.events_list.size() > 0) {
+                                      if (isTheFirstTime)
+                                      {
 
+                                          SendDeviceDetails async = new SendDeviceDetails();
                                           try {
                                               stampaJSON(fromObjectToJSON(event));
-                                              sendJSON(event);
+                                              async.execute(playerMonitor.getServerURL(), fromObjectToJSON(event));
                                           } catch (IOException e1) {
                                               e1.printStackTrace();
                                           }
+
+//                                          try {
+//                                              sendJSON(event);
+//                                          } catch (IOException e1) {
+//                                              e1.printStackTrace();
+//                                          }
                                           event = null;
-                                          event = playerMonitor.createEventBody(c);
+                                          event = createNewEvent(c);
                                       }
                                   }
                               }
-                , 5000, 30000);
+                , dequeueingIntervalTime, dequeueingIntervalTime);
 //    perc();
 
+    }
+
+    private void Asi(Event event) {
+        asi = new ASI();
+        asi.setStart_time(Observer.getCurrentTimeStamp());
+        asi.setCodice_cliente(playerMonitor.codice_cliente);
+        asi.setDevice_model(playerMonitor.device_model);
+        asi.setDevice_so(playerMonitor.device_so);
+        asi.setDevice_vendor(playerMonitor.device_vendor);
+        asi.updateASIPayload();
+        event.events_list.add(new EventElement("ASI", asi.getPayload()));
+    }
+
+
+
+    public Event createNewEvent(Context c) {
+
+        ArrayList<EventElement> eventList = new ArrayList<EventElement>();
+        DeviceInfo deviceInfo = new DeviceInfo(c);
+        event = new Event(c, deviceInfo, eventList);
+        event.source = playerMonitor.source;
+        event.device_info.user_agent = playerMonitor.userAgent;
+        event.device_info.dev_id = playerMonitor.dev_id;
+        event.device_info.user_extid = playerMonitor.user_extid;
+
+        return event;
     }
 
     public void perc(){
@@ -822,44 +897,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     private void sendJSON(Event event) throws IOException {
 
-        Log.d(TAG, "*********** SENDING JSON... ");
-        trustEveryone();
-        //  stampaJson();
-        String json = fromObjectToJSON(event);
-
-        String request = "https://telemetria-lib-coll.skycdn.it/skymeter/collector";
-        URL url = new URL(request);
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setDoOutput(true);
-        connection.setDoInput(true);
-        //connection.setInstanceFollowRedirects(false);
-        connection.setRequestProperty("Content-Type", "application/json");
-        connection.setRequestProperty("Accept", "application/json");
-        connection.setRequestMethod("POST");
-        connection.setUseCaches(true);
-
-        OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
-        wr.write(json);
-        wr.flush();
-
-        Log.d(TAG, "***********  JSON... inviato ! ");
-        //display what returns the POST request
-
-        StringBuilder sb = new StringBuilder();
-        int HttpResult = connection.getResponseCode();
-
-        if (HttpResult == HttpURLConnection.HTTP_OK) {
-            BufferedReader br = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream(), "utf-8"));
-            String line = null;
-            while ((line = br.readLine()) != null) {
-                sb.append(line + "\n");
-            }
-            br.close();
-            Log.i(TAG, "***********    http response SB: " + String.valueOf(sb));
-        } else {
-            Log.i(TAG, "***********    http response getResponse : " + connection.getResponseMessage().toString());
-        }
     }
 
     public void stampaJSON(String jsonInString) {
@@ -924,7 +961,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         ssch.setChannel_type(channelType);
         ssch.setDrm_time("Drm Time ");
         ssch.setHttp_response("Http Response");
-        ssch.setIp_server(URL);
+        ssch.setIp_server("ipserver");
         ssch.setManifest_uri("Maniest URI");
         ssch.setManifest_dwnl_byte("Maniest dwnl byte");
         ssch.setManifest_dwnl_time("Maniest dwnl time");
@@ -940,6 +977,18 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         //  ssch.payLoad_String[3] = "par 4";
 
 //            Log.i(TAG, "*******   payload stringhe" + e.payLoad_String);
+
+    }
+
+    private void SSPVOD(String currentTimeStamp) {
+        sspvod=new SSPVOD();
+        sspvod.setSession_id(sessionID);
+        sspvod.setStart_time(currentTimeStamp);
+        sspvod.setOffer_id(vodID);
+        sspvod.setAsset_title(VODTitle);
+        sspvod.setAsset_source(assetPath);
+        sspvod.setAsset_type(assetType);
+
 
     }
 
@@ -992,7 +1041,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         e = new EventElement("Session Error", se.getPayload());
     }
 
-    public static Event updateEventList(EventElement e, EventElement e_) {
+    public Event updateEventList(EventElement e, EventElement e_) {
         if (e != null) {
             if (e_ != e) {
                 if (event != null) {
@@ -1011,7 +1060,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
             isTheFirstTime_Buffering = false;
         } else {
             ssch.setBuffering_time(currentTimeStamp);
+
             STRB();
+
         }
     }
 
@@ -1020,12 +1071,12 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         if (isTheFirstTime) {
 
             // if is live ch
-            SSCH(currentTimeStamp);
+//            SSCH(currentTimeStamp);
+//
+//            // if is vod
+//            SSVOD(currentTimeStamp);
 
-            // if is vod
-            SSVOD(currentTimeStamp);
-
-            isTheFirstTime = false;
+//            isTheFirstTime = false;
         }
 
     }
@@ -1047,5 +1098,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     }
 
 }
+
 
 
