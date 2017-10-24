@@ -577,7 +577,6 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
         // Do nothing.
 
-
     }
 
     @Override
