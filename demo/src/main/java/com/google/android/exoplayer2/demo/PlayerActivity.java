@@ -165,7 +165,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         playerMonitor = new PlayerMonitor(getApplicationContext(),
                 false, "https://telemetria-lib-coll.skycdn.it/skymeter/collector",
                 5000, "userAgent", "dev_id",
-                "user_extid", "SOL_OBS_UK_INTV2.0", 5000,
+                "user_extid", "SOL_OBS_UK_INTV2.0", 10000,
                 "Google", "Pixel", "OS", "Codice Cliente");
 
     }
@@ -214,6 +214,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         if (Util.SDK_INT > 23) {
             releasePlayer();
         }
+        observer.stopSession();
     }
 
     @Override
@@ -404,6 +405,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         boolean haveResumePosition = resumeWindow != C.INDEX_UNSET;
         if (haveResumePosition) {
             player.seekTo(resumeWindow, resumePosition);
+
         }
         player.prepare(mediaSource, !haveResumePosition, false);
 
