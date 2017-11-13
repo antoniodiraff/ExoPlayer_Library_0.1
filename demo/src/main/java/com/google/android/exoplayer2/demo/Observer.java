@@ -1254,17 +1254,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         ended_CallBack(getCurrentTimeStamp());
     }
 
-    public void sessionDownloadPauseWithPauseCause(PauseCause pauseCause) {
-
-        // pauseCause: possible causes of pause:
-
-        // 001: Network error
-        // 002: No more space
-        // 003: Voluntary pause
-        // 004: Application put in background
-        // 005: Title queued
-        SDP(pauseCause.getPauseCode(), getCurrentTimeStamp(), event);
-    }
 
     public void sessionDownloadVODCompleted() {
         SDC(getCurrentTimeStamp(), event);
@@ -1276,11 +1265,32 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         SSDVOD(getCurrentTimeStamp(),event);
     }
 
+ /*  TODO
+  Download
+    SDR
+    SDD
+*/
+    public void sessionDownloadPauseWithPauseCause(PauseCause pauseCause) {
+
+     // pauseCause: possible causes of pause
+        // See Enum Class PauseCause
+
+     // 001: Network error
+     // 002: No more space
+     // 003: Voluntary pause
+     // 004: Application put in background
+     // 005: Title queued
+     SDP(pauseCause.getPauseCode(), getCurrentTimeStamp(), event);
+ }
+    public void sessionDownloadResume(){SDR(getCurrentTimeStamp(), event);}
 
 /*
  e.g.
  sessionDownloadPauseWithPauseCause(PauseCause.NetworkError);
 */
+
+
+
 
 
 /*
