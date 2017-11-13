@@ -170,10 +170,11 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
     }
 
-//    String serverURL, int serverTimeout, String userAgent,
-//  String dev_id, String user_extid, String source, int dequeueingIntervalTime,
-//
-//
+/*
+      String serverURL, int serverTimeout, String userAgent,
+      String dev_id, String user_extid, String source, int dequeueingIntervalTime,
+*/
+
 
     @Override
     public void onNewIntent(Intent intent) {
@@ -433,8 +434,9 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         }
     }
 
-    private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(UUID uuid,
-                                                                              String licenseUrl, String[] keyRequestPropertiesArray) throws UnsupportedDrmException {
+    private DrmSessionManager<FrameworkMediaCrypto> buildDrmSessionManagerV18(UUID uuid, String licenseUrl,
+                                                                              String[] keyRequestPropertiesArray)
+            throws UnsupportedDrmException {
         HttpMediaDrmCallback drmCallback = new HttpMediaDrmCallback(licenseUrl,
                 buildHttpDataSourceFactory(false));
         if (keyRequestPropertiesArray != null) {

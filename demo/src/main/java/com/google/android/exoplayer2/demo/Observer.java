@@ -142,9 +142,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
      *** VARIABLES needed 4 constructor ***
      */
     String URL = "";
-    boolean isLive;
-    boolean isLocalFile;
-    boolean isRestart;
+    boolean isLive=false;
+    boolean isLocalFile=false;
+    boolean isRestart=false;
     String originalSessionId = "";
     String restartSec = "";
     boolean isFree;
@@ -167,6 +167,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                     boolean isLive, boolean isLocalFile, boolean isRestart, String originalSessionId, String restartSec,
                     boolean isFree, String channelName, String channelID, String channelType, String vodID,
                     String VODTitle, String assetType, String assetPath) {
+
 
         this.playerMonitor = playerMonitor;
         this.c = playerMonitor.c;
@@ -207,7 +208,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         return event;
     }
 
-    /* Loading Percentage
+    /*
+    Loading Percentage
      */
 
     public void perc() {
@@ -218,7 +220,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                     public void run() {
                         int i = player.getBufferedPercentage();
                         String percentage = String.valueOf(i);
-                        Log.i(TAG, "----------------->        percentage    " + percentage + "%");
+                        Log.i(TAG, " --------->        percentage    " + percentage + "%");
                     }
                 }
                 , 0, 1000);
