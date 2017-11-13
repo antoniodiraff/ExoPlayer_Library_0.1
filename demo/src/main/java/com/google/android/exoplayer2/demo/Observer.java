@@ -78,7 +78,7 @@ import javax.net.ssl.X509TrustManager;
 public final class Observer implements Player.EventListener, AudioRendererEventListener,
         VideoRendererEventListener, AdaptiveMediaSourceEventListener,
         ExtractorMediaSource.EventListener, DefaultDrmSessionManager.EventListener,
-        MetadataRenderer.Output{
+        MetadataRenderer.Output {
 
     private static final String TAG = "Observer";
     private static final int MAX_TIMELINE_ITEM_LINES = 3;
@@ -142,9 +142,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
      *** VARIABLES needed 4 constructor ***
      */
     String URL = "";
-    boolean isLive=false;
-    boolean isLocalFile=false;
-    boolean isRestart=false;
+    boolean isLive = false;
+    boolean isLocalFile = false;
+    boolean isRestart = false;
     String originalSessionId = "";
     String restartSec = "";
     boolean isFree;
@@ -531,7 +531,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
                               int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
                               long mediaEndTimeMs, long elapsedRealtimeMs) {
-      //  onLoadStarted_callback(getCurrentTimeStamp());
+        //  onLoadStarted_callback(getCurrentTimeStamp());
 
         Log.d(TAG, " ********** ONLOAD STARTED " +
                 "        DATI :    ");
@@ -1175,7 +1175,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     }
 
 
-
     private void onLoadCanceled_callback(String currentTimeStamp) {
         SDD(currentTimeStamp, event);
     }
@@ -1192,7 +1191,10 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     }
 
 
-    //   *****   Call these methods from the PLAYER ACTIVITY   *****
+    /*
+                        *****  API *****
+        - Call these methods from the PLAYER Activity / Fragment  -
+     */
 
     public void startSession(SimpleExoPlayer player) {
         this.player = player;
@@ -1250,10 +1252,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     public void stopSession() {
         ended_CallBack(getCurrentTimeStamp());
-        String s = "NetworkError";
     }
-
-   // sessionDownloadPauseWithPauseCause(PauseCause.NetworkError);
 
     public void sessionDownloadPauseWithPauseCause(PauseCause pauseCause) {
 
@@ -1267,6 +1266,26 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         SDP(pauseCause.getPauseCode(), getCurrentTimeStamp(), event);
     }
 
+    public void sessionDownloadVODCompleted() {
+        SDC(getCurrentTimeStamp(), event);
+    }
+
+    //ssdvod
+
+    public void sessionStartDownloadVOD(){
+        SSDVOD(getCurrentTimeStamp(),event);
+    }
+
+
+/*
+ e.g.
+ sessionDownloadPauseWithPauseCause(PauseCause.NetworkError);
+*/
+
+
+/*
+
+     */
     public enum PauseCause {
 
         NetworkError("001"),
@@ -1284,10 +1303,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         public String getPauseCode() {
             return pauseCode;
         }
-    }
-
-    public void sessionDownloadVODCompleted() {
-        SDC(getCurrentTimeStamp(), event);
     }
 
 }
