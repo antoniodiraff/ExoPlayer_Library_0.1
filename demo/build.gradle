@@ -54,6 +54,7 @@ android {
         exclude 'META-INF/NOTICE'
     }
 
+    buildToolsVersion '26.0.2'
 }
 //String jacksonCore = 'com.fasterxml.jackson.core:jackson-core:'
 //String jacksonAnnotations = 'com.fasterxml.jackson.core:jackson-annotations:'

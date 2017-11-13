@@ -25,7 +25,6 @@ public class SSCH extends LiveCH {
         payload.add(channel_epg);
         payload.add(channel_name);
         return payload;
-
 //         "session_id",
         // original_session_id   *** only for ssrch
 //         "start_time",

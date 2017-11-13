@@ -13,14 +13,12 @@ public class SDP extends Download {
 
     }
 
-
     public void updateSDPPayload() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(pause_time);
         payload.add(pause_cause);
         payload.add(download_perc);
-
     }
 
     public String getPause_time() {

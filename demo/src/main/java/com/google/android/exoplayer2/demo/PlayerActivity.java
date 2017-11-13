@@ -188,7 +188,6 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         super.onStart();
         if (Util.SDK_INT > 23) {
             initializePlayer();
-
         }
     }
 
@@ -331,10 +330,10 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
                     drmSessionManager, extensionRendererMode);
 
             player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
+
             observer = new Observer(
                     trackSelector,
-                    playerMonitor,
-                    "session ID",
+                    playerMonitor, "session ID",
                     true, false, false,
                     "originalSessionId",
                     "restartSec",
@@ -458,7 +457,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
             player = null;
             trackSelector = null;
             trackSelectionHelper = null;
-            observer = null;
+            //observer = null;
         }
     }
 

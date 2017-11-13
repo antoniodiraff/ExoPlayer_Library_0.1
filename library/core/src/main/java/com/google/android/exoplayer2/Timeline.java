@@ -299,9 +299,9 @@ public abstract class Timeline {
      * @return This period, for convenience.
      */
     public Period set(Object id, Object uid, int windowIndex, long durationUs,
-        long positionInWindowUs) {
+                      long positionInWindowUs) {
       return set(id, uid, windowIndex, durationUs, positionInWindowUs, null, null, null, null,
-          null, C.TIME_UNSET);
+              null, C.TIME_UNSET);
     }
 
     /**
@@ -329,8 +329,8 @@ public abstract class Timeline {
      * @return This period, for convenience.
      */
     public Period set(Object id, Object uid, int windowIndex, long durationUs,
-        long positionInWindowUs, long[] adGroupTimesUs, int[] adCounts, int[] adsLoadedCounts,
-        int[] adsPlayedCounts, long[][] adDurationsUs, long adResumePositionUs) {
+                      long positionInWindowUs, long[] adGroupTimesUs, int[] adCounts, int[] adsLoadedCounts,
+                      int[] adsPlayedCounts, long[][] adDurationsUs, long adResumePositionUs) {
       this.id = id;
       this.uid = uid;
       this.windowIndex = windowIndex;
@@ -413,7 +413,7 @@ public abstract class Timeline {
      */
     public boolean hasPlayedAdGroup(int adGroupIndex) {
       return adCounts[adGroupIndex] != C.INDEX_UNSET
-          && adsPlayedCounts[adGroupIndex] == adCounts[adGroupIndex];
+              && adsPlayedCounts[adGroupIndex] == adCounts[adGroupIndex];
     }
 
     /**
@@ -432,7 +432,7 @@ public abstract class Timeline {
       // In practice we expect there to be few ad groups so the search shouldn't be expensive.
       int index = adGroupTimesUs.length - 1;
       while (index >= 0 && (adGroupTimesUs[index] == C.TIME_END_OF_SOURCE
-          || adGroupTimesUs[index] > positionUs)) {
+              || adGroupTimesUs[index] > positionUs)) {
         index--;
       }
       return index >= 0 && !hasPlayedAdGroup(index) ? index : C.INDEX_UNSET;
@@ -453,7 +453,7 @@ public abstract class Timeline {
       // In practice we expect there to be few ad groups so the search shouldn't be expensive.
       int index = 0;
       while (index < adGroupTimesUs.length && adGroupTimesUs[index] != C.TIME_END_OF_SOURCE
-          && (positionUs >= adGroupTimesUs[index] || hasPlayedAdGroup(index))) {
+              && (positionUs >= adGroupTimesUs[index] || hasPlayedAdGroup(index))) {
         index++;
       }
       return index < adGroupTimesUs.length ? index : C.INDEX_UNSET;

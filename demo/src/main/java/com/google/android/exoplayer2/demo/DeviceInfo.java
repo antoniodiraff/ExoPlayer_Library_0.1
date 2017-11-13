@@ -211,6 +211,4 @@ public class DeviceInfo {
         }
         return uniqueID;
     }
-
-
 }
