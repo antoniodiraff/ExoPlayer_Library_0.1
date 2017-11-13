@@ -531,7 +531,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public void onLoadStarted(DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
                               int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
                               long mediaEndTimeMs, long elapsedRealtimeMs) {
-        onLoadStarted_callback(getCurrentTimeStamp());
+      //  onLoadStarted_callback(getCurrentTimeStamp());
 
         Log.d(TAG, " ********** ONLOAD STARTED " +
                 "        DATI :    ");
@@ -1250,9 +1250,12 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     public void stopSession() {
         ended_CallBack(getCurrentTimeStamp());
+        String s = "NetworkError";
     }
 
-    public void sessionDownloadPauseWithPauseCause(String pauseCause) {
+   // sessionDownloadPauseWithPauseCause(PauseCause.NetworkError);
+
+    public void sessionDownloadPauseWithPauseCause(PauseCause pauseCause) {
 
         // pauseCause: possible causes of pause:
 
@@ -1261,8 +1264,26 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         // 003: Voluntary pause
         // 004: Application put in background
         // 005: Title queued
+        SDP(pauseCause.getPauseCode(), getCurrentTimeStamp(), event);
+    }
 
-        SDP(pauseCause, getCurrentTimeStamp(), event);
+    public enum PauseCause {
+
+        NetworkError("001"),
+        NoMoreSpace("002"),
+        VoluntaryPause("003"),
+        ApplicationPutInBackgroud("004"),
+        TitledQueued("005");
+
+        public final String pauseCode;
+
+        PauseCause(String pauseCode) {
+            this.pauseCode = pauseCode;
+        }
+
+        public String getPauseCode() {
+            return pauseCode;
+        }
     }
 
     public void sessionDownloadVODCompleted() {

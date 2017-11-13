@@ -1,5 +1,7 @@
 package com.google.android.exoplayer2.demo.Model;
 
+import com.google.android.exoplayer2.demo.Observer;
+
 import java.util.ArrayList;
 
 //SDP : Session Download Pause
