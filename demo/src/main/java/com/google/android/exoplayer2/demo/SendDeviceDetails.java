@@ -34,19 +34,14 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
     public String doInBackground(String... params) {
 
         StringBuilder sb = null;
-//        HttpURLConnection httpURLConnection = null;
-
-
+        //  HttpURLConnection httpURLConnection = null;
         //  Invio Json();
         String json = params[1];
         URL url = null;
         try {
             url = new URL(params[0]);
 
-
             trustEveryone();
-
-
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setDoOutput(true);
             connection.setDoInput(true);
@@ -59,7 +54,6 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
             wr.write(json);
             wr.flush();
             wr.close();
-
 //            OutputStream os = connection.getOutputStream();
 //            BufferedWriter writer = new BufferedWriter(
 //                    new OutputStreamWriter(os, "UTF-8"));
@@ -70,7 +64,6 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
 //            writer.flush();
 //            writer.close();
 //            os.close();
-
             Log.i(TAG, "***********  JSON... inviato ! ");
             //display what returns the POST request
 
@@ -106,8 +99,6 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
             Log.i(TAG, "" + e.toString());
             e.printStackTrace();
         }
-
-
 //
 //            connection = (HttpURLConnection) new URL(params[0]).openConnection();
 //            connection.setRequestMethod("POST");
@@ -135,11 +126,8 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
 //                httpURLConnection.disconnect();
 //            }
 //        }
-
-
         return sb.toString();
     }
-
 
     private void trustEveryone() {
         try {
@@ -168,7 +156,6 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
             e.printStackTrace();
         }
     }
-
 
     @Override
     public void onPostExecute(String result) {

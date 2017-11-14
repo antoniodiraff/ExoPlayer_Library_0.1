@@ -335,12 +335,12 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
             observer = new Observer(
                     trackSelector,
                     playerMonitor, "session ID",
-                    true, false, false,
+                    false, true, false,
                     "originalSessionId",
                     "restartSec",
                     true,
                     "channelName", "channelID", "channelType",
-                    "VOD_ID", "VODTitle", "assetType", "assetPath");
+                    "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
 
             observer.startSession(player);
 
