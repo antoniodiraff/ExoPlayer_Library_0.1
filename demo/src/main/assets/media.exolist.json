@@ -13,6 +13,11 @@
       {
         "name": "Download & Play EX index",
         "uri": "http://test.hlsvod.oscdn.skycdn.it/temp_gaetano/dp_telemetry_lib/index.m3u8"
+      },
+      {
+        "name": "New link",
+        "uri": "http://skyianywhere2-i.akamaihd.net/hls/live/200275/tg24/playlist.m3u8"
+
       }
     ]
   }

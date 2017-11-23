@@ -14,36 +14,17 @@ import static com.google.android.exoplayer2.demo.Observer.getCurrentTimeStamp;
 @JsonIgnoreProperties("payloadObject")
 
 public class EventElement {
-    String ts;
-    String name;
+    public String ts;
+    public String name;
     @JsonProperty("payload")
-    ArrayList<String> payload;
+    public ArrayList<String> payload;
 
-
-    //    PayLoadElement payLoadElement;
-//
-//    public EventElement(String ts, ArrayList<String> payload_String) {
-//        this.ts = ts;
-//        this.name = name;
-//        this.payload = payload_String;
-//
-//    }
     public EventElement(String name, ArrayList<String> payload) {
         this.ts = getCurrentTimeStamp();
         this.name = name;
         this.payload = payload;
-
-//        this.payloadObject = payLoadElement;
-//        payload= payLoadElement.payload;
     }
 
-    //    public PayLoadElement getPayloadObject() {
-//        return payloadObject;
-//    }
-//
-//    public void setPayloadObject(PayLoadElement payloadObject) {
-//        this.payloadObject = payloadObject;
-//    }
     public void setPayload(ArrayList<String> payload) {
         this.payload = payload;
     }
@@ -56,19 +37,9 @@ public class EventElement {
         this.payload = payload;
     }
 
-
     public EventElement(String name) {
         this.name = name;
     }
-
-//    public PayLoadElement getPayload() {
-//        return payloadObject;
-//    }
-//
-//    public void setPayload(PayLoadElement payload) {
-//
-//        this.payloadObject = payload;
-//    }
 
     public String getTs() {
         return ts;
@@ -85,6 +56,5 @@ public class EventElement {
     public void setName(String name) {
         this.name = name;
     }
-
 
 }

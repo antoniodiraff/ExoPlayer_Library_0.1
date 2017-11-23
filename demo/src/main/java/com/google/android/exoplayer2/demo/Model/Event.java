@@ -28,7 +28,7 @@ public class Event {
 
     public Event(Context c, DeviceInfo device_info, ArrayList<EventElement> events_list) {
 
-        if (events_list!=null) {
+        if (events_list != null) {
             this.events_list = events_list;
         } else {
             this.events_list = new ArrayList<EventElement>();

@@ -135,6 +135,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     private Uri loadedAdTagUri;
     private ViewGroup adOverlayViewGroup;
     public PlayerMonitor playerMonitor;
+    private boolean isRestart= false;
 
     // Activity lifecycle
 
@@ -165,9 +166,8 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         playerMonitor = new PlayerMonitor(getApplicationContext(),
                 false, "https://telemetria-lib-coll.skycdn.it/skymeter/collector",
                 5000, "userAgent", "dev_id",
-                "user_extid", "SOL_OBS_UK_INTV2.0", 10000,
+                "user_extid", "SOL_OBS_UK_INTV2.0", 20000,
                 "Google", "Pixel", "OS", "Codice Cliente");
-
     }
 
 /*
@@ -189,6 +189,12 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         super.onStart();
         if (Util.SDK_INT > 23) {
             initializePlayer();
+            if(!isRestart){
+            observer.startSession(player);
+            }else {
+                //observer.createNewEvent(getApplicationContext());
+                observer.becomeActive(player);
+            }
         }
     }
 
@@ -206,6 +212,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         if (Util.SDK_INT <= 23) {
             releasePlayer();
         }
+        observer.pause();
     }
 
     @Override
@@ -214,14 +221,22 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         if (Util.SDK_INT > 23) {
             releasePlayer();
         }
-        observer.stopSession();
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         releaseAdsLoader();
+        observer.stopSession();
     }
+
+
+    @Override
+    public void onRestart() {
+        super.onRestart();
+        isRestart= true ;
+    }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -275,8 +290,6 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
             trackSelector = new DefaultTrackSelector(adaptiveTrackSelectionFactory);
             trackSelectionHelper = new TrackSelectionHelper(trackSelector, adaptiveTrackSelectionFactory);
             lastSeenTrackGroupArray = null;
-
-
 //      //if is a Live Channel
 //      playerMonitor.updateChannelInfo("Channel Name","Channel ID","Channel type","Channel EPG");
 //
@@ -296,7 +309,6 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 //              true,
 //              "channelName", "channelID", "channelType",
 //              "VOD_ID","VODTitle","assetType","assetPath" );
-
             UUID drmSchemeUuid = intent.hasExtra(DRM_SCHEME_UUID_EXTRA)
                     ? UUID.fromString(intent.getStringExtra(DRM_SCHEME_UUID_EXTRA)) : null;
             DrmSessionManager<FrameworkMediaCrypto> drmSessionManager = null;
@@ -342,7 +354,11 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
                     "channelName", "channelID", "channelType",
                     "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
 
-            observer.startSession(player);
+            if(isRestart){
+                observer.isTheFirstTime_Ready = false;
+                observer.isTheFirstTime = false;
+                observer.isTheFirstTime_Buffering=false;
+            }
 
             player.addListener(this);
             player.addListener(observer);

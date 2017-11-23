@@ -141,11 +141,9 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
                 public void checkClientTrusted(X509Certificate[] chain,
                                                String authType) throws CertificateException {
                 }
-
                 public void checkServerTrusted(X509Certificate[] chain,
                                                String authType) throws CertificateException {
                 }
-
                 public X509Certificate[] getAcceptedIssuers() {
                     return new X509Certificate[0];
                 }
