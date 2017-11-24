@@ -18,12 +18,15 @@ package com.google.android.exoplayer2.demo;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -82,6 +85,9 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.UUID;
 
+import static com.google.android.exoplayer2.demo.DeviceInfo.TAG;
+
+
 /**
  * An activity that plays media using {@link SimpleExoPlayer}.
  */
@@ -139,6 +145,14 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
     // Activity lifecycle
 
+
+    //LIBRERIA
+    Activity activity= this;
+    SharedPreferences sharedPref;
+    String jsonEvent=null;
+
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -162,11 +176,12 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         simpleExoPlayerView.setControllerVisibilityListener(this);
         simpleExoPlayerView.requestFocus();
 
-
-        playerMonitor = new PlayerMonitor(getApplicationContext(),
+        //LIBRERIA
+         sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+         playerMonitor = new PlayerMonitor(getApplicationContext(),
                 false, "https://telemetria-lib-coll.skycdn.it/skymeter/collector",
                 5000, "userAgent", "dev_id",
-                "user_extid", "SOL_OBS_UK_INTV2.0", 20000,
+                "user_extid", "SOL_OBS_UK_INTV2.0", 10000,
                 "Google", "Pixel", "OS", "Codice Cliente");
     }
 
@@ -187,11 +202,19 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     @Override
     public void onStart() {
         super.onStart();
+
         if (Util.SDK_INT > 23) {
             initializePlayer();
-            if(!isRestart){
-            observer.startSession(player);
-            }else {
+           // observer.startSession(isRestart);
+
+            if (!isRestart) {
+               // String jsonEvent = sharedPref.getString("event", null);
+                //if (jsonEvent != null) {
+                  //  observer.send(jsonEvent);
+                   // Log.i(TAG, "**************************    json salvato e inviato    :" + jsonEvent);
+               // }
+                observer.startSession(player);
+            } else {
                 //observer.createNewEvent(getApplicationContext());
                 observer.becomeActive(player);
             }
@@ -208,11 +231,11 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
     @Override
     public void onPause() {
+        observer.pause();
         super.onPause();
         if (Util.SDK_INT <= 23) {
             releasePlayer();
         }
-        observer.pause();
     }
 
     @Override
@@ -344,20 +367,17 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
             player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
 
-            observer = new Observer(
-                    trackSelector,
-                    playerMonitor, "session ID",
-                    false, true, false,
-                    "originalSessionId",
-                    "restartSec",
-                    true,
-                    "channelName", "channelID", "channelType",
-                    "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
 
-            if(isRestart){
-                observer.isTheFirstTime_Ready = false;
-                observer.isTheFirstTime = false;
-                observer.isTheFirstTime_Buffering=false;
+            if(!isRestart){
+                observer = new Observer(
+                        trackSelector,
+                        playerMonitor, "session ID",
+                        false, true, false,
+                        "originalSessionId",
+                        "restartSec",
+                        true,
+                        "channelName", "channelID", "channelType",
+                        "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
             }
 
             player.addListener(this);

@@ -58,4 +58,6 @@
 
   <string name="ima_not_loaded">Playing sample without ads, as the IMA extension was not loaded</string>
 
+  <string name="preferece_file_Key">Shared preference</string>
+
 </resources>

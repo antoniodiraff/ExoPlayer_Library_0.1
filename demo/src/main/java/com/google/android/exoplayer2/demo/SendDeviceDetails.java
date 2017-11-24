@@ -28,7 +28,7 @@ import javax.net.ssl.X509TrustManager;
 public class SendDeviceDetails extends AsyncTask<String, Void, String> {
 
     private static final String TAG = "**********   SendDeviceDetail";
-
+    public int HttpResult;
     @SuppressLint("LongLogTag")
     @Override
     public String doInBackground(String... params) {
@@ -68,7 +68,7 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
             //display what returns the POST request
 
             sb = new StringBuilder();
-            int HttpResult = connection.getResponseCode();
+             HttpResult = connection.getResponseCode();
             Log.i(TAG, "***********  HTTP RESULT :  " + HttpResult);
 
             if (HttpResult == HttpURLConnection.HTTP_OK) {
@@ -158,6 +158,7 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
     @Override
     public void onPostExecute(String result) {
         super.onPostExecute(result);
-        Log.e("TAG", result); // this is expecting a response code to be sent from your server upon receiving the POST data
+        Log.e("TAG", result);
+        // this is expecting a response code to be sent from your server upon receiving the POST data
     }
 }
