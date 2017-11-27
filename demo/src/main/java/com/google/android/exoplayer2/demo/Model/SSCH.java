@@ -13,7 +13,7 @@ public class SSCH extends LiveCH {
         payload.add(session_id);
         payload.add(start_time);
         payload.add(drm_time);
-        payload.add(buffering_time);
+        payload.add(3, buffering_time);
         payload.add(playback_start_time);
         payload.add(ip_server);
         payload.add(manifest_uri);

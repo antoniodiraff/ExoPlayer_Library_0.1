@@ -140,6 +140,15 @@ public class DeviceInfo {
         return ssid;
     }
 
+    public static String getUniqueID() {
+        return uniqueID;
+    }
+
+    public static void setUniqueID(String uniqueID) {
+        DeviceInfo.uniqueID = uniqueID;
+    }
+
+
     public String getDev_id() {
         return dev_id;
     }

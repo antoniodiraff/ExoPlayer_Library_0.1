@@ -206,18 +206,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         if (Util.SDK_INT > 23) {
             initializePlayer();
            // observer.startSession(isRestart);
-
-            if (!isRestart) {
-               // String jsonEvent = sharedPref.getString("event", null);
-                //if (jsonEvent != null) {
-                  //  observer.send(jsonEvent);
-                   // Log.i(TAG, "**************************    json salvato e inviato    :" + jsonEvent);
-               // }
-                observer.startSession(player);
-            } else {
-                //observer.createNewEvent(getApplicationContext());
-                observer.becomeActive(player);
-            }
+            observer.onStartSession(isRestart,player);
         }
     }
 
@@ -231,7 +220,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
     @Override
     public void onPause() {
-        observer.pause();
+        observer.onPause();
         super.onPause();
         if (Util.SDK_INT <= 23) {
             releasePlayer();
@@ -250,7 +239,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     public void onDestroy() {
         super.onDestroy();
         releaseAdsLoader();
-        observer.stopSession();
+        observer.onStopSession();
     }
 
 
@@ -372,20 +361,18 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
                 observer = new Observer(
                         trackSelector,
                         playerMonitor, "session ID",
-                        false, true, false,
+                        true, false, false, false,
                         "originalSessionId",
                         "restartSec",
                         true,
                         "channelName", "channelID", "channelType",
                         "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
             }
-
             player.addListener(this);
             player.addListener(observer);
             player.addMetadataOutput(observer);
             player.setAudioDebugListener(observer);
             player.setVideoDebugListener(observer);
-
             int percentage = player.getBufferedPercentage();
 
             simpleExoPlayerView.setPlayer(player);
