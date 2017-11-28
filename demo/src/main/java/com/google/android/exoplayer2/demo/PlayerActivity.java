@@ -181,8 +181,8 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
          playerMonitor = new PlayerMonitor(getApplicationContext(),
                 false, "https://telemetria-lib-coll.skycdn.it/skymeter/collector",
                 5000, "userAgent", "dev_id",
-                "user_extid", "SOL_OBS_UK_INTV2.0", 10000,
-                "Google", "Pixel", "OS", "Codice Cliente");
+                "user_extid", "SOL_OBS_UK_INTV2.0", 10000
+             );
     }
 
 /*
@@ -202,11 +202,10 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     @Override
     public void onStart() {
         super.onStart();
-
         if (Util.SDK_INT > 23) {
             initializePlayer();
            // observer.startSession(isRestart);
-            observer.onStartSession(isRestart,player);
+            observer.onStartSession(isRestart, player);
         }
     }
 
@@ -356,18 +355,13 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
             player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
 
-
-            if(!isRestart){
-                observer = new Observer(
-                        trackSelector,
-                        playerMonitor, "session ID",
-                        true, false, false, false,
-                        "originalSessionId",
-                        "restartSec",
-                        true,
-                        "channelName", "channelID", "channelType",
+            Observer.ASI("codice CLiente", "Samsung", "Galaxy S6" ,"Android 25");
+            if (!isRestart) {
+                observer = new Observer(trackSelector, playerMonitor, "session ID", true, false, false, false,
+                        "originalSessionId", "restartSec", true, "SKY_TG_24", "0001", "ChannelType",
                         "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
             }
+
             player.addListener(this);
             player.addListener(observer);
             player.addMetadataOutput(observer);

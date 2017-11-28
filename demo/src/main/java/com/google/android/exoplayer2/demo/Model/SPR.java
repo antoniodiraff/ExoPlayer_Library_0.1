@@ -11,6 +11,7 @@ public class SPR extends Download {
 
     public void setRestart_time(String restart_time) {
         this.restart_time = restart_time;
+        updateSPRPayload();
     }
 
     String restart_time;

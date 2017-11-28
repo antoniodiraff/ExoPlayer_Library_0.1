@@ -30,6 +30,8 @@ import com.google.android.exoplayer2.demo.Model.SDP;
 import com.google.android.exoplayer2.demo.Model.SDR;
 import com.google.android.exoplayer2.demo.Model.SE;
 import com.google.android.exoplayer2.demo.Model.SPC;
+import com.google.android.exoplayer2.demo.Model.SPP;
+import com.google.android.exoplayer2.demo.Model.SPR;
 import com.google.android.exoplayer2.demo.Model.SSCH;
 import com.google.android.exoplayer2.demo.Model.SSDVOD;
 import com.google.android.exoplayer2.demo.Model.SSPVOD;
@@ -117,10 +119,12 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public SDR sdr;
     public STRB strb = null;
     public SSVOD ssvod = null;
-    public ASI asi = null;
-    public ACI aci = null;
+    public static ASI asi = null;
+    public static ACI aci = null;
     public SSPVOD sspvod = null;
     public SSDVOD ssdvod = null;
+    public SPP spp;
+    public SPR spr;
     public SPC spc = null;
     public SDP sdp = null;
     public STR str;
@@ -129,9 +133,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     // *** LOCAL variables ***
     public Timer t;
-    boolean isTheFirstTime = true;
-    boolean isTheFirstTime_Buffering = true;
-    boolean isTheFirstTime_Ready = true;
     private String oldBitRate;
     public Context c;
     public Event event;
@@ -159,16 +160,20 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     String assetPath = "";
     public Timer _t;
     public String sessionID = "";
-    PlayerMonitor playerMonitor;
+    public static PlayerMonitor playerMonitor;
     SimpleExoPlayer player;
-    private boolean isFirstTime_Download = true;
-    private boolean play = true;
-    private String delay_time_sec;
-    private boolean isTheFirstTime_startEvent = true;
+    boolean isFirstTime_Download = true;
+    boolean play = true;
+    boolean isTheFirstTime_startEvent = true;
+    boolean isFirstTime_OnLoadedCompleted= true;
+    boolean isTheFirstTime = true;
+    boolean isTheFirstTime_Buffering = true;
+    boolean isTheFirstTime_Ready = true;
+    String delay_time_sec;
 
 
     public Observer(final MappingTrackSelector trackSelector, final PlayerMonitor playerMonitor, String sessionID,
-                    boolean isLive,boolean isVod, boolean isLocalFile, boolean isRestart, String originalSessionId, String restartSec,
+                    boolean isLive, boolean isVod, boolean isLocalFile, boolean isRestart, String originalSessionId, String restartSec,
                     boolean isFree, String channelName, String channelID, String channelType, String vodID,
                     String VODTitle, String assetType, String assetPath) {
 
@@ -196,6 +201,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         period = new Timeline.Period();
         startTimeMs = SystemClock.elapsedRealtime();
         this.sessionID = sessionID;
+
     }
 
 
@@ -228,8 +234,10 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                 , 0, 1000);
     }
 
-    /* Player.EventListener
+    /*
+    Player.EventListener
      */
+
     @Override
     public void onLoadingChanged(boolean isLoading) {
         Log.d(TAG, " ********** onLoadingChanged");
@@ -413,7 +421,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     }
 
 
-    /* MetadataRenderer.Output
+    /*
+    MetadataRenderer.Output
      */
     @Override
     public void onMetadata(Metadata metadata) {
@@ -422,7 +431,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         Log.d(TAG, "]");
     }
 
-    /* AudioRendererEventListener
+    /*
+    AudioRendererEventListener
      */
     @Override
     public void onAudioEnabled(DecoderCounters counters) {
@@ -563,7 +573,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         }
     }
 
-    /*  ExtractorMediaSource.EventListener
+    /*
+    ExtractorMediaSource.EventListener
     */
     @Override
     public void onLoadError(IOException error) throws IOException {
@@ -825,112 +836,27 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         }
     }
 
-    private void trustEveryone() {
-        try {
-            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-                public boolean verify(String hostname, SSLSession session) {
-                    return true;
-                }
-            });
-            SSLContext context = SSLContext.getInstance("TLS");
-            context.init(null, new X509TrustManager[]{new X509TrustManager() {
-                public void checkClientTrusted(X509Certificate[] chain,
-                                               String authType) throws CertificateException {
-                }
 
-                public void checkServerTrusted(X509Certificate[] chain,
-                                               String authType) throws CertificateException {
-                }
+    /*
+    At application level will be generated two category of events:
 
-                public X509Certificate[] getAcceptedIssuers() {
-                    return new X509Certificate[0];
-                }
-            }}, new SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(
-                    context.getSocketFactory());
-        } catch (Exception e) { // should never happen
-            e.printStackTrace();
-        }
-    }
+    START : everytime the application starts.
+    ASI : Application Startup Information
 
-    public void sendJSON(Event event, String serverURL) throws IOException {
-        try {
-            String json = fromObjectToJSON(event);
-            createNewEvent(c);
-            stampaJSON(json);
-            send(json);
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        return;
-    }
-
-    public void send(String json) {
-        SendDeviceDetails async = new SendDeviceDetails();
-        async.execute(playerMonitor.getServerURL(), json);
-        t.cancel();
-        t = new Timer();
-        t.scheduleAtFixedRate(newTask(), dequeueingIntervalTime, dequeueingIntervalTime);
-    }
-
-    public void stampaJSON(String jsonInString) {
-        Log.d(TAG, "****************** sto inviando il JSON :  " + jsonInString);
-    }
-
-    public static String getCurrentTimeStamp() {
-        try {
-            //TODO verificare il Timezone corretto
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ITALIAN);
-            String currentDateTime = dateFormat.format(new Date());
-            return currentDateTime;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-
-    public String fromObjectToJSON(ArrayList<EventElement> list) throws IOException {
-        String jsonInString = null;
-        ObjectMapper mapper = new ObjectMapper();
-//      mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        jsonInString = mapper.writeValueAsString(list);
-        return jsonInString;
-    }
-
-    public String fromObjectToJSON(Object object) throws IOException {
-        String jsonInString = null;
-        ObjectMapper mapper = new ObjectMapper();
-//      mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        jsonInString = mapper.writeValueAsString(event);
-        return jsonInString;
-    }
-
-    //    private void updateSSRCH(String bufferingTime) {
-    //
-    //        ssrch.setBuffering_time(bufferingTime);
-    //        ssrch.updateSSRCHPayload();
-    //
-    //    }
-
-    /**************************************************
-
-     *****      EVENTS      *****
-
-     ***************************************************/
-
-    private void ASI(String currentTimeStamp, Event event) {
+    CLOSE : everytime the application closes.
+    ACI : Application Close Information
+             */
+    public static void ASI(String device_vendor, String device_model, String device_so, String codice_cliente ) {
         asi = new ASI();
-        asi.setStart_time(currentTimeStamp);
-        asi.setCodice_cliente(playerMonitor.codice_cliente);
-        asi.setDevice_model(playerMonitor.device_model);
-        asi.setDevice_so(playerMonitor.device_so);
-        asi.setDevice_vendor(playerMonitor.device_vendor);
+        asi.setStart_time(getCurrentTimeStamp());
+        asi.setCodice_cliente(codice_cliente);
+        asi.setDevice_model(device_model);
+        asi.setDevice_so(device_so);
+        asi.setDevice_vendor(device_vendor);
         asi.updateASIPayload();
-        event.events_list.add(0, new EventElement("ASI", asi.getPayload()));
     }
 
-    private void ACI(Event event, String currentTimeStamp) {
+    public static void ACI(Event event, String currentTimeStamp) {
         aci = new ACI();
         aci.setStop_time(currentTimeStamp);
 
@@ -938,9 +864,14 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         event.events_list.add(new EventElement("ACI", aci.getPayload()));
     }
 
-
-    /* Start Events
+    /*
+     START : Every time a session starts.
+     SSCH : Session Start CHannel
+     SSRCH : Session Start Restart Channel (**)
+     SSVOD : Session Start VOD
+     SSDVOD : Session Start Download VOD (**) SSPVOD : Session
      */
+
     private void SSCH(String currentTimeStamp, Event event) {
         sc = null;
         ssch = new SSCH();
@@ -964,7 +895,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         event.events_list.add(1, new EventElement("SSCH", ssch.getPayload()));*/
         //updateEventList(e, e_);
     }
-
 
     private void SSRCH(String currentTimeStamp, Event event) {
         ssrch = new SSRCH();
@@ -1073,9 +1003,13 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         event.events_list.add(new EventElement("SSPVOD", sspvod.getPayload()));
     }
 
+    /*
+    DOWNLOAD : During the download of VOD chunks. (**)
+    SDP : Session Download Pause
+    SDR : Session Download Resume
+    SDD : Session Download Delete (download removed)
+    */
 
-    /* Download Events
-     */
     private void SDP(String pauseCause, String currentTimeStamp, Event event) {
         //SDP : Session Download Pause
         sdp = new SDP();
@@ -1119,9 +1053,28 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     Playback Events
      */
 
+    private void SPP(String currentTimeStamp, Event event) {
+        spp= new SPP();
+        spp.setSession_id(sessionID);
+        spp.setPause_time(currentTimeStamp);
+        event.events_list.add(new EventElement("SPP", spp.getPayload()));
+    }
 
-    /* Streaming Events
-     */
+    private void SPR(String currentTimeStamp, Event event) {
+        spr= new SPR();
+        spr.setSession_id(sessionID);
+        spr.setRestart_time(currentTimeStamp);
+        event.events_list.add(new EventElement("SPR", spr.getPayload()));
+    }
+
+
+    /*
+    STREAMING : During the streaming.
+    STD : Session sTreaming Download (valid also for VOD download) STP : Session sTreaming Pause
+    STR : Session sTreaming Restart
+    STCL : Session sTreaming Change Level
+    STRB : Session sTreaming ReBuferring
+    */
 
     private void STRB(String currentTimeStamp, Event event) {
         strb = new STRB();
@@ -1212,9 +1165,11 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         event.events_list.add(new EventElement("STD", std.getPayload()));
     }
 
+    /*
+    ERROR : Everytime an Error is raised.
+    SE : Session Error
+    */
 
-    /* Error Events
-     */
     public void SE(String type) {
 
         se = new SE();
@@ -1228,8 +1183,13 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         sendEventQueue();
     }
 
-    /* Close Events
-     */
+    /*
+    CLOSE : When a session finishes (also if is caused by an error that can’t permit streaming anymore).
+    SC  : Session Close
+    SDC : Session Download Completed (**) (reached download end)
+    SPC : Session Playback Close (**) (playback finished)
+    */
+
     public void SC(String currentTimeStamp) {
         sc = new SC();
         sc.setSession_id(sessionID);
@@ -1260,17 +1220,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         Log.i(TAG, "************   percentage " + String.valueOf(player.getBufferedPercentage()));
     }
 
-
-
-
-
-    /**/
-
-
     /*
-                *   onPlayerStateChange (callbacks)
-                *   STATE callbacks --- IDLE - READY - BUFFERING - ENDED ****
-
+    onPlayerStateChange STATE callbacks :   IDLE - READY - BUFFERING - ENDED
     */
 
     private void buffering_CallBack(String currentTimeStamp, Event event) {
@@ -1281,7 +1232,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
             if (ssch != null) {
                 ssch.setBuffering_time(currentTimeStamp);
-            } else if(ssvod!=null) {
+            } else if (ssvod != null) {
                 ssvod.setBuffering_time(currentTimeStamp);
             } else if (sspvod != null) {
                 sspvod.setBuffering_time(currentTimeStamp);
@@ -1316,12 +1267,13 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
             strb.setRebuffering_end_time("");
             strb.updateSTRBPayload();
         }
+
         if (isTheFirstTime_Ready) {
             if (isLive) {
                 if (ssch != null) {
                     ssch.setPlayback_start_time(getCurrentTimeStamp());
                     ssch.updateSSCHPayload();
-                    event.events_list.add(0, new EventElement("SSCH", ssch.getPayload()));
+                    event.events_list.add(1, new EventElement("SSCH", ssch.getPayload()));
                 }
             } else if (isLocalFile) {
                 if (sspvod != null) {
@@ -1331,7 +1283,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                 if (ssvod != null) {
                     ssvod.setPlayback_start_time(getCurrentTimeStamp());
                     ssvod.updateSSVODPayload();
-                    event.events_list.add(0, new EventElement("SSVOD", ssvod.getPayload()));
+                    event.events_list.add(1, new EventElement("SSVOD", ssvod.getPayload()));
                 }
             } else if (isRestart) {
                 if (ssrch != null) {
@@ -1341,17 +1293,25 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
             isTheFirstTime_Ready = false;
         } else {
             if (play) {
-                STR(getCurrentTimeStamp(), event);
+                if (isLive) {
+                    STR(getCurrentTimeStamp(), event);
+                } else if (isLocalFile) {
+                    SPR(getCurrentTimeStamp(), event);
+                }
             } else if (!play) {
                 // pause();
-                STP(getCurrentTimeStamp(), event);
+                if (isLive) {
+                    STP(getCurrentTimeStamp(), event);
+                } else if (isLocalFile) {
+                    SPP(getCurrentTimeStamp(), event);
+                }
+
             }
         }
     }
 
     private void ended_CallBack(String currentTimeStamp) {
         Log.d(TAG, " ********** ended_CallBack");
-
         terminate(currentTimeStamp);
         sendEventQueue();
         t.cancel();
@@ -1359,9 +1319,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
 
     /*
-                    *   Listeners callbacks   *
-
-    */
+    Listeners callbacks
+      */
     private void onDownstreamFormatChanged_callback(Event event, String currentTimeStamp, Format trackFormat) {
 
         if (event != null) {
@@ -1375,13 +1334,23 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         if (trackFormat != null) {
             Log.d(TAG, " ********** onLoadCompletedCallback" + trackFormat.toString());
         }
+        if(isFirstTime_OnLoadedCompleted){
+            isFirstTime_OnLoadedCompleted=false;
+            if(isLive){
+                if(ssch!=null){
+                    ssch.setManifest_uri(dataSpec.uri.toString());
+                    ssch.setManifest_dwnl_byte(String.valueOf(bytesLoaded));
+                    ssch.setManifest_dwnl_time(String.valueOf(loadDurationMs));
+                }
+            }
+        }
 
         if (event != null) {
             STD(currentTimeStamp, event, dataSpec, dataType, trackType, trackFormat,
                     trackSelectionReason, trackSelectionData, mediaStartTimeMs,
                     mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
         } else {
-            Log.d(TAG, " ********** event = null ....non dovrebbe mai succedere");
+            Log.d(TAG, " ********** event = null ....it never should happen");
 
         }
     }
@@ -1390,8 +1359,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
 
     /*
-                        *****  API *****
-        - Call these methods from the PLAYER Activity / Fragment  -
+      API: Call these methods from the PLAYER Activity / Fragment  -
+
      */
 
     public void onStartSession(boolean isOnRestart, SimpleExoPlayer player) {
@@ -1416,6 +1385,14 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         STP(getCurrentTimeStamp(), this.event);
         sendEventQueue();
     }
+
+
+    /*
+      DOWNLOAD : During the download of VOD chunks. (**)
+      SDP : Session Download Pause
+      SDR : Session Download Resume
+      SDD : Session Download Delete (download removed)
+     */
 
     public void sessionStartDownloadVOD() {
         if (event != null) {
@@ -1465,24 +1442,11 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         }
     }
 
-
-    public void terminate(String currentTimeStamp) {
-        if (isLocalFile) {
-            if (this.event != null) {
-                SPC(currentTimeStamp);
-            }
-        } else if (sc == null) {
-            if (this.event != null) {
-                SC(currentTimeStamp);
-            }
-        }
-        ACI(this.event, getCurrentTimeStamp());
-    }
-
     public void startSession(SimpleExoPlayer player) {
         this.player = player;
         createNewEvent(c);
-        ASI(getCurrentTimeStamp(), this.event);
+       // ASI(getCurrentTimeStamp(), this.event);
+        this.event.events_list.add(0, new EventElement("ASI", asi.getPayload()));
         this.event = createStartEvent(this.event);
 
         // TIMEout TRIGGER
@@ -1491,14 +1455,11 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     }
 
     public void becomeActive(SimpleExoPlayer player) {
-
         STR(getCurrentTimeStamp(), this.event);
-
         isTheFirstTime_Ready = false;
         isTheFirstTime_Buffering = false;
         isFirstTime_Download = false;
         isTheFirstTime = false;
-
         this.player = player;
 
      /*   if (event == null) {
@@ -1526,33 +1487,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         return event;
     }
 
-    private TimerTask newTask() {
-        return new TimerTask() {
-            @Override
-            public void run() {
-                Log.d(TAG, "********TIMER ");
-                if (event != null) {
-                    if (event.events_list.size() > 0) {
-                        if (isTheFirstTime) {
-                            isTheFirstTime = false;
-                            sendEventQueue();
-                        } else {
-                            Log.d(TAG, "******** La lista degli eventi è vuota quindi non invio il JSON : ");
-                            try {
-                                stampaJSON(fromObjectToJSON(event.events_list));
-                            } catch (IOException e1) {
-                                e1.printStackTrace();
-                            }
-                        }
-                    }
-
-                }
-            }
-
-            ;
-        };
-    }
-
+    //
     public void sendEventAndEmptyOutEvent(Event event, PlayerMonitor playerMonitor) {
         try {
             sendJSON(event, playerMonitor.getServerURL());
@@ -1560,6 +1495,92 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
             e1.printStackTrace();
         }
     }
+    public void sendJSON(Event event, String serverURL) throws IOException {
+        try {
+            String json = fromObjectToJSON(event);
+            createNewEvent(c);
+            stampaJSON(json);
+            send(json);
+        } catch (IOException e1) {
+            e1.printStackTrace();
+        }
+        return;
+    }
+    public void send(String json) {
+        SendDeviceDetails async = new SendDeviceDetails();
+        async.execute(playerMonitor.getServerURL(), json);
+        t.cancel();
+        t = new Timer();
+        t.scheduleAtFixedRate(newTask(), dequeueingIntervalTime, dequeueingIntervalTime);
+    }
+    public void stampaJSON(String jsonInString) {
+        Log.i(TAG, "****************** sto inviando il JSON :  " + jsonInString);
+    }
+    public static String getCurrentTimeStamp() {
+        try {
+            //TODO verificare il Timezone corretto
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.ITALIAN);
+            String currentDateTime = dateFormat.format(new Date());
+            return currentDateTime;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    public String fromObjectToJSON(ArrayList<EventElement> list) throws IOException {
+        String jsonInString = null;
+        ObjectMapper mapper = new ObjectMapper();
+//      mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        jsonInString = mapper.writeValueAsString(list);
+        return jsonInString;
+    }
+    public String fromObjectToJSON(Object object) throws IOException {
+        String jsonInString = null;
+        ObjectMapper mapper = new ObjectMapper();
+//      mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        jsonInString = mapper.writeValueAsString(event);
+        return jsonInString;
+    }
+
+    public void terminate(String currentTimeStamp) {
+        if (isLocalFile) {
+            if (this.event != null) {
+                SPC(currentTimeStamp);
+            }
+        } else if (sc == null) {
+            if (this.event != null) {
+                SC(currentTimeStamp);
+            }
+        }
+        ACI(this.event, getCurrentTimeStamp());
+    }
+
+    private TimerTask newTask() {
+        return new TimerTask() {
+            @Override
+            public void run() {
+                Log.d(TAG, "********TIMER ");
+                if (event != null) {
+                    if (event.events_list.size() > 0) {
+                    /*     if (isTheFirstTime) {
+                            isTheFirstTime = false;*/
+                        sendEventQueue();
+                        //}
+                    } else {
+                        Log.d(TAG, "******** La lista degli eventi è vuota quindi non invio il JSON : ");
+                        try {
+                            stampaJSON(fromObjectToJSON(event.events_list));
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }
+
+            ;
+        };
+    }
+
 
     //SEND EVENT QUEUE
     public synchronized void sendEventQueue() {
@@ -1586,10 +1607,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         //  sessionID=sessionID +
     }
 
-    /*
-e.g.
-sessionDownloadPauseWithPauseCause(PauseCause.NetworkError);
-*/
 
     /*
       ENUM PauseCause
@@ -1619,7 +1636,8 @@ sessionDownloadPauseWithPauseCause(PauseCause.NetworkError);
 
 
 
-/*    public Event updateEventList(EventElement e, EventElement e_) {
+/*
+   public Event updateEventList(EventElement e, EventElement e_) {
         if (e != null) {
             if (e_ != e) {
                 if (event != null) {

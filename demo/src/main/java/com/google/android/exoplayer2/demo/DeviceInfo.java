@@ -90,6 +90,8 @@ public class DeviceInfo {
         ConnectivityManager cm =
                 (ConnectivityManager) context.getSystemService(context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+
+        int i = 999;
 //        if (null != activeNetwork) {
 //            if(activeNetwork.getType() == TYPE_WIFI)
 //                return "TYPE_WIFI";
@@ -97,7 +99,12 @@ public class DeviceInfo {
 //            if(activeNetwork.getType() == TYPE_MOBILE)
 //                return "TYPE_MOBILE";
 //        }
-        switch (activeNetwork.getType()) {
+        if (activeNetwork != null) {
+            i = activeNetwork.getType();
+        }
+
+
+        switch (i) {
             case TYPE_MOBILE:
                 return "MOBILE";
             case ConnectivityManager.TYPE_WIFI:
@@ -117,6 +124,7 @@ public class DeviceInfo {
             default:
                 return Integer.toString(activeNetwork.getType());
         }
+
 //        return "TYPE_NOT_CONNECTED";
     }
 

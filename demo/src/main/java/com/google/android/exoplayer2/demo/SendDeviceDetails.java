@@ -27,8 +27,9 @@ import javax.net.ssl.X509TrustManager;
 
 public class SendDeviceDetails extends AsyncTask<String, Void, String> {
 
-    private static final String TAG = "**********   SendDeviceDetail";
+    private static final String TAG = "SendDeviceDetail";
     public int HttpResult;
+
     @SuppressLint("LongLogTag")
     @Override
     public String doInBackground(String... params) {
@@ -129,6 +130,13 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
         return sb.toString();
     }
 
+    @Override
+    public void onPostExecute(String result) {
+        super.onPostExecute(result);
+        Log.e("TAG", result);
+        // this is expecting a response code to be sent from your server upon receiving the POST data
+    }
+
     private void trustEveryone() {
         try {
             HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
@@ -155,10 +163,4 @@ public class SendDeviceDetails extends AsyncTask<String, Void, String> {
         }
     }
 
-    @Override
-    public void onPostExecute(String result) {
-        super.onPostExecute(result);
-        Log.e("TAG", result);
-        // this is expecting a response code to be sent from your server upon receiving the POST data
-    }
 }

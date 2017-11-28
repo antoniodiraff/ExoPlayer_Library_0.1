@@ -200,8 +200,8 @@ public class PlayerMonitor {
 //    }
 
     public PlayerMonitor(Context c, boolean enableTrace, String serverURL, int serverTimeout, String userAgent,
-                         String dev_id, String user_extid, String source, int dequeueingIntervalTime,
-                         String device_vendor, String device_model, String device_so, String codice_cliente
+                         String dev_id, String user_extid, String source, int dequeueingIntervalTime
+
 //            , String onClosing, String offset
     ) {
         this.enableTrace = enableTrace;
@@ -215,10 +215,12 @@ public class PlayerMonitor {
 //        this.onClosing = onClosing;
 //        this.offset = offset;
         this.c = c;
-        this.device_vendor = device_vendor;
+
+/*        this.device_vendor = device_vendor;
         this.device_model = device_model;
         this.device_so = device_so;
         this.codice_cliente = codice_cliente;
+        */
     }
 
 
