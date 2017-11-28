@@ -34,6 +34,7 @@ public class DemoApplication extends Application {
   public void onCreate() {
     super.onCreate();
     userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
+    EventElementBuilder.ASI("codice CLiente", "Samsung", "Galaxy S6" ,"Android 25");
   }
 
   public DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {

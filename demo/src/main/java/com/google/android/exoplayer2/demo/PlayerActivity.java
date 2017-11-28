@@ -355,9 +355,9 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
             player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
 
-            Observer.ASI("codice CLiente", "Samsung", "Galaxy S6" ,"Android 25");
             if (!isRestart) {
-                observer = new Observer(trackSelector, playerMonitor, "session ID", true, false, false, false,
+                observer = new Observer(trackSelector, playerMonitor, //"session ID",
+                        false, false, true, false,false,
                         "originalSessionId", "restartSec", true, "SKY_TG_24", "0001", "ChannelType",
                         "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
             }
