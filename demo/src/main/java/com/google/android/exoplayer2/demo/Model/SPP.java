@@ -18,10 +18,10 @@ public class SPP extends Download {
 
     public void setPause_time(String pause_time) {
         this.pause_time = pause_time;
-        updateSPPPayload();
+        this.update();
     }
 
-    public void updateSPPPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(pause_time);

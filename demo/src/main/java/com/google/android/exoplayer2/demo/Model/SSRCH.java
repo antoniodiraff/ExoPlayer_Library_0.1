@@ -11,7 +11,7 @@ public class SSRCH extends LiveCH {
     public SSRCH() {
     }
 
-    public ArrayList<String> updateSSRCHPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(original_session_id);
@@ -29,8 +29,6 @@ public class SSRCH extends LiveCH {
         payload.add(channel_epg);
         payload.add(channel_name);
         payload.add(restart_sec);
-        return payload;
-
     }
 
     public String getRestart_sec() {

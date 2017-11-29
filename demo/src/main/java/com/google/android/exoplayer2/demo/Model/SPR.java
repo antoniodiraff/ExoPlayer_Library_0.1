@@ -11,7 +11,7 @@ public class SPR extends Download {
 
     public void setRestart_time(String restart_time) {
         this.restart_time = restart_time;
-        updateSPRPayload();
+        this.update();
     }
 
     String restart_time;
@@ -20,7 +20,7 @@ public class SPR extends Download {
 
     }
 
-    public void updateSPRPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(restart_time);

@@ -15,7 +15,7 @@ public class SDP extends Download {
 
     }
 
-    public void updateSDPPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(pause_time);

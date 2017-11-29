@@ -12,12 +12,10 @@ public class SDR extends Download {
 
     }
 
-    public void updateSDRPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(resume_time);
-
-
     }
 
     public String getResume_time() {

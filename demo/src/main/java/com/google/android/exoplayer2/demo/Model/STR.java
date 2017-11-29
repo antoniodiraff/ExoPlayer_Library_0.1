@@ -32,11 +32,10 @@ import java.util.ArrayList;
         public STR() {
         }
 
-    public void updateSTRPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(restart_time);
-
     }
 
     }

@@ -12,7 +12,7 @@ public class SSPVOD extends VOD {
     }
 
 
-    public ArrayList<String> updateSSPVODPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(original_session_id);
@@ -21,8 +21,6 @@ public class SSPVOD extends VOD {
         payload.add(asset_title);
         payload.add(asset_source);
         payload.add(delay_time_sec);
-
-        return payload;
     }
 
     public String getDelay_time_sec() {

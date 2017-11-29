@@ -15,7 +15,7 @@ public class STCL extends Streaming {
     public STCL() {
     }
 
-    public void updateSTCLPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(bitrate_from);

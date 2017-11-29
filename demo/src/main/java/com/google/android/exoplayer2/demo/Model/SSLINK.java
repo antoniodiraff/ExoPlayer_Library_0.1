@@ -16,11 +16,10 @@ public class SSLINK extends Start {
     public SSLINK() {
     }
 
-    public void updateSSLINKPayload() {
+    public  void update() {
         payload = new ArrayList<String>();
         payload.add(new_session_id);
         payload.add(previos_session_id);
-
     }
 
     public String getNew_session_id() {

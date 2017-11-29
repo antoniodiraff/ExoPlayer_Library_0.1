@@ -13,7 +13,7 @@ public class STP extends Streaming {
     public STP() {
     }
 
-    public void updateSTPPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(pause_time);

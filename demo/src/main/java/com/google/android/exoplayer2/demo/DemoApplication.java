@@ -23,6 +23,8 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 
+import static com.google.android.exoplayer2.demo.EventElementBuilder.ApplicationStartupInfo;
+
 /**
  * Placeholder application to facilitate overriding Application methods for debugging and testing.
  */
@@ -34,7 +36,7 @@ public class DemoApplication extends Application {
   public void onCreate() {
     super.onCreate();
     userAgent = Util.getUserAgent(this, "ExoPlayerDemo");
-    EventElementBuilder.ASI("codice CLiente", "Samsung", "Galaxy S6" ,"Android 25");
+    ApplicationStartupInfo("codice CLiente", "Samsung", "Galaxy S6" ,"Android 25");
   }
 
   public DataSource.Factory buildDataSourceFactory(DefaultBandwidthMeter bandwidthMeter) {

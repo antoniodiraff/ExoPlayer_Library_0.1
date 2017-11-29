@@ -8,7 +8,7 @@ public class SSCH extends LiveCH {
     public SSCH() {
     }
 
-    public ArrayList<String> updateSSCHPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(start_time);
@@ -24,23 +24,7 @@ public class SSCH extends LiveCH {
         payload.add(channel_type);
         payload.add(channel_epg);
         payload.add(channel_name);
-        return payload;
-//         "session_id",
-        // original_session_id   *** only for ssrch
-//         "start_time",
-//         "drm_time",
-//         "buffering_time",
-//         "playback_start_time",
-//         "ip_server",
-//         "manifest_uri",
-//         "manifest_dwnl_byte",
-//         "manifest_dwnl_time",
-//         "http_response",
-//         "channel_id",
-//         "channel_type",
-//         "channel_epg",
-//         "channel_name",
-//        // "restart_sec"   *** only for ssrch
+        //return payload;
     }
 
 

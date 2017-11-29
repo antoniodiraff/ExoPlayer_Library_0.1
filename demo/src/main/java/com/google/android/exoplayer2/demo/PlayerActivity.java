@@ -355,9 +355,11 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
             player = ExoPlayerFactory.newSimpleInstance(renderersFactory, trackSelector);
 
+
             if (!isRestart) {
                 observer = new Observer(trackSelector, playerMonitor, //"session ID",
-                        false, false, true, false,false,
+                         Observer.StreamingType.Live,
+                        false, false, false, false,false,
                         "originalSessionId", "restartSec", true, "SKY_TG_24", "0001", "ChannelType",
                         "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
             }

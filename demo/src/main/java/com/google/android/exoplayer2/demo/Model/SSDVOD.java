@@ -11,7 +11,7 @@ public class SSDVOD extends VOD {
     public SSDVOD() {
     }
 
-    public ArrayList<String> updateSSDVODPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(start_time);
@@ -25,8 +25,7 @@ public class SSDVOD extends VOD {
         payload.add(offer_id);
         payload.add(asset_title);
         payload.add(asset_source);
-
-        return payload;
     }
+
 
 }

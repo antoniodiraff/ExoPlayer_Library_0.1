@@ -21,7 +21,7 @@ public class SDC extends Close {
 
     }
 
-    public void updateSDCPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(completed_time);

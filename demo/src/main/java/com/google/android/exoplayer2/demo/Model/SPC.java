@@ -30,7 +30,7 @@ public class SPC extends Close {
         this.closing_time = closing_time;
     }
 
-    public void updateSPCPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(closing_time);

@@ -21,7 +21,7 @@ public class STD extends Streaming {
     public STD() {
     }
 
-    public void updateSTDPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(Layer);

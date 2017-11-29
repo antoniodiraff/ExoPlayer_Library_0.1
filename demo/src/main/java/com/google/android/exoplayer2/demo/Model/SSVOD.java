@@ -9,7 +9,7 @@ public class SSVOD extends VOD {
     public SSVOD() {
     }
 
-    public ArrayList<String> updateSSVODPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(start_time);
@@ -25,7 +25,6 @@ public class SSVOD extends VOD {
         payload.add(asset_title);
         payload.add(asset_type);
         payload.add(asset_source);
-        return payload;
     }
 }
 

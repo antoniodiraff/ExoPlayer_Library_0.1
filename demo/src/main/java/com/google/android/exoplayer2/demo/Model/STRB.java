@@ -15,12 +15,11 @@ public class STRB extends Streaming {
     public STRB() {
     }
 
-    public void updateSTRBPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(rebuffering_start_time);
         payload.add(rebuffering_end_time);
-
     }
 
     public String getRebuffering_start_time() {

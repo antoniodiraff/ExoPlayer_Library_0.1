@@ -19,7 +19,7 @@ public class SE extends PayLoadElement {
     public SE() {
     }
 
-    public void updateSEPayload() {
+    public void update() {
         payload = new ArrayList<String>();
         payload.add(session_id);
         payload.add(error_text);
