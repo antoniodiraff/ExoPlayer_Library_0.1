@@ -31,6 +31,7 @@ import com.google.android.exoplayer2.demo.Model.STRB;
 import com.google.android.exoplayer2.demo.Model.Start;
 import com.google.android.exoplayer2.upstream.DataSpec;
 
+import static com.google.android.exoplayer2.demo.Observer.event;
 import static com.google.android.exoplayer2.demo.Observer.getCurrentTimeStamp;
 
 
@@ -176,7 +177,7 @@ public final class EventElementBuilder {
         if (strb != null) {
             strb.setRebuffering_end_time(currentTimeStamp);
             strb.update();
-            addToEventList(strb, "STRB",event);
+            addToEventList(strb, "STRB");
          /*   if (event != null) {
                 event.events_list.add(new EventElement("STRB", strb.getPayload()));
             } else {
@@ -195,7 +196,7 @@ public final class EventElementBuilder {
         }
         stcl.setBitrate_to(String.valueOf(trackFormat.bitrate));
         stcl.update();
-        addToEventList(stcl, "STCL", event);
+        addToEventList(stcl, "STCL");
         // event.events_list.add(new EventElement("STCL", stcl.getPayload()));
     }
 
@@ -204,7 +205,7 @@ public final class EventElementBuilder {
         str.setSession_id(sessionID);
         str.setRestart_time(currentTimeStamp);
         str.update();
-        addToEventList(str, "STR", event);
+        addToEventList(str, "STR");
        // event.events_list.add(new EventElement("STR", str.getPayload()));
     }
 
@@ -213,7 +214,7 @@ public final class EventElementBuilder {
         stp.setSession_id(sessionID);
         stp.setPause_time(currentTimeStamp);
         stp.update();
-        addToEventList(stp, "STP", event);
+        addToEventList(stp, "STP");
 
         //event.events_list.add(new EventElement("STP", stp.getPayload()));
     }
@@ -245,7 +246,7 @@ public final class EventElementBuilder {
         std.setHttp_response("200");
 
         std.update();
-        addToEventList(std, "STD", event);
+        addToEventList(std, "STD");
 
 
         /*
@@ -273,7 +274,7 @@ public final class EventElementBuilder {
         SPP spp = new SPP();
         spp.setSession_id(sessionID);
         spp.setPause_time(currentTimeStamp);
-        addToEventList(spp,"SPP",event);
+        addToEventList(spp,"SPP");
         // event.events_list.add(new EventElement("SPP", spp.getPayload()));
     }
 
@@ -281,7 +282,7 @@ public final class EventElementBuilder {
         SPR spr = new SPR();
         spr.setSession_id(sessionID);
         spr.setRestart_time(currentTimeStamp);
-        addToEventList(spr,"SPR", event);
+        addToEventList(spr,"SPR");
       //  event.events_list.add(new EventElement("SPR", spr.getPayload()));
     }
 
@@ -321,7 +322,7 @@ public final class EventElementBuilder {
         sdp.setPause_cause(pauseCause);
         sdp.setDownload_perc(bufferedPercentage);
         sdp.update();
-        addToEventList(sdp,"SDP", event);
+        addToEventList(sdp,"SDP");
 
         //EventElement e = new EventElement("SDP", sdp.getPayload());
        // event.events_list.add(e);
@@ -333,7 +334,7 @@ public final class EventElementBuilder {
         sdr.setSession_id(sessionID);
         sdr.setResume_time(currentTimeStamp);
         sdr.update();
-        addToEventList(sdr,"SDR", event);
+        addToEventList(sdr,"SDR");
         // EventElement e = new EventElement("SDR", sdr.getPayload());
         // event.events_list.add(e);
     }
@@ -344,7 +345,7 @@ public final class EventElementBuilder {
         sdd.setSession_id(sessionID);
         sdd.setDelete_time(currentTimeStamp);
         sdd.update();
-        addToEventList(sdd,"SDD", event);
+        addToEventList(sdd,"SDD");
        // EventElement e = new EventElement("SDD", sdd.getPayload());
        // event.events_list.add(e);
     }
@@ -355,7 +356,7 @@ public final class EventElementBuilder {
         sdc.setSession_id(sessionID);
         sdc.setCompleted_time(currentTimeStamp);
         sdc.update();
-        addToEventList(sdc, "SDC",event);
+        addToEventList(sdc, "SDC");
         // event.events_list.add(new EventElement("SDC", sdc.getPayload()));
     }
 
@@ -373,8 +374,9 @@ public final class EventElementBuilder {
         se.setErrorType(type);
         se.setSession_id(sessionID);
         se.update();
-        EventElement e = new EventElement("SE", se.getPayload());
-        event.events_list.add(e);
+        addToEventList(se,"SE");
+        // EventElement e = new EventElement("SE", se.getPayload());
+        // event.events_list.add(e);
     }
 
     /*
@@ -384,12 +386,12 @@ public final class EventElementBuilder {
     SPC : Session Playback Close (**) (playback finished)
     */
 
-    public static void sessionClose(String currentTimeStamp, Event event) {
+    public static void sessionClose(String currentTimeStamp) {
         SC sc = new SC();
         sc.setSession_id(sessionID);
         sc.setClosing_time(getCurrentTimeStamp());
         sc.update();
-        event.events_list.add(new EventElement("SC", sc.getPayload()));
+        addToEventList(sc, "SC");
     }
 
 
@@ -399,7 +401,7 @@ public final class EventElementBuilder {
         spc.setClosing_time(currentTimeStamp);
         spc.setViewving_perc("");
         spc.update();
-        addToEventList(spc, "SPC", event);
+        addToEventList(spc, "SPC");
       //  event.events_list.add(new EventElement("SPC", spc.getPayload()));
         Log.i(TAG, "************   percentage " + String.valueOf(player.getBufferedPercentage()));
     }
@@ -455,7 +457,7 @@ public final class EventElementBuilder {
         if(startEvent!=null){
             startEvent.setPlayback_start_time(currentTimeStamp);
             startEvent.update();
-            addToEventList(startEvent ,name ,i ,event);
+            addToEventList(startEvent ,name ,i);
         }
     }
 
@@ -471,6 +473,22 @@ public final class EventElementBuilder {
     private static void addToEventList(PayLoadElement payLoadElement, String name,Event event) {
         if (event!=null) {
             event.events_list.add(new EventElement(name, payLoadElement.getPayload()));
+        }else{
+            Log.i(TAG, "*********    Null Event Object");
+        }
+    }
+
+
+    private static void addToEventList(PayLoadElement payLoadElement,String name){
+        if (event!=null) {
+            event.events_list.add(new EventElement(name, payLoadElement.getPayload()));
+        }else{
+            Log.i(TAG, "*********    Null Event Object");
+        }
+    }
+    private static void addToEventList(PayLoadElement payLoadElement,String name,int i){
+        if (event!=null) {
+            event.events_list.add(i,new EventElement(name, payLoadElement.getPayload()));
         }else{
             Log.i(TAG, "*********    Null Event Object");
         }

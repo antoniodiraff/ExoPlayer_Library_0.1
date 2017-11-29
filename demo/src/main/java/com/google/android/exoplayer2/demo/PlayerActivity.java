@@ -359,7 +359,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
             if (!isRestart) {
                 observer = new Observer(trackSelector, playerMonitor, //"session ID",
                          Observer.StreamingType.Live,
-                        false, false, false, false,false,
+                       // false, false, false, false,false,
                         "originalSessionId", "restartSec", true, "SKY_TG_24", "0001", "ChannelType",
                         "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
             }

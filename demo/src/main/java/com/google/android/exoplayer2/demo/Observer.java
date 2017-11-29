@@ -105,39 +105,22 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     private final Timeline.Window window;
     private final Timeline.Period period;
     private final long startTimeMs;
-    // private final int serverTimeout;
     private final int dequeueingIntervalTime;
 
     //*** MODEL initialization ***
     public SSCH ssch = null;
     public SSRCH ssrch = null;
-    //  public STCL stcl = null;
-
-    /*    public SE se = null;
-        public SDR sdr;
-        */
-    public SC sc = null;
     public STRB strb = null;
     public SSVOD ssvod = null;
     public SSPVOD sspvod = null;
     public SSDVOD ssdvod = null;
 
-/*    public SPP spp;
-    public SPR spr;*/
-/*    public SPC spc = null;
-    public STR str;
-    public STP stp;
-    public STD std;*/
-
     // *** LOCAL variables ***
     public Timer t;
     public String oldBitRate;
     public Context c;
-    public Event event;
-    //  public EventElement e = null;
-    //  public EventElement e_ = null;
+    public static Event event;
     public String drm_time = "";
-    //  private String bufferingTimeStamp = null;
 
     // *** VARIABLES needed 4 constructor ***
     String URL = "";
@@ -166,7 +149,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     boolean isTheFirstTime = true;
     boolean isTheFirstTime_Buffering = true;
     boolean isTheFirstTime_Ready = true;
-    String delay_time_sec;
     private boolean isDownload;
     int i;
     private StreamingType streamingType;
@@ -174,7 +156,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     public Observer(final MappingTrackSelector trackSelector, final PlayerMonitor playerMonitor, //String sessionID,
                     // StreamingType streamingType,
-                    StreamingType streamingType, boolean isLive, boolean isVod, boolean isDownload, boolean isRestart, boolean isLocalFile,
+                    StreamingType streamingType,
+                    //boolean isLive, boolean isVod, boolean isDownload, boolean isRestart, boolean isLocalFile,
                     String originalSessionId, String restartSec,
                     boolean isFree, String channelName, String channelID, String channelType, String vodID,
                     String VODTitle, String assetType, String assetPath) {
@@ -1115,7 +1098,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 */
 //endregion
 
-
     public void createNewEvent(Context c) {
         ArrayList<EventElement> eventList = new ArrayList<EventElement>();
         DeviceInfo deviceInfo = new DeviceInfo(c);
@@ -1245,12 +1227,11 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public void terminate(String currentTimeStamp) {
         if (this.event != null) {
             if (isLocalFile) {
-                sessionPlaybackClose(currentTimeStamp, this.event, player);
+                sessionPlaybackClose(currentTimeStamp, event, player);
             } else if (isDownload) {
                 sessionDownloadCompleted(getCurrentTimeStamp(), this.event);
-            } else if (sc == null) {
-                sessionClose(currentTimeStamp, this.event);
-
+            } else {
+                sessionClose(currentTimeStamp);
             }
         }
     }
