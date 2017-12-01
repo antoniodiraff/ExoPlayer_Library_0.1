@@ -21,12 +21,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -46,6 +44,11 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.demo.lib.Observer;
+import com.google.android.exoplayer2.demo.lib.PauseCause;
+import com.google.android.exoplayer2.demo.lib.PlayerMonitor;
+import com.google.android.exoplayer2.demo.lib.SessionDownload;
+import com.google.android.exoplayer2.demo.lib.StreamingType;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -85,7 +88,11 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.UUID;
 
-import static com.google.android.exoplayer2.demo.DeviceInfo.TAG;
+import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionDownloadCompleted;
+import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionDownloadDelete;
+import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionDownloadPause;
+import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionDownloadResume;
+import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionsTreamingDownload;
 
 
 /**
@@ -178,11 +185,13 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
         //LIBRERIA
          sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
-         playerMonitor = new PlayerMonitor(getApplicationContext(),
+
+     /*    playerMonitor = new PlayerMonitor(
+                 //getApplicationContext(),
                 false, "https://telemetria-lib-coll.skycdn.it/skymeter/collector",
                 5000, "userAgent", "dev_id",
                 "user_extid", "SOL_OBS_UK_INTV2.0", 10000
-             );
+             );*/
     }
 
 /*
@@ -190,6 +199,21 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
       String dev_id, String user_extid, String source, int dequeueingIntervalTime,
 */
 
+
+public void testSessionDownload(){
+
+
+
+    //observer.notifyError("error_test","","","","","","","","","");
+    sessionDownloadPause(PauseCause.VoluntaryPause, "");
+    sessionDownloadCompleted();
+    sessionDownloadResume();
+    sessionDownloadDelete();
+    sessionsTreamingDownload("","","","","","","","","","");
+
+
+
+}
 
     @Override
     public void onNewIntent(Intent intent) {
@@ -204,8 +228,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
         super.onStart();
         if (Util.SDK_INT > 23) {
             initializePlayer();
-           // observer.startSession(isRestart);
-            observer.onStartSession(isRestart, player);
+            observer.onStartSession(isRestart);
         }
     }
 
@@ -219,7 +242,7 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
     @Override
     public void onPause() {
-        observer.onPause();
+        observer.onPauseSession();
         super.onPause();
         if (Util.SDK_INT <= 23) {
             releasePlayer();
@@ -357,10 +380,19 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
 
 
             if (!isRestart) {
-                observer = new Observer(trackSelector, playerMonitor, //"session ID",
-                         Observer.StreamingType.Live,
-                       // false, false, false, false,false,
-                        "originalSessionId", "restartSec", true, "SKY_TG_24", "0001", "ChannelType",
+                observer = new Observer(trackSelector,
+                        false,
+                        "https://telemetria-lib-coll.skycdn.it/skymeter/collector",
+                        5000,
+                        "userAgent",
+                        "dev_id",
+                        "user_extid",
+                        "SOL_OBS_UK_INTV2.0",
+                        10000,
+                         getApplicationContext(),
+                         StreamingType.Live,
+                        "originalSessionId", "restartSec", true,
+                        "SKY_TG_24", "0001", "ChannelType",
                         "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
             }
 

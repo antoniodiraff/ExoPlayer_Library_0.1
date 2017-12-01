@@ -55,6 +55,10 @@ android {
     }
 
     buildToolsVersion '26.0.2'
+ /*   compileOptions {
+        targetCompatibility 1.8
+        sourceCompatibility 1.8
+    }*/
 }
 //String jacksonCore = 'com.fasterxml.jackson.core:jackson-core:'
 //String jacksonAnnotations = 'com.fasterxml.jackson.core:jackson-annotations:'

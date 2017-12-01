@@ -23,7 +23,8 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 
-import static com.google.android.exoplayer2.demo.EventElementBuilder.ApplicationStartupInfo;
+import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.ApplicationStartupInfo;
+
 
 /**
  * Placeholder application to facilitate overriding Application methods for debugging and testing.
