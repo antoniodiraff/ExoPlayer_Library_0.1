@@ -6,32 +6,32 @@ import java.util.ArrayList;
 
 
 public class STRB extends Streaming {
-    String rebuffering_start_time;
-    String rebuffering_end_time;
+    String rebufferingStartTime;
+    String rebufferingEndTime;
 
     public STRB() {
     }
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
-        payload.add(rebuffering_start_time);
-        payload.add(rebuffering_end_time);
+        payload.add(sessionId);
+        payload.add(rebufferingStartTime);
+        payload.add(rebufferingEndTime);
     }
 
-    public String getRebuffering_start_time() {
-        return rebuffering_start_time;
+    public String getRebufferingStartTime() {
+        return rebufferingStartTime;
     }
 
-    public void setRebuffering_start_time(String rebuffering_start_time) {
-        this.rebuffering_start_time = rebuffering_start_time;
+    public void setRebufferingStartTime(String rebufferingStartTime) {
+        this.rebufferingStartTime = rebufferingStartTime;
     }
 
-    public String getRebuffering_end_time() {
-        return rebuffering_end_time;
+    public String getRebufferingEndTime() {
+        return rebufferingEndTime;
     }
 
-    public void setRebuffering_end_time(String rebuffering_end_time) {
-        this.rebuffering_end_time = rebuffering_end_time;
+    public void setRebufferingEndTime(String rebufferingEndTime) {
+        this.rebufferingEndTime = rebufferingEndTime;
     }
 }

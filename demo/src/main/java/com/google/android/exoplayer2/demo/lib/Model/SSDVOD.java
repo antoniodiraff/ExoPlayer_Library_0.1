@@ -40,8 +40,8 @@ public class SSDVOD extends VOD {
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
-        payload.add(start_time);
+        payload.add(sessionId);
+        payload.add(startTime);
         payload.add(drm_time);
         payload.add(buffering_time);
         payload.add(ip_server);

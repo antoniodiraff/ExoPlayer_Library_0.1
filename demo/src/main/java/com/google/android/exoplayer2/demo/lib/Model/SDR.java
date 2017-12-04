@@ -14,7 +14,7 @@ public class SDR extends Download {
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
+        payload.add(sessionId);
         payload.add(resume_time);
     }
 

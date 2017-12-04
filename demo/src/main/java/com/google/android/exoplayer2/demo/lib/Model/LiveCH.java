@@ -7,42 +7,42 @@ public abstract class LiveCH extends Start {
 //  SSCH : Session Start CHannel
 //  SSRCH : Session Start Restart Channel
 
-    String channel_id;
-    String channel_type;
-    String channel_epg;
-    String channel_name;
-    String original_session_id;
+    String channelId;
+    String channelType;
+    String channelEpg;
+    String channelName;
 
 
-    public String getChannel_id() {
-        return channel_id;
+    public String getChannelId() {
+        return channelId;
     }
 
-    public void setChannel_id(String channel_id) {
-        this.channel_id = channel_id;
+    public void setChannelId(String channelId) {
+        this.channelId = channelId;
     }
 
-    public String getChannel_type() {
-        return channel_type;
+    public String getChannelType() {
+        return channelType;
     }
 
-    public void setChannel_type(String channel_type) {
-        this.channel_type = channel_type;
+    public void setChannelType(String channelType) {
+        this.channelType = channelType;
     }
 
-    public String getChannel_epg() {
-        return channel_epg;
+    public String getChannelEpg() {
+        return channelEpg;
     }
 
-    public void setChannel_epg(String channel_epg) {
-        this.channel_epg = channel_epg;
+    public void setChannelEpg(String channelEpg) {
+        this.channelEpg = channelEpg;
     }
 
-    public String getChannel_name() {
-        return channel_name;
+    public String getChannelName() {
+        return channelName;
     }
 
-    public void setChannel_name(String channel_name) {
-        this.channel_name = channel_name;
+    public void setChannelName(String channelName) {
+        this.channelName = channelName;
     }
+
 }

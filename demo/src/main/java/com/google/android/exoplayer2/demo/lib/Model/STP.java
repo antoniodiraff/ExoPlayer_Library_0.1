@@ -5,23 +5,23 @@ import java.util.ArrayList;
 //(Session sTreaming Pause)
 
 public class STP extends Streaming {
-    String pause_time;
+    String pauseTime;
 
     public STP() {
     }
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
-        payload.add(pause_time);
+        payload.add(sessionId);
+        payload.add(pauseTime);
 
     }
 
-    public String getPause_time() {
-        return pause_time;
+    public String getPauseTime() {
+        return pauseTime;
     }
 
-    public void setPause_time(String pause_time) {
-        this.pause_time = pause_time;
+    public void setPauseTime(String pauseTime) {
+        this.pauseTime = pauseTime;
     }
 }

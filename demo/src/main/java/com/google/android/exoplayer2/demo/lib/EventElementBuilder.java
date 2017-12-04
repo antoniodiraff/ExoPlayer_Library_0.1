@@ -33,7 +33,9 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
  * Created by antoniodiraffaele on 28/11/17.
  */
 
-  public final class EventElementBuilder {
+public final class EventElementBuilder {
+
+    // (**) SkygoPlus capabilities
 
     private static final String TAG = "EventElementBuilder";
     public static ASI asi = null;
@@ -41,16 +43,15 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
     static String sessionID = null;
     private static String originalSessionId;
 
-
     /*
      At application level will be generated two category of events:
 
      START : everytime the application starts.
      ASI : Application Startup Information
+
      CLOSE : everytime the application closes.
      ACI : Application Close Information
      */
-
 
     public static void ApplicationStartupInfo(String device_vendor, String device_model, String device_so, String codice_cliente) {
         asi = new ASI();
@@ -76,63 +77,67 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
     SSCH   : Session Start CHannel
     SSRCH  : Session Start Restart Channel (**)
     SSVOD  : Session Start VOD
-    SSDVOD : Session Start Download VOD (**) SSPVOD : Session Start Playback VOD (**)
+    SSDVOD : Session Start Download VOD (**)
+    SSPVOD : Session Start Playback VOD (**)
     */
 
-    public static SSCH sessionStartCHannel(String currentTimeStamp) {
+    public static SSCH sessionStartCHannel(String currentTimeStamp, String channelID, String channelName, String channelEPG, String channelType, String ipServer) {
         SSCH ssch = new SSCH();
-        ssch.setSession_id(sessionID = getSessionId());
+        ssch.setSessionId(sessionID = getSessionId());
         originalSessionId = sessionID;
-        ssch.setStart_time(currentTimeStamp);
-        //  ssch.setPlayback_start_time("");
-        //  ssch.setBuffering_time("");
-        //ssch.setChannel_epg("Channel EPG");
-      /*  ssch.setChannel_id(channelID);
-        ssch.setChannel_name(channelName);
-        ssch.setChannel_type(channelType);
-        ssch.setDrm_time(drm_time);*/
-      //  ssch.setHttp_response("Http Response");
-     //   ssch.setIp_server("ipServer");
-    /*    ssch.setManifest_uri("Maniest URI");
-        ssch.setManifest_dwnl_byte("Maniest dwnl byte");
-        ssch.setManifest_dwnl_time("Maniest dwnl time");
+        ssch.setStartTime(currentTimeStamp);
+        ssch.setIpServer(ipServer);
+        ssch.setChannelId(channelID);
+        ssch.setChannelType(channelType);
+        ssch.setChannelEpg(channelEPG);
+        ssch.setChannelName(channelName);
+        ssch.setDrmTime("");
+        //   ssch.setHttp_response("Http Response");
+        //   ssch.setIp_server("ipServer");
+       /*    ssch.setManifest_uri("Maniest URI");
+             ssch.setManifest_dwnl_byte("Maniest dwnl byte");
+             ssch.setManifest_dwnl_time("Maniest dwnl time");
         */
         return ssch;
     }
 
-    public static SSRCH sessionStartRestartCHannel(String currentTimeStamp) {
+    public static SSRCH sessionStartRestartCHannel(String timeStamp, String channelID, String channelName, String channelEPG, String channelType, String ipServer, String restartSec) {
+
+
         SSRCH ssrch = new SSRCH();
-        ssrch.setSession_id(sessionID = getSessionId());
-        ssrch.setOriginal_session_id(originalSessionId);
-        ssrch.setStart_time(currentTimeStamp);
+        ssrch.setSessionId(sessionID = getSessionId());
+        ssrch.setOriginalSessionId(originalSessionId);
+        ssrch.setStartTime(timeStamp);
+        ssrch.setChannelEpg(channelEPG);
+        ssrch.setChannelId(channelID);
+        ssrch.setChannelName(channelName);
+        ssrch.setChannelType(channelType);
+
+
         //ssrch.setPlayback_start_time(currentTimeStamp);
         //ssrch.setBuffering_time(bufferingTimeStamp);
-        ssrch.setDrm_time("drm_time");
-        ssrch.setIp_server("IP_Server");
-        ssrch.setManifest_uri("manifest_uri");
-        ssrch.setManifest_dwnl_time("manifest_dwl_time");
-        ssrch.setManifest_dwnl_byte("manifest_dwnl_byte");
-        ssrch.setChannel_epg("Channel EPG");
- /*       ssrch.setChannel_id(channelID);
-        ssrch.setChannel_name(channelName);
-        ssrch.setChannel_type(channelType);*/
-        ssrch.setHttp_response("Http Response");
-        ssrch.setRestart_sec("restart_sec");
+        ssrch.setDrmTime("drm_time");
+        ssrch.setIpServer(ipServer);
+        ssrch.setManifestUri("manifest_uri");
+        ssrch.setManifestDwnlTime("manifest_dwl_time");
+        ssrch.setManifestDwnlTime("manifest_dwnl_byte");
+        ssrch.setHttpResponse("Http Response");
+        ssrch.setRestartSec(restartSec);
         return ssrch;
     }
 
     public static SSVOD sessionStartVOD(String currentTimeStamp) {
         SSVOD ssvod = new SSVOD();
-        ssvod.setSession_id(sessionID = getSessionId());
-        ssvod.setStart_time(currentTimeStamp);
+        ssvod.setSessionId(sessionID = getSessionId());
+        ssvod.setStartTime(currentTimeStamp);
         return ssvod;
     }
 
     public static SSPVOD sessionStartPlaybackVOD(String currentTimeStamp) {
         SSPVOD sspvod = new SSPVOD();
-        sspvod.setSession_id(sessionID = getSessionId());
-        sspvod.setOriginal_session_id("originalSessionId");
-        sspvod.setPlayback_start_time(currentTimeStamp);
+        sspvod.setSessionId(sessionID = getSessionId());
+        sspvod.setOriginalSessionId("originalSessionId");
+        sspvod.setPlaybackStartTime(currentTimeStamp);
         sspvod.setOffer_id("vodID");
         sspvod.setAsset_title("VODTitle");
         sspvod.setAsset_source("assetPath");
@@ -140,15 +145,6 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
         return sspvod;
 
     }
-
-    public static String getSessionId() {
-        sessionID = String.valueOf(System.currentTimeMillis());
-        //sessionID = sessionID + deviceInfo.getDev_id();
-        Log.i(TAG, "**************************  questo è il session ID " + sessionID);
-        return sessionID;
-        //  sessionID=sessionID +
-    }
-
 
     /*
     STREAMING : During the streaming.
@@ -161,35 +157,29 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
 
     public static STRB sessionsTreamingReBuferring(String currentTimeStamp) {
         STRB strb = new STRB();
-        strb.setSession_id(sessionID);
-        strb.setRebuffering_start_time(Observer.getCurrentTimeStamp());
-        strb.setRebuffering_end_time("");
+        strb.setSessionId(sessionID);
+        strb.setRebufferingStartTime(Observer.getCurrentTimeStamp());
         strb.update();
         return strb;
     }
 
     public static void updateSTRB(STRB strb, String currentTimeStamp) {
         if (strb != null) {
-            strb.setRebuffering_end_time(currentTimeStamp);
+            strb.setRebufferingEndTime(currentTimeStamp);
             strb.update();
             addToEventList(strb, "STRB");
-         /*   if (event != null) {
-                event.events_list.add(new EventElement("STRB", strb.getPayload()));
-            } else {
-                Log.d(TAG, "****************** evento nullo ");
-            }*/
         }
     }
 
     public static void sessionsTreamingChangeLevel(String currentTimeStamp, Format trackFormat, String oldBitRate) {
         STCL stcl = new STCL();
-        stcl.setSession_id(sessionID);
+        stcl.setSessionId(sessionID);
         if (oldBitRate != null) {
-            stcl.setBitrate_from(oldBitRate);
+            stcl.setBitrateFrom(oldBitRate);
         } else {
-            stcl.setBitrate_from("");
+            stcl.setBitrateFrom("");
         }
-        stcl.setBitrate_to(String.valueOf(trackFormat.bitrate));
+        stcl.setBitrateTo(String.valueOf(trackFormat.bitrate));
         stcl.update();
         addToEventList(stcl, "STCL");
         // event.events_list.add(new EventElement("STCL", stcl.getPayload()));
@@ -197,8 +187,8 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
 
     public static void sessionsTreamingRestart(String currentTimeStamp) {
         STR str = new STR();
-        str.setSession_id(sessionID);
-        str.setRestart_time(currentTimeStamp);
+        str.setSessionId(sessionID);
+        str.setRestartTime(currentTimeStamp);
         str.update();
         addToEventList(str, "STR");
         // event.events_list.add(new EventElement("STR", str.getPayload()));
@@ -206,8 +196,8 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
 
     public static void sessionsTreamingPause(String currentTimeStamp) {
         STP stp = new STP();
-        stp.setSession_id(sessionID);
-        stp.setPause_time(currentTimeStamp);
+        stp.setSessionId(sessionID);
+        stp.setPauseTime(currentTimeStamp);
         stp.update();
         addToEventList(stp, "STP");
 
@@ -215,34 +205,35 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
     }
 
     protected static void sessionsTreamingDownload(String currentTimeStamp, DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
-                                                int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-                                                long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, String assetType) {
+                                                   int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
+                                                   long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, String assetType,String ipServer) {
 
         STD std = new STD();
-        std.setSession_id(sessionID);
+        std.setSessionId(sessionID);
         if (trackFormat != null) {
-            std.setLayer( String.valueOf(trackFormat.bitrate));
+            std.setLayer(String.valueOf(trackFormat.bitrate));
+        }else {
+            std.setLayer("");
         }
-        std.setDwnl_byte(String.valueOf(bytesLoaded));
-        std.setDwnl_time(String.valueOf(loadDurationMs));
+            std.setDwnlByte(String.valueOf(bytesLoaded));
+        std.setDwnlTime(String.valueOf(loadDurationMs));
 
         //secondi rimanenti del video già bufferizzato
-        std.setBuffer_size(String.valueOf(bytesLoaded));
+        std.setBufferSize("");
 
         //Chunk info totali
-        std.setChunk_index("Chunk_index : " + String.valueOf(dataSpec.position) + "   absolute stream position    " + dataSpec.absoluteStreamPosition);
-        std.setChunk_type("Chunk_type : " + String.valueOf(dataType) + " assetType" + assetType);
-        std.setChunk_uri(dataSpec.uri.toString());
+        std.setChunkIndex("");
+        std.setChunkType("");
+        std.setChunkUri(dataSpec.uri.toString());
 
         //Not present
-        std.setFps_decoded("");
-        std.setResponse_time("");
-        std.setIp_server("");
-        std.setHttp_response("");
+        std.setFpsDecoded("");
+        std.setResponseTime("");
+        std.setIpServer(ipServer);
+        std.setHttpResponse("200");
 
         std.update();
         addToEventList(std, "STD");
-
 
         /*
         std.setSession_id(sessionID);
@@ -262,11 +253,16 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
     }
 
 
-    // Playback
+    /*
+    PLAYBACK : During the playback of downloaded VOD. (**)
+
+    SPP : Session Playback Pause
+    SPR : Session Playback Restart
+     */
 
     public static void sessionPlaybackPause(String currentTimeStamp) {
         SPP spp = new SPP();
-        spp.setSession_id(sessionID);
+        spp.setSessionId(sessionID);
         spp.setPause_time(currentTimeStamp);
         addToEventList(spp, "SPP");
         // event.events_list.add(new EventElement("SPP", spp.getPayload()));
@@ -274,24 +270,22 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
 
     public static void sessionPlaybackRestart(String currentTimeStamp) {
         SPR spr = new SPR();
-        spr.setSession_id(sessionID);
+        spr.setSessionId(sessionID);
         spr.setRestart_time(currentTimeStamp);
         addToEventList(spr, "SPR");
         //  event.events_list.add(new EventElement("SPR", spr.getPayload()));
     }
 
-
-
-
     /*
     ERROR : Everytime an Error is raised.
+
     SE : Session Error
     */
 
-    public static void sessionError(String error_text,String errorType, String error_code,String chunk_uri,String channel_id,
-                                    String event_id, String vod_id,String player_version, String event_name, String error_message) {
+    public static void sessionError(String error_text, String errorType, String error_code, String chunk_uri, String channel_id,
+                                    String event_id, String vod_id, String player_version, String event_name, String error_message) {
         SE se = new SE();
-        se.setSession_id(sessionID);
+        se.setSessionId(sessionID);
         se.setError_text(error_text);
         se.setErrorType(errorType);
         se.setError_code(error_code);
@@ -309,6 +303,7 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
 
     /*
     CLOSE : When a session finishes (also if is caused by an error that can’t permit streaming anymore).
+
     SC  : Session Close
     SDC : Session Download Completed (**) (reached download end)
     SPC : Session Playback Close (**) (playback finished)
@@ -316,7 +311,7 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
 
     public static void sessionClose(String currentTimeStamp) {
         SC sc = new SC();
-        sc.setSession_id(sessionID);
+        sc.setSessionId(sessionID);
         sc.setClosing_time(Observer.getCurrentTimeStamp());
         sc.update();
         addToEventList(sc, "SC");
@@ -324,12 +319,12 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
 
     public static void sessionPlaybackClose(String currentTimeStamp, SimpleExoPlayer player) {
         SPC spc = new SPC();
-        spc.setSession_id(sessionID);
+        spc.setSessionId(sessionID);
         spc.setClosing_time(currentTimeStamp);
         spc.setViewving_perc("");
         spc.update();
         addToEventList(spc, "SPC");
-      //  Log.i(TAG, "************   percentage " + String.valueOf(player.getBufferedPercentage()));
+        //  Log.i(TAG, "************   percentage " + String.valueOf(player.getBufferedPercentage()));
     }
 
 
@@ -380,12 +375,13 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
 
     public static void updateStartEvent(Start startEvent, String name, String currentTimeStamp, int i) {
         if (startEvent != null) {
-            startEvent.setPlayback_start_time(currentTimeStamp);
+            startEvent.setPlaybackStartTime(currentTimeStamp);
             startEvent.update();
             addToEventList(startEvent, name, i);
         }
     }
 
+    // add the EventElement to the queue
 
     public static void addToEventList(PayLoadElement payLoadElement, String name) {
         if (event != null) {
@@ -403,38 +399,17 @@ import static com.google.android.exoplayer2.demo.lib.Observer.event;
         }
     }
 
-
+    public static String getSessionId() {
+        sessionID = String.valueOf(System.currentTimeMillis());
+        //sessionID = sessionID + deviceInfo.getDev_id();
+        Log.i(TAG, "**************************  questo è il session ID " + sessionID);
+        return sessionID;
+        //  sessionID=sessionID +
+    }
 }
-
-    // if "event" is not static
-
-
-
-  /*  private static void addToEventList(PayLoadElement startEvent, String name, int i, Event event) {
-        if (event!=null) {
-            event.events_list.add(i, new EventElement(name, startEvent.getPayload()));
-        }else {
-            Log.i(TAG, "*********    Null Event Object");
-        }
-    }
-
-    private static void addToEventList(PayLoadElement payLoadElement, String name,Event event) {
-        if (event!=null) {
-            event.events_list.add(new EventElement(name, payLoadElement.getPayload()));
-        }else{
-            Log.i(TAG, "*********    Null Event Object");
-        }
-    }
-
-*/
-
-
-
-
 
 //region SSVOD
 // SSVOD
-
 
 
 // ssvod.setDrm_time("drm_time");

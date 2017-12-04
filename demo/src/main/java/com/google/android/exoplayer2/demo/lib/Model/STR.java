@@ -15,24 +15,24 @@ import java.util.ArrayList;
 //    STR : Session sTreaming Restart
 
 
-    public class STR extends Streaming {
-        String restart_time;
+public class STR extends Streaming {
+    String restartTime;
 
-        public String getRestart_time() {
-            return restart_time;
-        }
+    public String getRestartTime() {
+        return restartTime;
+    }
 
-        public void setRestart_time(String restart_time) {
-            this.restart_time = restart_time;
-        }
+    public void setRestartTime(String restartTime) {
+        this.restartTime = restartTime;
+    }
 
-        public STR() {
-        }
+    public STR() {
+    }
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
-        payload.add(restart_time);
+        payload.add(sessionId);
+        payload.add(restartTime);
     }
 
-    }
+}

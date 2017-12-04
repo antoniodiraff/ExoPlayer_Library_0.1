@@ -14,9 +14,9 @@ public class SSPVOD extends VOD {
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
-        payload.add(original_session_id);
-        payload.add(playback_start_time);
+        payload.add(sessionId);
+        payload.add(originalSessionId);
+        payload.add(playbackStartTime);
         payload.add(offer_id);
         payload.add(asset_title);
         payload.add(asset_source);

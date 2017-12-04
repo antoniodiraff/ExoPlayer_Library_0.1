@@ -21,7 +21,7 @@ public class SE extends PayLoadElement {
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
+        payload.add(sessionId);
         payload.add(error_text);
         payload.add(errorType);
         payload.add(error_code);

@@ -7,14 +7,14 @@ public abstract class Start extends PayLoadElement {
     //  CH : Live Channel
     //  VOD : Video On Demand
 
-    String original_session_id;
-    String playback_start_time;
-    String start_time;
-    String drm_time;
-    String buffering_time;
-    String manifest_uri;
-    String manifest_dwnl_byte;
-    String manifest_dwnl_time;
+    String originalSessionId;
+    String playbackStartTime;
+    String startTime;
+    String drmTime;
+    String bufferingTime;
+    String manifestUri;
+    String manifestDwnlByte;
+    String manifestDwnlTime;
     //    PayloadElement attribute -
     // String session_id;
     // String ip_server;
@@ -34,73 +34,68 @@ public abstract class Start extends PayLoadElement {
 
 //    public abstract ArrayList<String> update();
 
-    public String getOriginal_session_id() {
-        return original_session_id;
+
+    public String getOriginalSessionId() {
+        return originalSessionId;
     }
 
-    public void setOriginal_session_id(String original_session_id) {
-        this.original_session_id = original_session_id;
+    public void setOriginalSessionId(String originalSessionId) {
+        this.originalSessionId = originalSessionId;
     }
 
-    public String getPlayback_start_time() {
-        return playback_start_time;
+    public String getPlaybackStartTime() {
+        return playbackStartTime;
     }
 
-    public void setPlayback_start_time(String playback_start_time) {
-        this.playback_start_time = playback_start_time;
+    public void setPlaybackStartTime(String playbackStartTime) {
+        this.playbackStartTime = playbackStartTime;
     }
 
-    public String getStart_time() {
-        return start_time;
+    public String getStartTime() {
+        return startTime;
     }
 
-    public void setStart_time(String start_time) {
-        if (start_time != null) {
-            this.start_time = start_time;
-        } else {
-            this.start_time = "";
-        }
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
     }
 
-    public String getDrm_time() {
-        return drm_time;
+    public String getDrmTime() {
+        return drmTime;
     }
 
-    public void setDrm_time(String drm_time) {
-        this.drm_time = drm_time;
+    public void setDrmTime(String drmTime) {
+        this.drmTime = drmTime;
     }
 
-    public String getBuffering_time() {
-        return buffering_time;
+    public String getBufferingTime() {
+        return bufferingTime;
     }
 
-    public void setBuffering_time(String buffering_time) {
-        this.buffering_time = buffering_time;
+    public void setBufferingTime(String bufferingTime) {
+        this.bufferingTime = bufferingTime;
     }
 
-    public String getManifest_uri() {
-        return manifest_uri;
+    public String getManifestUri() {
+        return manifestUri;
     }
 
-    public void setManifest_uri(String manifest_uri) {
-        this.manifest_uri = manifest_uri;
+    public void setManifestUri(String manifestUri) {
+        this.manifestUri = manifestUri;
     }
 
-    public String getManifest_dwnl_byte() {
-        return manifest_dwnl_byte;
+    public String getManifestDwnlByte() {
+        return manifestDwnlByte;
     }
 
-    public void setManifest_dwnl_byte(String manifest_dwnl_byte) {
-        this.manifest_dwnl_byte = manifest_dwnl_byte;
+    public void setManifestDwnlByte(String manifestDwnlByte) {
+        this.manifestDwnlByte = manifestDwnlByte;
     }
 
-    public String getManifest_dwnl_time() {
-        return manifest_dwnl_time;
+    public String getManifestDwnlTime() {
+        return manifestDwnlTime;
     }
 
-    public void setManifest_dwnl_time(String manifest_dwnl_time) {
-        this.manifest_dwnl_time = manifest_dwnl_time;
+    public void setManifestDwnlTime(String manifestDwnlTime) {
+        this.manifestDwnlTime = manifestDwnlTime;
     }
-
-
 }

@@ -6,37 +6,36 @@ import java.util.ArrayList;
 // SSRCH: Session Start Restart CHannel
 
 public class SSRCH extends LiveCH {
-    String restart_sec;
+    String restartSec;
 
     public SSRCH() {
     }
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
-        payload.add(original_session_id);
-        payload.add(start_time);
-        payload.add(drm_time);
-        payload.add(buffering_time);
-        payload.add(playback_start_time);
-        payload.add(ip_server);
-        payload.add(manifest_uri);
-        payload.add(manifest_dwnl_byte);
-        payload.add(manifest_dwnl_time);
-        payload.add(http_response);
-        payload.add(channel_id);
-        payload.add(channel_type);
-        payload.add(channel_epg);
-        payload.add(channel_name);
-        payload.add(restart_sec);
+        payload.add(sessionId);
+        payload.add(originalSessionId);
+        payload.add(startTime);
+        payload.add(drmTime);
+        payload.add(bufferingTime);
+        payload.add(playbackStartTime);
+        payload.add(ipServer);
+        payload.add(manifestUri);
+        payload.add(manifestDwnlByte);
+        payload.add(manifestDwnlTime);
+        payload.add(httpResponse);
+        payload.add(channelId);
+        payload.add(channelType);
+        payload.add(channelEpg);
+        payload.add(channelName);
+        payload.add(restartSec);
     }
 
-    public String getRestart_sec() {
-        return restart_sec;
+    public String getRestartSec() {
+        return restartSec;
     }
 
-    public void setRestart_sec(String restart_sec) {
-        this.restart_sec = restart_sec;
+    public void setRestartSec(String restartSec) {
+        this.restartSec = restartSec;
     }
-
 }

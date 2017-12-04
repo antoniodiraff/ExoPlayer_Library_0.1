@@ -22,7 +22,7 @@ public class SPR extends Download {
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
+        payload.add(sessionId);
         payload.add(restart_time);
     }
 }

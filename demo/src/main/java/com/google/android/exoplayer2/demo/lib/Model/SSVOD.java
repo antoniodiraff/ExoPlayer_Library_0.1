@@ -11,16 +11,16 @@ public class SSVOD extends VOD {
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
-        payload.add(start_time);
-        payload.add(drm_time);
-        payload.add(buffering_time);
-        payload.add(playback_start_time);
-        payload.add(ip_server);
-        payload.add(manifest_uri);
-        payload.add(manifest_dwnl_byte);
-        payload.add(manifest_dwnl_time);
-        payload.add(http_response);
+        payload.add(sessionId);
+        payload.add(startTime);
+        payload.add(drmTime);
+        payload.add(bufferingTime);
+        payload.add(playbackStartTime);
+        payload.add(ipServer);
+        payload.add(manifestUri);
+        payload.add(manifestDwnlByte);
+        payload.add(manifestDwnlTime);
+        payload.add(httpResponse);
         payload.add(offer_id);
         payload.add(asset_title);
         payload.add(asset_type);

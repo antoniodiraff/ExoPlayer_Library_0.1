@@ -23,7 +23,7 @@ public class SPP extends Download {
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
+        payload.add(sessionId);
         payload.add(pause_time);
     }
 }

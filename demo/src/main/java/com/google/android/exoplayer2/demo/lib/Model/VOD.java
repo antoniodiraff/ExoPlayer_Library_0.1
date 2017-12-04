@@ -6,7 +6,7 @@ public abstract class VOD extends Start {
 //  ****************************************************
 //  SSVOD : Session Start VOD
 //  SSDVOD : Session Start Download VOD (**)
-// SSPVOD : Session Start Playback VOD. During the Playback, if the user is offline, the SSPVOD events should be collected and sent as soon as will come back online
+//  SSPVOD : Session Start Playback VOD. During the Playback, if the user is offline, the SSPVOD events should be collected and sent as soon as will come back online
 
     String offer_id;
     String asset_title;

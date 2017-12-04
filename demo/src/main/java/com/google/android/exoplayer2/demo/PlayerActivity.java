@@ -46,8 +46,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.demo.lib.Observer;
 import com.google.android.exoplayer2.demo.lib.PauseCause;
-import com.google.android.exoplayer2.demo.lib.PlayerMonitor;
-import com.google.android.exoplayer2.demo.lib.SessionDownload;
 import com.google.android.exoplayer2.demo.lib.StreamingType;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
@@ -147,7 +145,6 @@ public class PlayerActivity extends Activity implements OnClickListener, EventLi
     private Object imaAdsLoader; // com.google.android.exoplayer2.ext.ima.ImaAdsLoader
     private Uri loadedAdTagUri;
     private ViewGroup adOverlayViewGroup;
-    public PlayerMonitor playerMonitor;
     private boolean isRestart= false;
 
     // Activity lifecycle
@@ -392,7 +389,7 @@ public void testSessionDownload(){
                          getApplicationContext(),
                          StreamingType.Live,
                         "originalSessionId", "restartSec", true,
-                        "SKY_TG_24", "0001", "ChannelType",
+                        "SKY_TG_24", "0001", "Channel EPG",
                         "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
             }
 
@@ -465,6 +462,7 @@ public void testSessionDownload(){
     }
 
     private MediaSource buildMediaSource(Uri uri, String overrideExtension) {
+        observer.setIpServer(uri.getHost());
         int type = TextUtils.isEmpty(overrideExtension) ? Util.inferContentType(uri)
                 : Util.inferContentType("." + overrideExtension);
         switch (type) {

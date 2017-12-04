@@ -7,32 +7,32 @@ import java.util.ArrayList;
 
 public class STD extends Streaming {
     String Layer;
-    String buffer_size;
-    String fps_decoded;
-    String chunk_type;
-    String chunk_index;
-    String chunk_uri;
-    String dwnl_byte;
-    String dwnl_time;
-    String response_time;
+    String bufferSize;
+    String fpsDecoded;
+    String chunkType;
+    String chunkIndex;
+    String chunkUri;
+    String dwnlByte;
+    String dwnlTime;
+    String responseTime;
 
     public STD() {
     }
 
     public void update() {
         payload = new ArrayList<String>();
-        payload.add(session_id);
+        payload.add(sessionId);
         payload.add(Layer);
-        payload.add(buffer_size);
-        payload.add(fps_decoded);
-        payload.add(chunk_type);
-        payload.add(chunk_index);
-        payload.add(chunk_uri);
-        payload.add(dwnl_byte);
-        payload.add(dwnl_time);
-        payload.add(response_time);
-        payload.add(ip_server);
-        payload.add(http_response);
+        payload.add(bufferSize);
+        payload.add(fpsDecoded);
+        payload.add(chunkType);
+        payload.add(chunkIndex);
+        payload.add(chunkUri);
+        payload.add(dwnlByte);
+        payload.add(dwnlTime);
+        payload.add(responseTime);
+        payload.add(ipServer);
+        payload.add(httpResponse);
     }
 
     public String getLayer() {
@@ -43,67 +43,67 @@ public class STD extends Streaming {
         Layer = layer;
     }
 
-    public String getBuffer_size() {
-        return buffer_size;
+    public String getBufferSize() {
+        return bufferSize;
     }
 
-    public void setBuffer_size(String buffer_size) {
-        this.buffer_size = buffer_size;
+    public void setBufferSize(String bufferSize) {
+        this.bufferSize = bufferSize;
     }
 
-    public String getFps_decoded() {
-        return fps_decoded;
+    public String getFpsDecoded() {
+        return fpsDecoded;
     }
 
-    public void setFps_decoded(String fps_decoded) {
-        this.fps_decoded = fps_decoded;
+    public void setFpsDecoded(String fpsDecoded) {
+        this.fpsDecoded = fpsDecoded;
     }
 
-    public String getChunk_type() {
-        return chunk_type;
+    public String getChunkType() {
+        return chunkType;
     }
 
-    public void setChunk_type(String chunk_type) {
-        this.chunk_type = chunk_type;
+    public void setChunkType(String chunkType) {
+        this.chunkType = chunkType;
     }
 
-    public String getChunk_index() {
-        return chunk_index;
+    public String getChunkIndex() {
+        return chunkIndex;
     }
 
-    public void setChunk_index(String chunk_index) {
-        this.chunk_index = chunk_index;
+    public void setChunkIndex(String chunkIndex) {
+        this.chunkIndex = chunkIndex;
     }
 
-    public String getChunk_uri() {
-        return chunk_uri;
+    public String getChunkUri() {
+        return chunkUri;
     }
 
-    public void setChunk_uri(String chunk_uri) {
-        this.chunk_uri = chunk_uri;
+    public void setChunkUri(String chunkUri) {
+        this.chunkUri = chunkUri;
     }
 
-    public String getDwnl_byte() {
-        return dwnl_byte;
+    public String getDwnlByte() {
+        return dwnlByte;
     }
 
-    public void setDwnl_byte(String dwnl_byte) {
-        this.dwnl_byte = dwnl_byte;
+    public void setDwnlByte(String dwnlByte) {
+        this.dwnlByte = dwnlByte;
     }
 
-    public String getDwnl_time() {
-        return dwnl_time;
+    public String getDwnlTime() {
+        return dwnlTime;
     }
 
-    public void setDwnl_time(String dwnl_time) {
-        this.dwnl_time = dwnl_time;
+    public void setDwnlTime(String dwnlTime) {
+        this.dwnlTime = dwnlTime;
     }
 
-    public String getResponse_time() {
-        return response_time;
+    public String getResponseTime() {
+        return responseTime;
     }
 
-    public void setResponse_time(String response_time) {
-        this.response_time = response_time;
+    public void setResponseTime(String responseTime) {
+        this.responseTime = responseTime;
     }
 }
