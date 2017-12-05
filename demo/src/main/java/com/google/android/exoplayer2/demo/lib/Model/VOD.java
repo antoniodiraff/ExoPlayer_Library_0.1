@@ -8,43 +8,43 @@ public abstract class VOD extends Start {
 //  SSDVOD : Session Start Download VOD (**)
 //  SSPVOD : Session Start Playback VOD. During the Playback, if the user is offline, the SSPVOD events should be collected and sent as soon as will come back online
 
-    String offer_id;
-    String asset_title;
-    String asset_type;
-    String asset_source;
+    // (**) SkygoPlus capabilities
+
+    String offerId;
+    String assetTitle;
+    String assetType;
+    String assetSource;
 
 
-    public String getOffer_id() {
-        return offer_id;
+    public String getOfferId() {
+        return offerId;
     }
 
-    public void setOffer_id(String offer_id) {
-        this.offer_id = offer_id;
+    public void setOfferId(String offerId) {
+        this.offerId = offerId;
     }
 
-    public String getAsset_title() {
-        return asset_title;
+    public String getAssetTitle() {
+        return assetTitle;
     }
 
-    public void setAsset_title(String asset_title) {
-        this.asset_title = asset_title;
+    public void setAssetTitle(String assetTitle) {
+        this.assetTitle = assetTitle;
     }
 
-    public String getAsset_type() {
-        return asset_type;
+    public String getAssetType() {
+        return assetType;
     }
 
-    public void setAsset_type(String asset_type) {
-        this.asset_type = asset_type;
+    public void setAssetType(String assetType) {
+        this.assetType = assetType;
     }
 
-    public String getAsset_source() {
-        return asset_source;
+    public String getAssetSource() {
+        return assetSource;
     }
 
-    public void setAsset_source(String asset_source) {
-        this.asset_source = asset_source;
+    public void setAssetSource(String assetSource) {
+        this.assetSource = assetSource;
     }
-
-
 }

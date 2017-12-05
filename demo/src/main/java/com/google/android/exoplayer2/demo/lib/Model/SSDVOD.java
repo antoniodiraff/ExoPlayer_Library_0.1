@@ -7,31 +7,19 @@ package com.google.android.exoplayer2.demo.lib.Model;
 import java.util.ArrayList;
 
 public class SSDVOD extends VOD {
-    String drm_time;
-    String buffering_time;
-    String ip_server;
-    String manifest_uri;
-    String manifest_dwnl_byte;
-    String manifest_dwnl_time;
-    String http_response;
-    String offer_id;
-    String asset_title;
-    String asset_source;
 
-
-    public SSDVOD(String drm_time,String buffering_time,String ip_server,String manifest_uri,String manifest_dwnl_byte,
-                  String manifest_dwnl_time,String http_response,String offer_id,String asset_title,String asset_source) {
-
-        this.asset_source=asset_source;
-        this.drm_time=drm_time;
-        this.buffering_time=buffering_time;
-        this.manifest_uri=manifest_uri;
-        this.manifest_dwnl_time=manifest_dwnl_time;
-        this.manifest_dwnl_byte=manifest_dwnl_byte;
-        this.http_response=http_response;
-        this.offer_id=offer_id;
-        this.asset_title=asset_title;
-        this.ip_server=ip_server;
+    public SSDVOD(String drmTime,String bufferingTime,String ipServer,String manifestUri,String manifestDwnlByte,
+                  String manifestDwnlTime,String httpResponse,String offerId,String assetTitle,String assetSource) {
+        this.assetSource=assetSource;
+        this.drmTime=drmTime;
+        this.bufferingTime=bufferingTime;
+        this.manifestUri=manifestUri;
+        this.manifestDwnlTime=manifestDwnlTime;
+        this.manifestDwnlByte=manifestDwnlByte;
+        this.httpResponse=httpResponse;
+        this.offerId=offerId;
+        this.assetTitle=assetTitle;
+        this.ipServer=ipServer;
     }
 
     public SSDVOD(){
@@ -42,17 +30,15 @@ public class SSDVOD extends VOD {
         payload = new ArrayList<String>();
         payload.add(sessionId);
         payload.add(startTime);
-        payload.add(drm_time);
-        payload.add(buffering_time);
-        payload.add(ip_server);
-        payload.add(manifest_uri);
-        payload.add(manifest_dwnl_byte);
-        payload.add(manifest_dwnl_time);
-        payload.add(http_response);
-        payload.add(offer_id);
-        payload.add(asset_title);
-        payload.add(asset_source);
+        payload.add(drmTime);
+        payload.add(bufferingTime);
+        payload.add(ipServer);
+        payload.add(manifestUri);
+        payload.add(manifestDwnlByte);
+        payload.add(manifestDwnlTime);
+        payload.add(httpResponse);
+        payload.add(offerId);
+        payload.add(assetTitle);
+        payload.add(assetSource);
     }
-
-
 }

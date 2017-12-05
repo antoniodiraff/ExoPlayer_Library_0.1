@@ -112,36 +112,34 @@ public final class EventElementBuilder {
         ssrch.setChannelId(channelID);
         ssrch.setChannelName(channelName);
         ssrch.setChannelType(channelType);
-
-
-        //ssrch.setPlayback_start_time(currentTimeStamp);
-        //ssrch.setBuffering_time(bufferingTimeStamp);
         ssrch.setDrmTime("drm_time");
         ssrch.setIpServer(ipServer);
-        ssrch.setManifestUri("manifest_uri");
-        ssrch.setManifestDwnlTime("manifest_dwl_time");
-        ssrch.setManifestDwnlTime("manifest_dwnl_byte");
-        ssrch.setHttpResponse("Http Response");
         ssrch.setRestartSec(restartSec);
         return ssrch;
     }
 
-    public static SSVOD sessionStartVOD(String currentTimeStamp) {
+    public static SSVOD sessionStartVOD(String currentTimeStamp, String offerId,String assetTitle,String assetType, String assetSource,String ipServer) {
         SSVOD ssvod = new SSVOD();
         ssvod.setSessionId(sessionID = getSessionId());
         ssvod.setStartTime(currentTimeStamp);
+        ssvod.setDrmTime("");
+        ssvod.setIpServer(ipServer);
+        ssvod.setOfferId(offerId);
+        ssvod.setAssetTitle(assetTitle);
+        ssvod.setAssetType(assetType);
+        ssvod.setAssetSource(assetSource);
         return ssvod;
     }
 
-    public static SSPVOD sessionStartPlaybackVOD(String currentTimeStamp) {
+    public static SSPVOD sessionStartPlaybackVOD(String currentTimeStamp, String originalSessionId,String vodID,String  VODTitle,String  assetPath) {
         SSPVOD sspvod = new SSPVOD();
         sspvod.setSessionId(sessionID = getSessionId());
-        sspvod.setOriginalSessionId("originalSessionId");
+        sspvod.setOriginalSessionId(originalSessionId);
         sspvod.setPlaybackStartTime(currentTimeStamp);
-        sspvod.setOffer_id("vodID");
-        sspvod.setAsset_title("VODTitle");
-        sspvod.setAsset_source("assetPath");
-        sspvod.setDelay_time_sec("delay_time_sec");
+        sspvod.setOfferId(vodID);
+        sspvod.setAssetTitle(VODTitle);
+        sspvod.setAssetSource(assetPath);
+        sspvod.setDelayTimeSec("delay_time_sec");
         return sspvod;
 
     }
@@ -158,7 +156,7 @@ public final class EventElementBuilder {
     public static STRB sessionsTreamingReBuferring(String currentTimeStamp) {
         STRB strb = new STRB();
         strb.setSessionId(sessionID);
-        strb.setRebufferingStartTime(Observer.getCurrentTimeStamp());
+        strb.setRebufferingStartTime(currentTimeStamp);
         strb.update();
         return strb;
     }
@@ -182,7 +180,6 @@ public final class EventElementBuilder {
         stcl.setBitrateTo(String.valueOf(trackFormat.bitrate));
         stcl.update();
         addToEventList(stcl, "STCL");
-        // event.events_list.add(new EventElement("STCL", stcl.getPayload()));
     }
 
     public static void sessionsTreamingRestart(String currentTimeStamp) {
@@ -191,7 +188,6 @@ public final class EventElementBuilder {
         str.setRestartTime(currentTimeStamp);
         str.update();
         addToEventList(str, "STR");
-        // event.events_list.add(new EventElement("STR", str.getPayload()));
     }
 
     public static void sessionsTreamingPause(String currentTimeStamp) {
@@ -200,32 +196,26 @@ public final class EventElementBuilder {
         stp.setPauseTime(currentTimeStamp);
         stp.update();
         addToEventList(stp, "STP");
-
-        //event.events_list.add(new EventElement("STP", stp.getPayload()));
     }
 
-    protected static void sessionsTreamingDownload(String currentTimeStamp, DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
+    private static void sessionshTreamingDownload( DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
                                                    int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-                                                   long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, String assetType,String ipServer) {
-
+                                                   long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded, String assetType,String ipServer,String bufferSize) {
         STD std = new STD();
         std.setSessionId(sessionID);
         if (trackFormat != null) {
             std.setLayer(String.valueOf(trackFormat.bitrate));
-        }else {
+        } else {
             std.setLayer("");
         }
-            std.setDwnlByte(String.valueOf(bytesLoaded));
+        std.setDwnlByte(String.valueOf(bytesLoaded));
         std.setDwnlTime(String.valueOf(loadDurationMs));
-
         //secondi rimanenti del video già bufferizzato
-        std.setBufferSize("");
-
+        std.setBufferSize(bufferSize);
         //Chunk info totali
         std.setChunkIndex("");
         std.setChunkType("");
         std.setChunkUri(dataSpec.uri.toString());
-
         //Not present
         std.setFpsDecoded("");
         std.setResponseTime("");
@@ -234,24 +224,7 @@ public final class EventElementBuilder {
 
         std.update();
         addToEventList(std, "STD");
-
-        /*
-        std.setSession_id(sessionID);
-        std.setBuffer_size("");
-        std.setChunk_index("");
-        std.setChunk_type("");
-        std.setChunk_uri("");
-        std.setDwnl_byte("");
-        std.setDwnl_time("");
-        std.setFps_decoded("");
-        std.setLayer("");
-        std.setResponse_time("");
-        */
-
-
-        // event.events_list.add(new EventElement("STD", std.getPayload()));
     }
-
 
     /*
     PLAYBACK : During the playback of downloaded VOD. (**)
@@ -300,7 +273,6 @@ public final class EventElementBuilder {
         addToEventList(se, "SE");
     }
 
-
     /*
     CLOSE : When a session finishes (also if is caused by an error that can’t permit streaming anymore).
 
@@ -326,52 +298,6 @@ public final class EventElementBuilder {
         addToEventList(spc, "SPC");
         //  Log.i(TAG, "************   percentage " + String.valueOf(player.getBufferedPercentage()));
     }
-
-
-    //region UPDATES
-/*    public static void updateSSDVOD(SSDVOD ssdvod, String currentTimeStamp, Event event, int i) {
-        if(ssdvod!=null){
-            ssdvod.setPlayback_start_time(currentTimeStamp);
-            ssdvod.update();
-            event.events_list.add(i, new EventElement("SSDVOD", ssdvod.getPayload()));
-        }
-    }
-
-    public static  void updateSSRCH(SSRCH ssrch, String currentTimeStamp, Event event,int i) {
-        if (ssrch != null) {
-            ssrch.setPlayback_start_time(currentTimeStamp);
-            ssrch.update();
-            event.events_list.add(i, new EventElement("SSRCH", ssrch.getPayload()));
-        }
-    }
-
-    public static  void updateSSVOD(SSVOD ssvod, String currentTimeStamp, Event event, int i) {
-        if (ssvod != null) {
-            ssvod.setPlayback_start_time(currentTimeStamp);
-            ssvod.updateSSVODPayload();
-            event.events_list.add(i, new EventElement("SSVOD", ssvod.getPayload()));
-        }
-    }
-
-    public static  void updateSSCH(SSCH ssch , String currentTimeStamp,Event event, int i) {
-        if (ssch != null) {
-            ssch.setPlayback_start_time(currentTimeStamp);
-            ssch.update();
-            event.events_list.add(i, new EventElement("SSCH", ssch.getPayload()));
-        }
-    }
-
-    public static  void updateSSPVOD(SSPVOD sspvod, String currentTimeStamp,Event event, int i) {
-
-        if (sspvod != null) {
-            sspvod.setPlayback_start_time(currentTimeStamp);
-            sspvod.update();
-            event.events_list.add(i, new EventElement("SSPVOD", sspvod.getPayload()));
-        }
-    }
-
-    */
-//endregion
 
     public static void updateStartEvent(Start startEvent, String name, String currentTimeStamp, int i) {
         if (startEvent != null) {

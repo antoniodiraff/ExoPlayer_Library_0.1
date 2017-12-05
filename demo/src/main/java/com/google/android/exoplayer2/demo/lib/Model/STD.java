@@ -3,7 +3,8 @@ package com.google.android.exoplayer2.demo.lib.Model;
 import java.util.ArrayList;
 
 
-//    STD : Session sTreaming Download (valid also for VOD download) STP : Session sTreaming Pause
+//    STD : Session sTreaming Download (valid also for VOD download)
+
 
 public class STD extends Streaming {
     String Layer;

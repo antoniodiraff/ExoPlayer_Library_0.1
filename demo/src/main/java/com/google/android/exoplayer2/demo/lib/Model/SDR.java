@@ -6,7 +6,7 @@ import java.util.ArrayList;
 // SDR : Session Download Resume
 
 public class SDR extends Download {
-    String resume_time;
+    String resumeTime;
 
     public SDR() {
 
@@ -15,14 +15,14 @@ public class SDR extends Download {
     public void update() {
         payload = new ArrayList<String>();
         payload.add(sessionId);
-        payload.add(resume_time);
+        payload.add(resumeTime);
     }
 
-    public String getResume_time() {
-        return resume_time;
+    public String getResumeTime() {
+        return resumeTime;
     }
 
-    public void setResume_time(String resume_time) {
-        this.resume_time = resume_time;
+    public void setResumeTime(String resumeTime) {
+        this.resumeTime = resumeTime;
     }
 }

@@ -5,9 +5,9 @@ import java.util.ArrayList;
 //SDP : Session Download Pause
 
 public class SDP extends Download {
-    String pause_time;
-    String pause_cause;
-    String download_perc;
+    String pauseTime;
+    String pauseCause;
+    String downloadPerc;
 
     public SDP() {
 
@@ -16,32 +16,32 @@ public class SDP extends Download {
     public void update() {
         payload = new ArrayList<String>();
         payload.add(sessionId);
-        payload.add(pause_time);
-        payload.add(pause_cause);
-        payload.add(download_perc);
+        payload.add(pauseTime);
+        payload.add(pauseCause);
+        payload.add(downloadPerc);
     }
 
-    public String getPause_time() {
-        return pause_time;
+    public String getPauseTime() {
+        return pauseTime;
     }
 
-    public void setPause_time(String pause_time) {
-        this.pause_time = pause_time;
+    public void setPauseTime(String pauseTime) {
+        this.pauseTime = pauseTime;
     }
 
-    public String getPause_cause() {
-        return pause_cause;
+    public String getPauseCause() {
+        return pauseCause;
     }
 
-    public void setPause_cause(String pause_cause) {
-        this.pause_cause = pause_cause;
+    public void setPauseCause(String pauseCause) {
+        this.pauseCause = pauseCause;
     }
 
-    public String getDownload_perc() {
-        return download_perc;
+    public String getDownloadPerc() {
+        return downloadPerc;
     }
 
-    public void setDownload_perc(String download_perc) {
-        this.download_perc = download_perc;
+    public void setDownloadPerc(String downloadPerc) {
+        this.downloadPerc = downloadPerc;
     }
 }

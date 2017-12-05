@@ -68,13 +68,13 @@ import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.session
 import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionStartPlaybackVOD;
 import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionStartRestartCHannel;
 import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionStartVOD;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionsTreamingDownload;
 import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionsTreamingPause;
 import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionsTreamingReBuferring;
 import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionsTreamingRestart;
 import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.updateSTRB;
 import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.updateStartEvent;
 import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionStartDownloadVod;
+import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionsTreamingDownload;
 
 
 public final class Observer implements Player.EventListener, AudioRendererEventListener, VideoRendererEventListener,
@@ -139,10 +139,10 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     String channelName = "";
     String channelID = "";
     String channelType = "";
-    String vodID = "";
-    String VODTitle = "";
+    String offerID = "";
+    String assetTitle = "";
     String assetType = "";
-    String assetPath = "";
+    String assetSource = "";
     public Timer _t;
     SimpleExoPlayer player;
     boolean isFirstTime_Download = true;
@@ -158,8 +158,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     public Observer(final MappingTrackSelector trackSelector, boolean enableTrace, String serverURL, int serverTimeout, String userAgent, String dev_id, String user_extid,
                     String source, int dequeueingIntervalTime, Context c, StreamingType streamingType, String originalSessionId, String restartSec, boolean isFree,
-                    String channelName, String channelID, String channelEPG, String vodID,
-                    String VODTitle, String assetType, String assetPath) {
+                    String channelName, String channelID, String channelEPG,
+                    String offerID, String assetTitle, String assetType, String assetSource) {
 
         this.c = c;
         this.source=source;
@@ -177,10 +177,10 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         if(isFree){this.channelType = "F";} else{this.channelType="C";}
         this.channelEPG=channelEPG;
 
-        this.vodID = vodID;
-        this.VODTitle = VODTitle;
+        this.offerID = offerID;
+        this.assetTitle = assetTitle;
         this.assetType = assetType;
-        this.assetPath = assetPath;
+        this.assetSource = assetSource;
 
         this.trackSelector = trackSelector;
         window = new Timeline.Window();
@@ -200,6 +200,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
             switch (streamingType) {
                 case Live:
                     ssch.setBufferingTime(currentTimeStamp);
+                    break;
+                case Restart:
+                    ssrch.setBufferingTime(currentTimeStamp);
                     break;
                 case Vod:
                     ssvod.setBufferingTime(currentTimeStamp);
@@ -364,6 +367,15 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         if (trackFormat != null) {
             Log.d(TAG, " ********** onLoadCompletedCallback" + trackFormat.toString());
         }
+        String bitrate="";
+        String chunkUri="";
+        String chunkIndex="";
+        String chunkType="";
+        String responseTime="";
+        String bufferSize="";
+        String dwnTime="";
+        String dwnlByte="";
+
         Start startEvent = null;
         if (isFirstTime_OnLoadedCompleted) {
             isFirstTime_OnLoadedCompleted = false;
@@ -376,10 +388,23 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
             }
         } else {
             if (event != null) {
-                if(isLive||isVod)
-                    sessionsTreamingDownload(currentTimeStamp, dataSpec, dataType, trackType, trackFormat, trackSelectionReason,
-                            trackSelectionData, mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded,
-                            assetType,ipServer);
+                if (isLive || isVod)
+                    if (trackFormat != null) {
+                        bitrate = String.valueOf(trackFormat.bitrate);
+                    }
+                    if (dataSpec.uri != null) {
+                    chunkUri = dataSpec.uri.toString();
+                }
+                dwnTime=String.valueOf(loadDurationMs);
+                dwnlByte=String.valueOf(bytesLoaded);
+
+                sessionsTreamingDownload(chunkUri, chunkIndex, chunkType, bitrate, "", "200",
+                        responseTime, ipServer, dwnTime, dwnlByte, bufferSize);
+
+/*
+                sessionsTreamingDownload(dataSpec, dataType, trackType, trackFormat, trackSelectionReason,
+                        trackSelectionData, mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded,
+                        assetType, ipServer, "bufferSize");*/
             } else {
                 Log.d(TAG, " ********** event = null ....it never should happen");
             }
@@ -439,7 +464,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         }
         createStartEvent();
         // TIMEout TRIGGER
-
     }
 
     private void startTimer() {
@@ -471,13 +495,13 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                     ssrch = sessionStartRestartCHannel(getCurrentTimeStamp(),channelID,channelName,channelEPG,channelType,ipServer,restartSec);
                     break;
                 case LocalFile:
-                    sspvod = sessionStartPlaybackVOD(getCurrentTimeStamp());
+                    sspvod = sessionStartPlaybackVOD(getCurrentTimeStamp(),originalSessionId, offerID, assetTitle, assetSource);
                     break;
                 case Vod:
-                    ssvod = sessionStartVOD(getCurrentTimeStamp());
+                    ssvod = sessionStartVOD(getCurrentTimeStamp(), offerID, assetTitle, assetType, assetSource, ipServer);
                     break;
                 case Download:
-                    ssdvod = sessionStartDownloadVod(getCurrentTimeStamp());
+                    ssdvod = sessionStartDownloadVod(getCurrentTimeStamp(),offerID, assetTitle, assetSource,ipServer);
                 default:
                     break;
             }
@@ -638,7 +662,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     public void onPlayerStateChanged(boolean playWhenReady, int state) throws IOException {
         Log.d(TAG, "stato [ Session Time String: " + getSessionTimeString() + ", playWhenReady: " + playWhenReady + ", State:  "
                 + getStateString(state) + "]");
-
         String stateString;
         switch (state) {
             case Player.STATE_IDLE:
@@ -654,10 +677,10 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                 if (!isTheFirstTime_Ready) {
                     if (play == false) {
                         play = true;
-                        Log.i(TAG, " ***********************   il player è in PLAY    :" + play);
+                        Log.i(TAG, " ************   Il player è in Play    :" + play);
                     } else {
                         play = false;
-                        Log.i(TAG, " ***********************   il player è in PAUSA   :" + play);
+                        Log.i(TAG, " ************   Il player è in Pausa   :" + play);
                     }
                 }
                 ready_CallBack(getCurrentTimeStamp(), play, streamingType);

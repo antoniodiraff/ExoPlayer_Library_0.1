@@ -21,10 +21,10 @@ public class SSVOD extends VOD {
         payload.add(manifestDwnlByte);
         payload.add(manifestDwnlTime);
         payload.add(httpResponse);
-        payload.add(offer_id);
-        payload.add(asset_title);
-        payload.add(asset_type);
-        payload.add(asset_source);
+        payload.add(offerId);
+        payload.add(assetTitle);
+        payload.add(assetType);
+        payload.add(assetSource);
     }
 }
 

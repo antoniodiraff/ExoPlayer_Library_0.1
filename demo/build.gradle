@@ -65,10 +65,6 @@ android {
 //String jacksonDatabind = 'com.fasterxml.jackson.core:jackson-databind:'
 
 dependencies {
-    //    compile jacksonCore + '2.8.4'
-    //   compile jacksonAnnotations + '2.8.4'
-    //    compile jacksonDatabind + '2.8.4'
-    //    compile 'com.google.code.gson:gson:2.3.1'
     testCompile 'junit:junit:4.11'
     compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.9.1'

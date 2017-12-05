@@ -18,7 +18,7 @@ import static com.google.android.exoplayer2.demo.lib.Observer.getCurrentTimeStam
  * Created by antoniodiraffaele on 30/11/17.
  */
 
-public final class SessionDownload  {
+public final class SessionDownload {
 
     /*
     DOWNLOAD : During the download of VOD chunks. (**)
@@ -29,19 +29,19 @@ public final class SessionDownload  {
     */
 
     protected static void sessionStartDownloadVod(String drm_time, String buffering_time, String ip_server, String manifest_uri, String manifest_dwnl_byte, String manifest_dwnl_time,
-                                                 String http_response, String offer_id, String asset_title, String asset_source) {
+                                                  String http_response, String offer_id, String asset_title, String asset_source) {
 
-        SSDVOD ssdvod = new SSDVOD( drm_time, buffering_time, ip_server, manifest_uri, manifest_dwnl_byte,
-                 manifest_dwnl_time, http_response, offer_id, asset_title, asset_source);
+        SSDVOD ssdvod = new SSDVOD(drm_time, buffering_time, ip_server, manifest_uri, manifest_dwnl_byte,
+                manifest_dwnl_time, http_response, offer_id, asset_title, asset_source);
 
         ssdvod.setSessionId(sessionID = getSessionId());
         ssdvod.setStartTime(getCurrentTimeStamp());
-    //REGION  ATTRIBUTE
+        //REGION  ATTRIBUTE
         //ssdvod.setDrm_time("drm_time");
         //   ssdvod.setBuffering_time(bufferingTimeStamp);
         // ssdvod.setIp_server(playerMonitor.serverURL);
-      //  ssdvod.setIp_server(ip_server);
-       // ssdvod.setHttp_response("Http_Response");
+        //  ssdvod.setIp_server(ip_server);
+        // ssdvod.setHttp_response("Http_Response");
         //ssdvod.setManifest_uri("Maniest URI");
         //ssdvod.setManifest_dwnl_byte("Maniest dwnl byte");
         //ssdvod.setManifest_dwnl_time("Maniest dwnl time");
@@ -51,23 +51,27 @@ public final class SessionDownload  {
         //ENDREGION
 
         ssdvod.update();
-        addToEventList(ssdvod,"SSDVOD",1);
+        addToEventList(ssdvod, "SSDVOD", 1);
     }
 
-    protected static SSDVOD sessionStartDownloadVod(String currentTimeStamp){
-       SSDVOD ssdvod= new SSDVOD();
-       ssdvod.setSessionId(sessionID=getSessionId());
-       ssdvod.setStartTime(currentTimeStamp);
-       return ssdvod;
+    protected static SSDVOD sessionStartDownloadVod(String currentTimeStamp, String offerID, String assetTitle, String assetSource, String ipServer) {
+        SSDVOD ssdvod = new SSDVOD();
+        ssdvod.setSessionId(sessionID = getSessionId());
+        ssdvod.setStartTime(currentTimeStamp);
+        ssdvod.setIpServer(ipServer);
+        ssdvod.setOfferId(offerID);
+        ssdvod.setAssetTitle(assetTitle);
+        ssdvod.setAssetSource(assetSource);
+        return ssdvod;
     }
 
     public static void sessionDownloadPause(PauseCause pauseCause, String bufferedPercentage) {
         //SDP : Session Download Pause
         SDP sdp = new SDP();
         sdp.setSessionId(sessionID);
-        sdp.setPause_time(getCurrentTimeStamp());
-        sdp.setPause_cause(pauseCause.getPauseCode());
-        sdp.setDownload_perc(bufferedPercentage);
+        sdp.setPauseTime(getCurrentTimeStamp());
+        sdp.setPauseCause(pauseCause.getPauseCode());
+        sdp.setDownloadPerc(bufferedPercentage);
         sdp.update();
         addToEventList(sdp, "SDP");
     }
@@ -76,7 +80,7 @@ public final class SessionDownload  {
         //SDR : Session Download Resume
         SDR sdr = new SDR();
         sdr.setSessionId(sessionID);
-        sdr.setResume_time(getCurrentTimeStamp());
+        sdr.setResumeTime(getCurrentTimeStamp());
         sdr.update();
         addToEventList(sdr, "SDR");
     }
@@ -85,12 +89,12 @@ public final class SessionDownload  {
         //SDD : Session Download Delete (download removed)
         SDD sdd = new SDD();
         sdd.setSessionId(sessionID);
-        sdd.setDelete_time(getCurrentTimeStamp());
+        sdd.setDeleteTime(getCurrentTimeStamp());
         sdd.update();
         addToEventList(sdd, "SDD");
     }
 
-    public static void sessionDownloadCompleted( ) {
+    public static void sessionDownloadCompleted() {
         //Session downloaded completed
         SDC sdc = new SDC();
         sdc.setSessionId(sessionID);
@@ -99,24 +103,24 @@ public final class SessionDownload  {
         addToEventList(sdc, "SDC");
     }
 
-    public static void sessionsTreamingDownload(String ChunkUri, String ChunkIndex, String ChunkType, String bitrate, String Fps_decoded, String Http_response,
-                                                String Response_time, String Ip_server, String loadDurationMs, String bytesLoaded) {
+    public static void sessionsTreamingDownload(String ChunkUri, String ChunkIndex, String ChunkType, String bitrate, String FpsDecoded, String httpResponse,
+                                                String ResponseTime, String ipServer, String dwnTime, String dwnlByte,String bufferSize) {
         STD std = new STD();
         std.setSessionId(sessionID);
         std.setLayer(bitrate);
-        std.setDwnlByte(bytesLoaded);
-        std.setDwnlTime(loadDurationMs);
+        std.setDwnlByte(dwnlByte);
+        std.setDwnlTime(dwnTime);
         //secondi rimanenti del video già bufferizzato
-        std.setBufferSize(bytesLoaded);
+        std.setBufferSize(bufferSize);
         std.setChunkIndex(ChunkIndex);
         std.setChunkType(ChunkType);
         std.setChunkUri(ChunkUri);
-        std.setFpsDecoded(Fps_decoded);
-        std.setResponseTime(Response_time);
-        std.setIpServer(Ip_server);
-        std.setHttpResponse(Http_response);
+        std.setFpsDecoded(FpsDecoded);
+        std.setResponseTime(ResponseTime);
+        std.setIpServer(ipServer);
+        std.setHttpResponse(httpResponse);
         std.update();
         addToEventList(std, "STD");
     }
 
-    }
+}

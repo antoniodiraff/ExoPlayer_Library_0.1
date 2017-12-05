@@ -5,15 +5,7 @@ import java.util.ArrayList;
 // SDD : Session Download Delete (download removed)
 
 public class SDD extends Download {
-    String delete_time;
-
-    public String getDelete_time() {
-        return delete_time;
-    }
-
-    public void setDelete_time(String delete_time) {
-        this.delete_time = delete_time;
-    }
+    String deleteTime;
 
     public SDD() {
 
@@ -22,7 +14,14 @@ public class SDD extends Download {
     public void update() {
         payload = new ArrayList<String>();
         payload.add(sessionId);
-        payload.add(delete_time);
+        payload.add(deleteTime);
     }
 
+    public String getDeleteTime() {
+        return deleteTime;
+    }
+
+    public void setDeleteTime(String deleteTime) {
+        this.deleteTime = deleteTime;
+    }
 }
