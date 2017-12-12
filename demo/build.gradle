@@ -64,22 +64,24 @@ android {
 //String jacksonAnnotations = 'com.fasterxml.jackson.core:jackson-annotations:'
 //String jacksonDatabind = 'com.fasterxml.jackson.core:jackson-databind:'
 
+
+
 dependencies {
     testCompile 'junit:junit:4.11'
-    compile 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
+    implementation 'com.google.ads.interactivemedia.v3:interactivemedia:3.7.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.1'
     withExtensionsCompile project(path: modulePrefix + 'extension-ffmpeg')
     withExtensionsCompile project(path: modulePrefix + 'extension-flac')
     withExtensionsCompile project(path: modulePrefix + 'extension-ima')
     withExtensionsCompile project(path: modulePrefix + 'extension-opus')
     withExtensionsCompile project(path: modulePrefix + 'extension-vp9')
     withExtensionsCompile project(path: modulePrefix + 'extension-rtmp')
-    compile project(path: ':library-core')
-    compile project(path: ':library-dash')
-    compile project(path: ':library-hls')
-    compile project(path: ':library-ui')
-    compile project(path: ':library-smoothstreaming')
-    compile project(":telemetry-framework")
+    implementation project(path: ':library-core')
+    implementation project(path: ':library-dash')
+    implementation project(path: ':library-hls')
+    implementation project(path: ':library-ui')
+    implementation project(path: ':library-smoothstreaming')
+    implementation project(":telemetry-framework")
 }
 
 
