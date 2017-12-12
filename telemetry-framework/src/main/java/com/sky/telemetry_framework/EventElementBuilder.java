@@ -1,33 +1,16 @@
-package com.google.android.exoplayer2.demo.lib;
+package com.sky.telemetry_framework;
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import com.google.android.exoplayer2.Format;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.demo.lib.Model.ACI;
-import com.google.android.exoplayer2.demo.lib.Model.ASI;
-import com.google.android.exoplayer2.demo.lib.Model.Event;
-import com.google.android.exoplayer2.demo.lib.Model.EventElement;
-import com.google.android.exoplayer2.demo.lib.Model.PayLoadElement;
-import com.google.android.exoplayer2.demo.lib.Model.SC;
-import com.google.android.exoplayer2.demo.lib.Model.SE;
-import com.google.android.exoplayer2.demo.lib.Model.SPC;
-import com.google.android.exoplayer2.demo.lib.Model.SPP;
-import com.google.android.exoplayer2.demo.lib.Model.SPR;
-import com.google.android.exoplayer2.demo.lib.Model.SSCH;
-import com.google.android.exoplayer2.demo.lib.Model.SSPVOD;
-import com.google.android.exoplayer2.demo.lib.Model.SSRCH;
-import com.google.android.exoplayer2.demo.lib.Model.SSVOD;
-import com.google.android.exoplayer2.demo.lib.Model.STCL;
-import com.google.android.exoplayer2.demo.lib.Model.STD;
-import com.google.android.exoplayer2.demo.lib.Model.STP;
-import com.google.android.exoplayer2.demo.lib.Model.STR;
-import com.google.android.exoplayer2.demo.lib.Model.STRB;
-import com.google.android.exoplayer2.demo.lib.Model.Start;
 import com.google.android.exoplayer2.upstream.DataSpec;
+import com.sky.telemetry_framework.model.*;
 
-import static com.google.android.exoplayer2.demo.lib.Observer.event;
-
+import static com.sky.telemetry_framework.Observer.event;
 
 /**
  * Created by antoniodiraffaele on 28/11/17.
@@ -42,6 +25,9 @@ public final class EventElementBuilder {
     public static ACI aci = null;
     static String sessionID = null;
     private static String originalSessionId;
+    private static SharedPreferences sharedPref;
+
+    private static Activity a;
 
     /*
      At application level will be generated two category of events:
@@ -81,10 +67,11 @@ public final class EventElementBuilder {
     SSPVOD : Session Start Playback VOD (**)
     */
 
-    public static SSCH sessionStartCHannel(String currentTimeStamp, String channelID, String channelName, String channelEPG, String channelType, String ipServer) {
+    public static SSCH sessionStartCHannel(Context c, String currentTimeStamp, String channelID, String channelName, String channelEPG, String channelType, String ipServer) {
         SSCH ssch = new SSCH();
         ssch.setSessionId(sessionID = getSessionId());
         originalSessionId = sessionID;
+        saveSessionID(c, originalSessionId);
         ssch.setStartTime(currentTimeStamp);
         ssch.setIpServer(ipServer);
         ssch.setChannelId(channelID);
@@ -101,11 +88,14 @@ public final class EventElementBuilder {
         return ssch;
     }
 
-    public static SSRCH sessionStartRestartCHannel(String timeStamp, String channelID, String channelName, String channelEPG, String channelType, String ipServer, String restartSec) {
+    public static SSRCH sessionStartRestartCHannel(Context c ,String timeStamp, String channelID, String channelName, String channelEPG, String channelType, String ipServer, String restartSec) {
 
 
         SSRCH ssrch = new SSRCH();
         ssrch.setSessionId(sessionID = getSessionId());
+        sharedPref = c.getSharedPreferences("sessionID",Context.MODE_PRIVATE);
+        originalSessionId= sharedPref.getString("originalSessionId","");
+        // originalSessionId=
         ssrch.setOriginalSessionId(originalSessionId);
         ssrch.setStartTime(timeStamp);
         ssrch.setChannelEpg(channelEPG);
@@ -118,7 +108,7 @@ public final class EventElementBuilder {
         return ssrch;
     }
 
-    public static SSVOD sessionStartVOD(String currentTimeStamp, String offerId,String assetTitle,String assetType, String assetSource,String ipServer) {
+    public static SSVOD sessionStartVOD(Context c ,String currentTimeStamp, String offerId,String assetTitle,String assetType, String assetSource,String ipServer) {
         SSVOD ssvod = new SSVOD();
         ssvod.setSessionId(sessionID = getSessionId());
         ssvod.setStartTime(currentTimeStamp);
@@ -131,9 +121,14 @@ public final class EventElementBuilder {
         return ssvod;
     }
 
-    public static SSPVOD sessionStartPlaybackVOD(String currentTimeStamp, String originalSessionId,String vodID,String  VODTitle,String  assetPath) {
+    public static SSPVOD sessionStartPlaybackVOD(Context c, String currentTimeStamp, String originalSessionId,String vodID,String  VODTitle,String  assetPath) {
         SSPVOD sspvod = new SSPVOD();
         sspvod.setSessionId(sessionID = getSessionId());
+
+
+        sharedPref = c.getApplicationContext().getSharedPreferences("sessionID_SSDVOD", Context.MODE_PRIVATE);
+        originalSessionId = sharedPref.getString("originalSessionIdSSDVOD","");
+
         sspvod.setOriginalSessionId(originalSessionId);
         sspvod.setPlaybackStartTime(currentTimeStamp);
         sspvod.setOfferId(vodID);
@@ -169,7 +164,7 @@ public final class EventElementBuilder {
         }
     }
 
-    public static void sessionsTreamingChangeLevel(String currentTimeStamp, Format trackFormat, String oldBitRate) {
+    public static void sessionsTreamingChangeLevel( Format trackFormat, String oldBitRate) {
         STCL stcl = new STCL();
         stcl.setSessionId(sessionID);
         if (oldBitRate != null) {
@@ -319,7 +314,13 @@ public final class EventElementBuilder {
 
     public static void addToEventList(PayLoadElement payLoadElement, String name, int i) {
         if (event != null) {
-            event.events_list.add(i, new EventElement(name, payLoadElement.getPayload()));
+            EventElement eventElement = event.events_list.get(0);
+            if(eventElement.getName()=="ASI"){
+                event.events_list.add(1, new EventElement(name, payLoadElement.getPayload()));
+            }else {
+                event.events_list.add(0, new EventElement(name, payLoadElement.getPayload()));
+            }
+
         } else {
             Log.i(TAG, "*********    Null Event Object");
         }
@@ -332,6 +333,15 @@ public final class EventElementBuilder {
         return sessionID;
         //  sessionID=sessionID +
     }
+
+
+    public static void saveSessionID(Context c, String originalSessionId) {
+        SharedPreferences sharedPref = c.getSharedPreferences("sessionID",Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString("originalSessionIdSSCH", originalSessionId);
+        editor.commit();
+    }
+
 }
 
 //region SSVOD

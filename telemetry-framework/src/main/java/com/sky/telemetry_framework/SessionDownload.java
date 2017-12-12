@@ -1,24 +1,22 @@
-package com.google.android.exoplayer2.demo.lib;
+package com.sky.telemetry_framework;
 
-import com.google.android.exoplayer2.Format;
-import com.google.android.exoplayer2.demo.lib.Model.SDC;
-import com.google.android.exoplayer2.demo.lib.Model.SDD;
-import com.google.android.exoplayer2.demo.lib.Model.SDP;
-import com.google.android.exoplayer2.demo.lib.Model.SDR;
-import com.google.android.exoplayer2.demo.lib.Model.SSDVOD;
-import com.google.android.exoplayer2.demo.lib.Model.STD;
-import com.google.android.exoplayer2.upstream.DataSpec;
+import android.content.Context;
+import android.content.SharedPreferences;
 
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.addToEventList;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.getSessionId;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionID;
-import static com.google.android.exoplayer2.demo.lib.Observer.getCurrentTimeStamp;
+import com.sky.telemetry_framework.model.*;
+import com.sky.telemetry_framework.model.SSDVOD;
+
+import static com.sky.telemetry_framework.EventElementBuilder.addToEventList;
+import static com.sky.telemetry_framework.EventElementBuilder.getSessionId;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionID;
+import static com.sky.telemetry_framework.Observer.getCurrentTimeStamp;
 
 /**
  * Created by antoniodiraffaele on 30/11/17.
  */
 
 public final class SessionDownload {
+
 
     /*
     DOWNLOAD : During the download of VOD chunks. (**)
@@ -28,7 +26,7 @@ public final class SessionDownload {
 
     */
 
-    protected static void sessionStartDownloadVod(String drm_time, String buffering_time, String ip_server, String manifest_uri, String manifest_dwnl_byte, String manifest_dwnl_time,
+   /* protected static void sessionStartDownloadVod(String drm_time, String buffering_time, String ip_server, String manifest_uri, String manifest_dwnl_byte, String manifest_dwnl_time,
                                                   String http_response, String offer_id, String asset_title, String asset_source) {
 
         SSDVOD ssdvod = new SSDVOD(drm_time, buffering_time, ip_server, manifest_uri, manifest_dwnl_byte,
@@ -53,10 +51,17 @@ public final class SessionDownload {
         ssdvod.update();
         addToEventList(ssdvod, "SSDVOD", 1);
     }
+*/
 
-    protected static SSDVOD sessionStartDownloadVod(String currentTimeStamp, String offerID, String assetTitle, String assetSource, String ipServer) {
+    protected static SSDVOD sessionStartDownloadVod(Context c, String currentTimeStamp, String offerID, String assetTitle, String assetSource, String ipServer) {
         SSDVOD ssdvod = new SSDVOD();
         ssdvod.setSessionId(sessionID = getSessionId());
+
+        SharedPreferences sharedPreferences = c.getApplicationContext().getSharedPreferences("sessionID_SSDVOD", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("originalSessionIdSSDVOD", sessionID);
+        editor.commit();
+
         ssdvod.setStartTime(currentTimeStamp);
         ssdvod.setIpServer(ipServer);
         ssdvod.setOfferId(offerID);

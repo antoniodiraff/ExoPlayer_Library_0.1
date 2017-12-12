@@ -1,4 +1,4 @@
-package com.google.android.exoplayer2.demo.lib;
+package com.sky.telemetry_framework;
 
 import android.app.Activity;
 import android.content.Context;
@@ -18,15 +18,6 @@ import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
 import com.google.android.exoplayer2.audio.AudioRendererEventListener;
 import com.google.android.exoplayer2.decoder.DecoderCounters;
-import com.google.android.exoplayer2.demo.lib.Model.Event;
-import com.google.android.exoplayer2.demo.lib.Model.EventElement;
-import com.google.android.exoplayer2.demo.lib.Model.SSCH;
-import com.google.android.exoplayer2.demo.lib.Model.SSDVOD;
-import com.google.android.exoplayer2.demo.lib.Model.SSPVOD;
-import com.google.android.exoplayer2.demo.lib.Model.SSRCH;
-import com.google.android.exoplayer2.demo.lib.Model.SSVOD;
-import com.google.android.exoplayer2.demo.lib.Model.STRB;
-import com.google.android.exoplayer2.demo.lib.Model.Start;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.metadata.Metadata;
 import com.google.android.exoplayer2.metadata.MetadataRenderer;
@@ -42,12 +33,19 @@ import com.google.android.exoplayer2.source.AdaptiveMediaSourceEventListener;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.TrackGroup;
 import com.google.android.exoplayer2.source.TrackGroupArray;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector;
-import com.google.android.exoplayer2.trackselection.MappingTrackSelector.MappedTrackInfo;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.google.android.exoplayer2.upstream.DataSpec;
 import com.google.android.exoplayer2.video.VideoRendererEventListener;
+import com.sky.telemetry_framework.model.Event;
+import com.sky.telemetry_framework.model.EventElement;
+import com.sky.telemetry_framework.model.SSCH;
+import com.sky.telemetry_framework.model.SSDVOD;
+import com.sky.telemetry_framework.model.SSPVOD;
+import com.sky.telemetry_framework.model.SSRCH;
+import com.sky.telemetry_framework.model.SSVOD;
+import com.sky.telemetry_framework.model.STRB;
+import com.sky.telemetry_framework.model.Start;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -58,29 +56,30 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.asi;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionClose;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionError;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionPlaybackClose;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionPlaybackPause;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionPlaybackRestart;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionStartCHannel;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionStartPlaybackVOD;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionStartRestartCHannel;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionStartVOD;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionsTreamingPause;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionsTreamingReBuferring;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.sessionsTreamingRestart;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.updateSTRB;
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.updateStartEvent;
-import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionStartDownloadVod;
-import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionsTreamingDownload;
-
+import static com.sky.telemetry_framework.EventElementBuilder.asi;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionClose;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionError;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionPlaybackClose;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionPlaybackPause;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionPlaybackRestart;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionStartCHannel;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionStartPlaybackVOD;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionStartRestartCHannel;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionStartVOD;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionsTreamingChangeLevel;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionsTreamingPause;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionsTreamingReBuferring;
+import static com.sky.telemetry_framework.EventElementBuilder.sessionsTreamingRestart;
+import static com.sky.telemetry_framework.EventElementBuilder.updateSTRB;
+import static com.sky.telemetry_framework.EventElementBuilder.updateStartEvent;
+import static com.sky.telemetry_framework.SessionDownload.sessionStartDownloadVod;
+import static com.sky.telemetry_framework.SessionDownload.sessionsTreamingDownload;
 
 public final class Observer implements Player.EventListener, AudioRendererEventListener, VideoRendererEventListener,
         AdaptiveMediaSourceEventListener, ExtractorMediaSource.EventListener, DefaultDrmSessionManager.EventListener,
         MetadataRenderer.Output {
 
+    // region Variables
     private static final String TAG = "Observer";
     private static final int MAX_TIMELINE_ITEM_LINES = 3;
     private static final NumberFormat TIME_FORMAT;
@@ -92,7 +91,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         TIME_FORMAT.setGroupingUsed(false);
     }
 
-    private final MappingTrackSelector trackSelector;
+    //private final MappingTrackSelector trackSelector;
     private final Timeline.Window window;
     private final Timeline.Period period;
     private final long startTimeMs;
@@ -110,8 +109,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     // *** LOCAL variables ***
     public static Timer t;
-    public String oldBitRate;
-    public Context c;
+    private String oldBitRate;
+    private Context c;
     private String channelEPG;
 
     public String getIpServer() {
@@ -122,71 +121,78 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         this.ipServer = ipServer;
     }
 
-    public static Event event;
-    public String drm_time = "";
-    public String ipServer="";
+    static Event event;
+    private String drm_time = "";
+    private String ipServer="";
 
     // *** VARIABLES needed 4 constructor ***
     static String URL = "";
-    boolean isLive = false;
-    boolean isLocalFile = false;
-    boolean isRestart = false;
-    boolean isVod = false;
+    private boolean isLive = false;
+    private boolean isLocalFile = false;
+    private boolean isRestart = false;
+    private boolean isVod = false;
+    private boolean isDownload= false;
 
-    String originalSessionId = "";
-    String restartSec = "";
-    boolean isFree;
-    String channelName = "";
-    String channelID = "";
-    String channelType = "";
-    String offerID = "";
-    String assetTitle = "";
-    String assetType = "";
-    String assetSource = "";
+
+    private String originalSessionId = "";
+    private String restartSec = "";
+    private boolean isFree;
+    private String channelName = "";
+    private String channelID = "";
+    private String channelType = "";
+    private String offerID = "";
+    private String assetTitle = "";
+    private String assetType = "";
+    private String assetSource = "";
     public Timer _t;
     SimpleExoPlayer player;
-    boolean isFirstTime_Download = true;
-    boolean play = true;
-    boolean isTheFirstTime_startEvent = true;
-    boolean isFirstTime_OnLoadedCompleted = true;
-    boolean isTheFirstTime_Buffering = true;
-    boolean isTheFirstTime_Ready = true;
-    private boolean isDownload;
+    private boolean isFirstTime_Download = true;
+    private boolean play = true;
+    private boolean isTheFirstTime_startEvent = true;
+    private boolean isFirstTime_OnLoadedCompleted = true;
+    private boolean isTheFirstTime_Buffering = true;
+    private boolean isTheFirstTime_Ready = true;
     int i;
     private StreamingType streamingType;
+//endregion
 
-
-    public Observer(final MappingTrackSelector trackSelector, boolean enableTrace, String serverURL, int serverTimeout, String userAgent, String dev_id, String user_extid,
-                    String source, int dequeueingIntervalTime, Context c, StreamingType streamingType, String originalSessionId, String restartSec, boolean isFree,
-                    String channelName, String channelID, String channelEPG,
-                    String offerID, String assetTitle, String assetType, String assetSource) {
+    public Observer(
+            //final MappingTrackSelector trackSelector, boolean enableTrace,
+            String serverURL, int serverTimeout,
+            //String userAgent,
+            //String dev_id, String user_extid,
+            String source, int dequeueingIntervalTime, Context c, StreamingType streamingType,
+            //String originalSessionId,
+            String restartSec, boolean isFree,
+            String channelName, String channelID, String channelEPG,
+            String offerID, String assetTitle, String assetType, String assetSource) {
 
         this.c = c;
         this.source=source;
-        this.user_extid=user_extid;
+        //this.user_extid=user_extid;
         this.dequeueingIntervalTime = dequeueingIntervalTime;
         this.URL = serverURL;
         this.streamingType = streamingType;
         selectStreamingType(streamingType);
-        this.originalSessionId = originalSessionId;
+        // this.originalSessionId = originalSessionId;
         this.restartSec = restartSec;
         this.isFree = isFree;
-
         this.channelName = channelName;
         this.channelID = channelID;
         if(isFree){this.channelType = "F";} else{this.channelType="C";}
         this.channelEPG=channelEPG;
-
         this.offerID = offerID;
         this.assetTitle = assetTitle;
         this.assetType = assetType;
         this.assetSource = assetSource;
-
-        this.trackSelector = trackSelector;
+        //  this.trackSelector = trackSelector;
         window = new Timeline.Window();
         period = new Timeline.Period();
         startTimeMs = SystemClock.elapsedRealtime();
     }
+
+
+
 
     // MY LIB
 
@@ -262,7 +268,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
             isTheFirstTime_Ready = false;
         } else {
             if (play) {
-                if (isLive) {
+                if (isLive||isRestart||isVod) {
                     sessionsTreamingRestart(getCurrentTimeStamp());
                 } else if (isLocalFile) {
                     sessionsTreamingPause(getCurrentTimeStamp());
@@ -270,7 +276,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                 play = false;
             } else if (!play) {
                 // pause();
-                if (isLive) {
+                if (isLive||isRestart||isVod) {
                     sessionsTreamingPause(getCurrentTimeStamp());
                 } else if (isLocalFile) {
                     sessionPlaybackPause(getCurrentTimeStamp());
@@ -286,58 +292,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         t.cancel();
     }
 
-    //region UPDATE deprecated
-/*
-    private void updateSSDVOD( String currentTimeStamp, Event event) {
-        if(ssdvod!=null){
-            ssdvod.setPlayback_start_time(currentTimeStamp);
-            ssdvod.updateSSDVODPayload();
-            event.events_list.add(i, new EventElement("SSDVOD", ssdvod.getPayload()));
-        }
-    }*/
 
-/*    private void updateSSRCH(String currentTimeStamp, Event event) {
-        if (ssrch != null) {
-            ssrch.setPlayback_start_time(currentTimeStamp);
-            ssrch.updateSSRCHPayload();
-            event.events_list.add(i, new EventElement("SSRCH", ssrch.getPayload()));
-        }
-    }
+    //Listeners callbacks
 
-    private void updateSSVOD(String currentTimeStamp, Event event) {
-        if (ssvod != null) {
-            ssvod.setPlayback_start_time(currentTimeStamp);
-            ssvod.updateSSVODPayload();
-            event.events_list.add(i, new EventElement("SSVOD", ssvod.getPayload()));
-        }
-    }
-
-    private void updateSSCH(String currentTimeStamp,Event event) {
-        if (ssch != null) {
-            ssch.setPlayback_start_time(currentTimeStamp);
-            ssch.updateSSCHPayload();
-            event.events_list.add(i, new EventElement("SSCH", ssch.getPayload()));
-        }
-    }
-
-    private void updateSSPVOD(String currentTimeStamp,Event event) {
-
-        if (sspvod != null) {
-        sspvod.setPlayback_start_time(currentTimeStamp);
-        sspvod.updateSSPVODPayload();
-        event.events_list.add(i, new EventElement("SSPVOD", sspvod.getPayload()));
-    }
-    }*/
-
-   /* private void SPR(String currentTimeStamp, Event event) {
-    }*/
-//endregion
-
-
-
-    /*
-    Listeners callbacks
-      */
     private void drmKeysLoaded_callback(String drm_time) {
         Log.d(TAG, " ********** drmKeysLoaded_callback");
 
@@ -356,14 +313,12 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     private void onDownstreamFormatChanged_callback(Event event, String currentTimeStamp, Format trackFormat) {
 
         if (event != null && (isLive || isVod)) {
-            EventElementBuilder.sessionsTreamingChangeLevel(currentTimeStamp, trackFormat, oldBitRate);
+            sessionsTreamingChangeLevel( trackFormat, oldBitRate);
         }
         oldBitRate = String.valueOf(trackFormat.bitrate);
     }
 
-    private void onLoadCompletedCallback(String currentTimeStamp, Event event, DataSpec dataSpec, int dataType, int trackType, Format trackFormat,
-                                         int trackSelectionReason, Object trackSelectionData, long mediaStartTimeMs,
-                                         long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
+    private void onLoadCompletedCallback(DataSpec dataSpec, Format trackFormat, long loadDurationMs, long bytesLoaded) {
         if (trackFormat != null) {
             Log.d(TAG, " ********** onLoadCompletedCallback" + trackFormat.toString());
         }
@@ -392,7 +347,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                     if (trackFormat != null) {
                         bitrate = String.valueOf(trackFormat.bitrate);
                     }
-                    if (dataSpec.uri != null) {
+                if (dataSpec.uri != null) {
                     chunkUri = dataSpec.uri.toString();
                 }
                 dwnTime=String.valueOf(loadDurationMs);
@@ -400,11 +355,6 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
                 sessionsTreamingDownload(chunkUri, chunkIndex, chunkType, bitrate, "", "200",
                         responseTime, ipServer, dwnTime, dwnlByte, bufferSize);
-
-/*
-                sessionsTreamingDownload(dataSpec, dataType, trackType, trackFormat, trackSelectionReason,
-                        trackSelectionData, mediaStartTimeMs, mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded,
-                        assetType, ipServer, "bufferSize");*/
             } else {
                 Log.d(TAG, " ********** event = null ....it never should happen");
             }
@@ -412,10 +362,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     }
 
 
-    /*
-      API: Call these methods from the PLAYER Activity / Fragment  -
-     */
 
+    //   ***** Call these methods from the PLAYER Activity / Fragment  -
 
     public void onStartSession(boolean isOnRestart) {
         if (!isOnRestart) {
@@ -436,7 +384,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     }
 
     public void onPauseSession() {
-        if (isLive || isVod) {
+        if (isLive || isVod||isRestart) {
             sessionsTreamingPause(getCurrentTimeStamp());
         } else if (isLocalFile) {
             sessionPlaybackPause(getCurrentTimeStamp());
@@ -444,10 +392,13 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         sendEventQueue();
     }
 
+    //   *****
+
+
     static void createNewEvent(Context c) {
         ArrayList<EventElement> eventList = new ArrayList<EventElement>(2);
         DeviceInfo deviceInfo = new DeviceInfo(c);
-        event = new Event(c, deviceInfo, eventList);
+        event = new Event(deviceInfo, eventList);
     }
 
     public void startSession() {
@@ -489,25 +440,24 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
             isTheFirstTime_startEvent = false;
             switch (streamingType) {
                 case Live:
-                    ssch = sessionStartCHannel(getCurrentTimeStamp(),channelID,channelName,channelEPG,channelType,ipServer);
+                    ssch = sessionStartCHannel(c,getCurrentTimeStamp(),channelID,channelName,channelEPG,channelType,ipServer);
                     break;
                 case Restart:
-                    ssrch = sessionStartRestartCHannel(getCurrentTimeStamp(),channelID,channelName,channelEPG,channelType,ipServer,restartSec);
+                    ssrch = sessionStartRestartCHannel(c,getCurrentTimeStamp(),channelID,channelName,channelEPG,channelType,ipServer,restartSec);
                     break;
                 case LocalFile:
-                    sspvod = sessionStartPlaybackVOD(getCurrentTimeStamp(),originalSessionId, offerID, assetTitle, assetSource);
+                    sspvod = sessionStartPlaybackVOD(c,getCurrentTimeStamp(),originalSessionId, offerID, assetTitle, assetSource);
                     break;
                 case Vod:
-                    ssvod = sessionStartVOD(getCurrentTimeStamp(), offerID, assetTitle, assetType, assetSource, ipServer);
+                    ssvod = sessionStartVOD(c,getCurrentTimeStamp(), offerID, assetTitle, assetType, assetSource, ipServer);
                     break;
                 case Download:
-                    ssdvod = sessionStartDownloadVod(getCurrentTimeStamp(),offerID, assetTitle, assetSource,ipServer);
+                    ssdvod = sessionStartDownloadVod(c, getCurrentTimeStamp(),offerID, assetTitle, assetSource,ipServer);
                 default:
                     break;
             }
         }
     }
-
 
     void sendEventAndEmptyOutEvent() throws IOException {
         try {
@@ -651,6 +601,10 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     // Player.EventListener
 
+
+
+
+
     //region Player.EventListener
     @Override
     public void onLoadingChanged(boolean isLoading) {
@@ -703,6 +657,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         Log.d(TAG, "repeatMode [" + getRepeatModeString(repeatMode) + "]");
     }
 
+
+
     @Override
     public void onPositionDiscontinuity() {
         Log.d(TAG, " ********** onPositionDiscontinuity");
@@ -710,6 +666,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
         Log.d(TAG, "positionDiscontinuity");
     }
+
+
+
 
     @Override
     public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
@@ -745,6 +704,11 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     }
 
     @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+    }
+
+    @Override
     public void onPlayerError(ExoPlaybackException e) {
         Log.d(TAG, " ********** onPlayerError");
 
@@ -752,15 +716,19 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     }
 
-    @Override
+
+
+
+    //region onTracksChanged
+  /*  @Override
     public void onTracksChanged(TrackGroupArray ignored, TrackSelectionArray trackSelections) {
         MappedTrackInfo mappedTrackInfo = trackSelector.getCurrentMappedTrackInfo();
         Log.d(TAG, "*******   onTracksChanged");
 
         TrackGroup trackGroupExt = null;
-      /*  if (event != null) {
+      *//*  if (event != null) {
             STCL(getCurrentTimeStamp(), event, trackFormat);
-        }*/
+        }*//*
 
         if (mappedTrackInfo == null) {
             Log.d(TAG, "Tracks []");
@@ -832,10 +800,13 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         Log.d(TAG, "]");
 
     }
-
+*/
 
 
     //endregion
+
+
+
 
     // MetadataRenderer.Output
 
@@ -894,6 +865,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
     }
 
+
     @Override
     public void onVideoDecoderInitialized(String decoderName, long elapsedRealtimeMs,
                                           long initializationDurationMs) {
@@ -901,6 +873,8 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
         Log.d(TAG, "videoDecoderInitialized [ getSessionTimeString : " + getSessionTimeString() + ",decoderName :  " + decoderName + " elapsedRealtimeMs : " + elapsedRealtimeMs + "initializationDurationMs : " + initializationDurationMs);
     }
+
+
 
     @Override
     public void onVideoInputFormatChanged(Format format) {
@@ -1032,7 +1006,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         Log.d(TAG, " bytesLoaded " + bytesLoaded);
         Log.d(TAG, "wasCanceled" + wasCanceled);
 */
-  //endregion
+        //endregion
     }
 
     @Override
@@ -1052,7 +1026,7 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 //        Log.d(TAG, " elapsedRealtimeMs  " + elapsedRealtimeMs);
 //        Log.d(TAG, " loadDurationMs " + loadDurationMs);
 //        Log.d(TAG, " bytesLoaded " + bytesLoaded);
-         onLoadCanceled_callback(getCurrentTimeStamp());
+        onLoadCanceled_callback(getCurrentTimeStamp());
     }
 
     private void onLoadCanceled_callback(String currentTimeStamp) {
@@ -1065,13 +1039,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                                 long mediaEndTimeMs, long elapsedRealtimeMs, long loadDurationMs, long bytesLoaded) {
         Log.d(TAG, " ********** ONLOAD COMPLETED ");
 
-
-        onLoadCompletedCallback(getCurrentTimeStamp(), this.event, dataSpec, dataType, trackType, trackFormat,
-                trackSelectionReason, trackSelectionData, mediaStartTimeMs,
-                mediaEndTimeMs, elapsedRealtimeMs, loadDurationMs, bytesLoaded);
-
-
-        Log.d(TAG, "dataSpec " + dataSpec);
+        onLoadCompletedCallback( dataSpec,  trackFormat,  loadDurationMs,  bytesLoaded);
+//region Log
+/*        Log.d(TAG, "dataSpec " + dataSpec);
         Log.d(TAG, " dataType" + dataType);
         Log.d(TAG, " trackType " + trackType);
         Log.d(TAG, " trackFormat " + trackFormat);
@@ -1081,8 +1051,11 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
         Log.d(TAG, " mediaEndTimeMs " + mediaEndTimeMs);
         Log.d(TAG, " elapsedRealtimeMs  " + elapsedRealtimeMs);
         Log.d(TAG, " loadDurationMs " + loadDurationMs);
-        Log.d(TAG, " bytesLoaded " + bytesLoaded);
+        Log.d(TAG, " bytesLoaded " + bytesLoaded);*/
+//endregion
     }
+
+
 
 
     @Override
@@ -1114,9 +1087,9 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
 
 
 
-
     public void printInternalError(String type, Exception err) throws IOException {
         Log.e(TAG, "internalError [" + getSessionTimeString() + ", " + type + "]", err);
+
         if(!isDownload) {
             String errorText= "";
             String erroMessage = "";
@@ -1124,9 +1097,11 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
                 erroMessage=err.getMessage();
                 errorText=String.valueOf(err.getCause());
             }
+            sendEventQueue();
             sessionError(errorText, type, "", "", "", "", "", "", "event Name",erroMessage );
             sendEventQueue();
         }
+
     }
 
     public void notifyError(String error_text,String errorType, String error_code,String chunk_uri,String channel_id,
@@ -1253,10 +1228,54 @@ public final class Observer implements Player.EventListener, AudioRendererEventL
     }
 
 
-
-
 }
 
+//region UPDATE deprecated
+/*
+    private void updateSSDVOD( String currentTimeStamp, Event event) {
+        if(ssdvod!=null){
+            ssdvod.setPlayback_start_time(currentTimeStamp);
+            ssdvod.updateSSDVODPayload();
+            event.events_list.add(i, new EventElement("SSDVOD", ssdvod.getPayload()));
+        }
+    }*/
+
+/*    private void updateSSRCH(String currentTimeStamp, Event event) {
+        if (ssrch != null) {
+            ssrch.setPlayback_start_time(currentTimeStamp);
+            ssrch.updateSSRCHPayload();
+            event.events_list.add(i, new EventElement("SSRCH", ssrch.getPayload()));
+        }
+    }
+
+    private void updateSSVOD(String currentTimeStamp, Event event) {
+        if (ssvod != null) {
+            ssvod.setPlayback_start_time(currentTimeStamp);
+            ssvod.updateSSVODPayload();
+            event.events_list.add(i, new EventElement("SSVOD", ssvod.getPayload()));
+        }
+    }
+
+    private void updateSSCH(String currentTimeStamp,Event event) {
+        if (ssch != null) {
+            ssch.setPlayback_start_time(currentTimeStamp);
+            ssch.updateSSCHPayload();
+            event.events_list.add(i, new EventElement("SSCH", ssch.getPayload()));
+        }
+    }
+
+    private void updateSSPVOD(String currentTimeStamp,Event event) {
+
+        if (sspvod != null) {
+        sspvod.setPlayback_start_time(currentTimeStamp);
+        sspvod.updateSSPVODPayload();
+        event.events_list.add(i, new EventElement("SSPVOD", sspvod.getPayload()));
+    }
+    }*/
+
+   /* private void SPR(String currentTimeStamp, Event event) {
+    }*/
+//endregion
 
 //region RIUSO
 
