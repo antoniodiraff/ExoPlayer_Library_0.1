@@ -6,7 +6,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 import java.util.ArrayList;
 
-import static com.SKY.playerObserver.lib.Observer.getCurrentTimeStamp;
+import static com.sky.telemetry_framework.Observer.getCurrentTimeStamp;
+
 
 //@JsonAutoDetect(fieldVisibility = JsonAutoDetect.Visibility.ANY)
 @JsonPropertyOrder({"ts", "name", "payload"})
