@@ -23,7 +23,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
 
-import static com.google.android.exoplayer2.demo.lib.EventElementBuilder.ApplicationStartupInfo;
+import static com.sky.telemetry_framework.EventElementBuilder.ApplicationStartupInfo;
 
 
 /**

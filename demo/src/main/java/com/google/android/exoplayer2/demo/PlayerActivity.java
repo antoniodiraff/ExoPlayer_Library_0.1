@@ -44,9 +44,6 @@ import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.Player.EventListener;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.google.android.exoplayer2.Timeline;
-import com.google.android.exoplayer2.demo.lib.Observer;
-import com.google.android.exoplayer2.demo.lib.PauseCause;
-import com.google.android.exoplayer2.demo.lib.StreamingType;
 import com.google.android.exoplayer2.drm.DefaultDrmSessionManager;
 import com.google.android.exoplayer2.drm.DrmSessionManager;
 import com.google.android.exoplayer2.drm.FrameworkMediaCrypto;
@@ -78,6 +75,7 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.HttpDataSource;
 import com.google.android.exoplayer2.util.Util;
+import com.sky.telemetry_framework.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -86,11 +84,11 @@ import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.UUID;
 
-import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionDownloadCompleted;
-import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionDownloadDelete;
-import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionDownloadPause;
-import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionDownloadResume;
-import static com.google.android.exoplayer2.demo.lib.SessionDownload.sessionsTreamingDownload;
+import static com.sky.telemetry_framework.SessionDownload.sessionDownloadCompleted;
+import static com.sky.telemetry_framework.SessionDownload.sessionDownloadDelete;
+import static com.sky.telemetry_framework.SessionDownload.sessionDownloadPause;
+import static com.sky.telemetry_framework.SessionDownload.sessionDownloadResume;
+import static com.sky.telemetry_framework.SessionDownload.sessionsTreamingDownload;
 
 
 /**
@@ -377,18 +375,20 @@ public void testSessionDownload(){
 
 
             if (!isRestart) {
-                observer = new Observer(trackSelector,
-                        false,
+                observer = new Observer(
+                        //trackSelector,
+                        //false,
                         "https://telemetria-lib-coll.skycdn.it/skymeter/collector",
                         5000,
-                        "userAgent",
-                        "dev_id",
-                        "user_extid",
+                        //"userAgent",
+                       // "dev_id",
+                       // "user_extid",
                         "SOL_OBS_UK_INTV2.0",
                         10000,
                          getApplicationContext(),
                          StreamingType.Live,
-                        "originalSessionId", "restartSec", true,
+                        //"originalSessionId",
+                        "restartSec", true,
                         "SKY_TG_24", "0001", "Channel EPG",
                         "001001001", "Mamma ho perso l'aereo", "assetType", "assetPath");
             }
